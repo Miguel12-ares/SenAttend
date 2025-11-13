@@ -1,0 +1,86 @@
+/**
+ * Estilos específicos para páginas de error (404, 500, etc.)
+ */
+
+.error-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--color-gray-200) 0%, var(--color-gray-300) 100%);
+    padding: 20px;
+}
+
+.error-container {
+    text-align: center;
+    max-width: 600px;
+}
+
+.error-content {
+    padding: 2rem;
+}
+
+.error-code {
+    font-size: 8rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+    line-height: 1;
+}
+
+.error-title {
+    font-size: 2rem;
+    color: var(--color-gray-900);
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    font-size: 1.1rem;
+    color: var(--color-gray-600);
+    margin-bottom: 2rem;
+}
+
+.error-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.error-details {
+    background: var(--color-gray-100);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin: 2rem 0;
+    text-align: left;
+}
+
+.error-details h3 {
+    color: var(--color-danger);
+    margin-bottom: 1rem;
+}
+
+.error-details pre {
+    overflow-x: auto;
+    font-size: 0.9rem;
+    color: var(--color-danger);
+    background: var(--color-white);
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+/* Responsive para errors */
+@media (max-width: 768px) {
+    .error-code {
+        font-size: 5rem;
+    }
+
+    .error-title {
+        font-size: 1.5rem;
+    }
+
+    .error-content {
+        padding: 1rem;
+    }
+}
+
