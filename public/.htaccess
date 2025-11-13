@@ -1,0 +1,30 @@
+# Habilitar el motor de reescritura
+RewriteEngine On
+
+# Redirigir todo el tráfico al router frontal
+# Excepto archivos y directorios que existan físicamente
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Configuración de seguridad
+<IfModule mod_headers.c>
+    # Prevenir ataques XSS
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Prevenir clickjacking
+    Header always append X-Frame-Options SAMEORIGIN
+    
+    # Prevenir MIME type sniffing
+    Header set X-Content-Type-Options nosniff
+</IfModule>
+
+# Deshabilitar listado de directorios
+Options -Indexes
+
+# Proteger archivos sensibles
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+

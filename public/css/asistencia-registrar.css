@@ -1,0 +1,158 @@
+/**
+ * Estilos específicos para la vista de Registro de Asistencia
+ * Sprint 4 - Registro Manual
+ */
+
+.asistencia-form {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* === Sección de Selector === */
+.selector-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.form-group-inline {
+    flex: 1;
+    min-width: 250px;
+}
+
+/* === Tabla de Asistencia === */
+.tabla-asistencia {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tabla-asistencia table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-asistencia th {
+    background: var(--color-primary);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+}
+
+.tabla-asistencia td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.tabla-asistencia tr:hover {
+    background: #f8f9fa;
+}
+
+/* === Radio Buttons de Estado === */
+.estado-radio {
+    display: flex;
+    gap: 1rem;
+}
+
+.estado-radio label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.estado-radio input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* === Estadísticas === */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-box {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stat-box h4 {
+    margin: 0 0 0.5rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.stat-box .number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--color-primary);
+}
+
+/* === Botones === */
+.btn-guardar {
+    background: var(--color-primary);
+    color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-guardar:hover {
+    background: var(--color-primary-dark);
+}
+
+.btn-guardar:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* === Estados === */
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+/* === Badges de Estado === */
+.badge-estado {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-presente {
+    background: #28a745;
+    color: white;
+}
+
+.badge-ausente {
+    background: #dc3545;
+    color: white;
+}
+
+.badge-tardanza {
+    background: #ffc107;
+    color: #000;
+}
+
