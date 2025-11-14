@@ -1,0 +1,489 @@
+<?php
+/**
+ * Vista: Lista de Fichas
+ * Incluye búsqueda, filtros, paginación y acciones CRUD
+ */
+
+$title = 'Gestión de Fichas - SENAttend';
+$showHeader = true;
+
+ob_start();
+?>
+
+<link rel="stylesheet" href="/css/components.css">
+
+<div class="container">
+    <div class="page-header">
+        <h1>Gestión de Fichas</h1>
+        <div class="page-actions">
+            <button onclick="abrirModalImportar()" class="btn btn-secondary">📂 Importar CSV</button>
+            <a href="/fichas/crear" class="btn btn-primary">+ Nueva Ficha</a>
+        </div>
+    </div>
+
+    <!-- Mensajes de feedback -->
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <?= htmlspecialchars($_SESSION['success']) ?>
+        </div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['errors'])): ?>
+        <div class="alert alert-error">
+            <ul>
+                <?php foreach ($_SESSION['errors'] as $error): ?>
+                    <li><?= htmlspecialchars($error) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <?php unset($_SESSION['errors']); ?>
+    <?php endif; ?>
+
+    <!-- Barra de búsqueda y filtros -->
+    <div class="search-filter-bar">
+        <form method="GET" action="/fichas" class="search-form">
+            <div class="form-row">
+                <div class="form-col">
+                    <input 
+                        type="text" 
+                        name="search" 
+                        class="form-control" 
+                        placeholder="Buscar por número o nombre..."
+                        value="<?= htmlspecialchars($search ?? '') ?>"
+                    >
+                </div>
+                <div class="form-col">
+                    <select name="estado" class="form-control">
+                        <option value="">Todos los estados</option>
+                        <option value="activa" <?= ($estado ?? '') === 'activa' ? 'selected' : '' ?>>Activas</option>
+                        <option value="finalizada" <?= ($estado ?? '') === 'finalizada' ? 'selected' : '' ?>>Finalizadas</option>
+                    </select>
+                </div>
+                <div class="form-col">
+                    <button type="submit" class="btn btn-primary">Buscar</button>
+                    <a href="/fichas" class="btn btn-secondary">Limpiar</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla de fichas -->
+    <div class="table-container">
+        <?php if (empty($fichas)): ?>
+            <div class="empty-state">
+                <p>No se encontraron fichas</p>
+                <a href="/fichas/crear" class="btn btn-primary">Crear primera ficha</a>
+            </div>
+        <?php else: ?>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Número Ficha</th>
+                        <th>Nombre</th>
+                        <th>Estado</th>
+                        <th>Aprendices</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($fichas as $ficha): ?>
+                        <tr>
+                            <td>
+                                <strong><?= htmlspecialchars($ficha['numero_ficha']) ?></strong>
+                            </td>
+                            <td><?= htmlspecialchars($ficha['nombre']) ?></td>
+                            <td>
+                                <span class="badge badge-<?= $ficha['estado'] === 'activa' ? 'success' : 'secondary' ?>">
+                                    <?= ucfirst($ficha['estado']) ?>
+                                </span>
+                            </td>
+                            <td>
+                                <?php 
+                                $totalAprendices = $this->fichaRepository->countAprendices($ficha['id']); 
+                                echo $totalAprendices;
+                                ?>
+                            </td>
+                            <td class="actions">
+                                <a href="/fichas/<?= $ficha['id'] ?>" class="btn-action btn-view" title="Ver detalles">
+                                    👁️
+                                </a>
+                                <a href="/fichas/<?= $ficha['id'] ?>/editar" class="btn-action btn-edit" title="Editar">
+                                    ✏️
+                                </a>
+                                <button 
+                                    onclick="confirmarEliminar(<?= $ficha['id'] ?>, '<?= htmlspecialchars($ficha['numero_ficha'], ENT_QUOTES) ?>')" 
+                                    class="btn-action btn-delete" 
+                                    title="Eliminar"
+                                >
+                                    🗑️
+                                </button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <!-- Paginación -->
+            <?php if ($totalPages > 1): ?>
+                <div class="pagination">
+                    <?php if ($page > 1): ?>
+                        <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search ?? '') ?>&estado=<?= urlencode($estado ?? '') ?>" class="btn btn-secondary">
+                            « Anterior
+                        </a>
+                    <?php endif; ?>
+
+                    <span class="pagination-info">
+                        Página <?= $page ?> de <?= $totalPages ?> (<?= $total ?> registros)
+                    </span>
+
+                    <?php if ($page < $totalPages): ?>
+                        <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search ?? '') ?>&estado=<?= urlencode($estado ?? '') ?>" class="btn btn-secondary">
+                            Siguiente »
+                        </a>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- Modal de confirmación de eliminación -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <h2>Confirmar Eliminación</h2>
+        <p>¿Está seguro de eliminar la ficha <strong id="fichaName"></strong>?</p>
+        <p class="warning-text">Esta acción no se puede deshacer.</p>
+        <form id="deleteForm" method="POST">
+            <div class="modal-actions">
+                <button type="button" onclick="cerrarModal()" class="btn btn-secondary">Cancelar</button>
+                <button type="submit" class="btn btn-danger">Eliminar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    margin: 0;
+}
+
+.search-filter-bar {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.form-col {
+    flex: 1;
+}
+
+.form-col:last-child {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.table-container {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+}
+
+.table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+.table tbody tr:hover {
+    background-color: var(--color-gray-100);
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.btn-action:hover {
+    background-color: var(--color-gray-200);
+}
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-gray-200);
+}
+
+.pagination-info {
+    color: var(--color-gray-600);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--color-gray-600);
+}
+
+.badge-secondary {
+    background-color: var(--color-gray-600);
+    color: white;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+.btn-danger {
+    background-color: var(--color-danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.warning-text {
+    color: var(--color-danger);
+    font-size: 0.9rem;
+}
+</style>
+
+<!-- Modal de Importación CSV -->
+<div id="importModal" class="modal">
+    <div class="modal-content">
+        <h2 class="modal-title">Importar Fichas desde CSV</h2>
+        <div class="modal-body">
+            <form id="importForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Archivo CSV</label>
+                    <div class="file-upload-area" onclick="document.getElementById('csv_file').click()">
+                        <div class="file-upload-icon">📄</div>
+                        <div class="file-upload-text">
+                            <strong>Click para seleccionar archivo</strong> o arrastra aquí<br>
+                            <small>Formato: numero_ficha, nombre, estado</small>
+                        </div>
+                        <input 
+                            type="file" 
+                            id="csv_file" 
+                            name="csv_file" 
+                            accept=".csv" 
+                            required
+                        >
+                    </div>
+                    <div id="fileInfo" style="display: none;" class="file-selected">
+                        <div>
+                            <div class="file-selected-name" id="fileName"></div>
+                            <div class="file-selected-size" id="fileSize"></div>
+                        </div>
+                        <button type="button" class="file-remove" onclick="clearFile()">×</button>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>Formato del CSV:</strong><br>
+                    • Primera línea: encabezados (numero_ficha, nombre, estado)<br>
+                    • Número de ficha: 4-20 caracteres alfanuméricos<br>
+                    • Estado: activa o finalizada (opcional, por defecto: activa)<br>
+                    • Las fichas duplicadas serán omitidas
+                </div>
+            </form>
+        </div>
+        <div class="modal-actions">
+            <button type="button" onclick="cerrarModalImportar()" class="btn btn-secondary">Cancelar</button>
+            <button type="button" onclick="importarCSV()" class="btn btn-primary">Importar</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/components.js"></script>
+<script>
+// ==============================================
+// BÚSQUEDA DINÁMICA
+// ==============================================
+
+new SearchBox('search', (value) => {
+    if (value.length >= 3 || value.length === 0) {
+        document.querySelector('.search-form').submit();
+    }
+});
+
+// ==============================================
+// IMPORTACIÓN CSV
+// ==============================================
+
+function abrirModalImportar() {
+    const modal = new Modal('importModal');
+    modal.open();
+}
+
+function cerrarModalImportar() {
+    const modal = new Modal('importModal');
+    modal.close();
+    document.getElementById('importForm').reset();
+    document.getElementById('fileInfo').style.display = 'none';
+}
+
+// Manejo de archivo seleccionado
+document.getElementById('csv_file')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        document.getElementById('fileName').textContent = file.name;
+        document.getElementById('fileSize').textContent = formatFileSize(file.size);
+        document.getElementById('fileInfo').style.display = 'flex';
+    }
+});
+
+function clearFile() {
+    document.getElementById('csv_file').value = '';
+    document.getElementById('fileInfo').style.display = 'none';
+}
+
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+async function importarCSV() {
+    const form = document.getElementById('importForm');
+    const formData = new FormData(form);
+
+    if (!formData.get('csv_file')?.name) {
+        Notification.error('Seleccione un archivo CSV');
+        return;
+    }
+
+    const confirmado = await Confirm.show(
+        'Confirmar Importación',
+        '¿Desea importar las fichas desde el archivo CSV?',
+        {
+            confirmText: 'Importar',
+            confirmClass: 'btn-primary'
+        }
+    );
+
+    if (!confirmado) return;
+
+    Loading.show('Importando fichas...');
+
+    const result = await API.post('/api/fichas/importar', formData);
+    
+    Loading.hide();
+
+    if (result.success && result.data.success) {
+        Notification.success(result.data.message);
+        cerrarModalImportar();
+        
+        // Recargar después de 1.5 segundos
+        setTimeout(() => window.location.reload(), 1500);
+    } else {
+        const error = result.error || result.data?.errors?.join(', ') || 'Error al importar';
+        Notification.error(error);
+    }
+}
+
+// ==============================================
+// ELIMINACIÓN
+// ==============================================
+
+function confirmarEliminar(id, nombre) {
+    document.getElementById('fichaName').textContent = nombre;
+    document.getElementById('deleteForm').action = '/fichas/' + id + '/eliminar';
+    document.getElementById('deleteModal').classList.add('active');
+}
+
+function cerrarModal() {
+    document.getElementById('deleteModal').classList.remove('active');
+}
+
+// Cerrar modal al hacer clic fuera
+document.getElementById('deleteModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModal();
+    }
+});
+
+// ==============================================
+// CAMBIOS AUTOMÁTICOS EN FILTROS
+// ==============================================
+
+document.querySelector('select[name="estado"]')?.addEventListener('change', function() {
+    document.querySelector('.search-form').submit();
+});
+</script>
+
+<?php
+$content = ob_get_clean();
+require __DIR__ . '/../layouts/base.php';
+?>
+

@@ -339,5 +339,348 @@ class AprendizController
 
         Response::redirect('/aprendices');
     }
+
+    /**
+     * API: Lista aprendices con filtros (JSON)
+     * GET /api/aprendices
+     */
+    public function apiList(): void
+    {
+        $filters = [
+            'search' => filter_input(INPUT_GET, 'search', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '',
+            'estado' => filter_input(INPUT_GET, 'estado', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '',
+            'ficha_id' => filter_input(INPUT_GET, 'ficha_id', FILTER_VALIDATE_INT) ?: null,
+        ];
+
+        $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1;
+        $limit = filter_input(INPUT_GET, 'limit', FILTER_VALIDATE_INT) ?: 20;
+
+        $aprendizService = new \App\Services\AprendizService(
+            $this->aprendizRepository,
+            $this->fichaRepository
+        );
+
+        $result = $aprendizService->getAprendicesAdvanced($filters, $page, $limit);
+        Response::json(['success' => true, 'result' => $result]);
+    }
+
+    /**
+     * API: Obtiene un aprendiz específico (JSON)
+     * GET /api/aprendices/{id}
+     */
+    public function apiShow(int $id): void
+    {
+        $aprendizService = new \App\Services\AprendizService(
+            $this->aprendizRepository,
+            $this->fichaRepository
+        );
+
+        $aprendiz = $aprendizService->getAprendizDetalle($id);
+
+        if (!$aprendiz) {
+            Response::json(['success' => false, 'error' => 'Aprendiz no encontrado'], 404);
+            return;
+        }
+
+        Response::json(['success' => true, 'data' => $aprendiz]);
+    }
+
+    /**
+     * API: Crea un nuevo aprendiz (JSON)
+     * POST /api/aprendices
+     */
+    public function apiCreate(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Response::json(['success' => false, 'errors' => ['Método no permitido']], 405);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        $aprendizService = new \App\Services\AprendizService(
+            $this->aprendizRepository,
+            $this->fichaRepository
+        );
+
+        $result = $aprendizService->create($data);
+        
+        $statusCode = $result['success'] ? 201 : 400;
+        Response::json($result, $statusCode);
+    }
+
+    /**
+     * API: Actualiza un aprendiz (JSON)
+     * PUT /api/aprendices/{id}
+     */
+    public function apiUpdate(int $id): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'PUT' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Response::json(['success' => false, 'errors' => ['Método no permitido']], 405);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        $aprendizService = new \App\Services\AprendizService(
+            $this->aprendizRepository,
+            $this->fichaRepository
+        );
+
+        $result = $aprendizService->update($id, $data);
+        
+        $statusCode = $result['success'] ? 200 : 400;
+        Response::json($result, $statusCode);
+    }
+
+    /**
+     * API: Elimina un aprendiz (JSON)
+     * DELETE /api/aprendices/{id}
+     */
+    public function apiDelete(int $id): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'DELETE' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Response::json(['success' => false, 'errors' => ['Método no permitido']], 405);
+            return;
+        }
+
+        $aprendizService = new \App\Services\AprendizService(
+            $this->aprendizRepository,
+            $this->fichaRepository
+        );
+
+        $result = $aprendizService->delete($id);
+        
+        $statusCode = $result['success'] ? 200 : 400;
+        Response::json($result, $statusCode);
+    }
+
+    /**
+     * API: Cambia el estado de un aprendiz (JSON)
+     * POST /api/aprendices/{id}/estado
+     */
+    public function apiCambiarEstado(int $id): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Response::json(['success' => false, 'errors' => ['Método no permitido']], 405);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        if (!isset($data['estado'])) {
+            Response::json(['success' => false, 'errors' => ['Estado no proporcionado']], 400);
+            return;
+        }
+
+        $aprendizService = new \App\Services\AprendizService(
+            $this->aprendizRepository,
+            $this->fichaRepository
+        );
+
+        $result = $aprendizService->cambiarEstado($id, $data['estado']);
+        
+        $statusCode = $result['success'] ? 200 : 400;
+        Response::json($result, $statusCode);
+    }
+
+    /**
+     * API: Vincula un aprendiz a una ficha (JSON)
+     * POST /api/aprendices/{id}/vincular
+     */
+    public function apiVincularFicha(int $id): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Response::json(['success' => false, 'errors' => ['Método no permitido']], 405);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        if (!isset($data['ficha_id'])) {
+            Response::json(['success' => false, 'errors' => ['ID de ficha no proporcionado']], 400);
+            return;
+        }
+
+        $aprendizService = new \App\Services\AprendizService(
+            $this->aprendizRepository,
+            $this->fichaRepository
+        );
+
+        $result = $aprendizService->vincularFicha($id, (int)$data['ficha_id']);
+        
+        $statusCode = $result['success'] ? 200 : 400;
+        Response::json($result, $statusCode);
+    }
+
+    /**
+     * API: Desvincula un aprendiz de una ficha (JSON)
+     * POST /api/aprendices/{id}/desvincular
+     */
+    public function apiDesvincularFicha(int $id): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Response::json(['success' => false, 'errors' => ['Método no permitido']], 405);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        if (!isset($data['ficha_id'])) {
+            Response::json(['success' => false, 'errors' => ['ID de ficha no proporcionado']], 400);
+            return;
+        }
+
+        $aprendizService = new \App\Services\AprendizService(
+            $this->aprendizRepository,
+            $this->fichaRepository
+        );
+
+        $result = $aprendizService->desvincularFicha($id, (int)$data['ficha_id']);
+        
+        $statusCode = $result['success'] ? 200 : 400;
+        Response::json($result, $statusCode);
+    }
+
+    /**
+     * API: Importa aprendices desde CSV con validación robusta (JSON)
+     * POST /api/aprendices/importar
+     */
+    public function apiImportarCSV(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Response::json(['success' => false, 'errors' => ['Método no permitido']], 405);
+            return;
+        }
+
+        if (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK) {
+            Response::json(['success' => false, 'errors' => ['Error al subir el archivo']], 400);
+            return;
+        }
+
+        $fichaId = filter_input(INPUT_POST, 'ficha_id', FILTER_VALIDATE_INT);
+        
+        if (!$fichaId) {
+            Response::json(['success' => false, 'errors' => ['Debe seleccionar una ficha']], 400);
+            return;
+        }
+
+        // Validar extensión usando el nombre original
+        $extension = strtolower(pathinfo($_FILES['csv_file']['name'], PATHINFO_EXTENSION));
+        if ($extension !== 'csv') {
+            Response::json(['success' => false, 'errors' => ['El archivo debe ser CSV']], 400);
+            return;
+        }
+
+        $aprendizService = new \App\Services\AprendizService(
+            $this->aprendizRepository,
+            $this->fichaRepository
+        );
+
+        $result = $aprendizService->importarCSVRobusto($_FILES['csv_file']['tmp_name'], $fichaId);
+        
+        $statusCode = $result['success'] ? 200 : 400;
+        Response::json($result, $statusCode);
+    }
+
+    /**
+     * API: Valida un archivo CSV antes de importar (JSON)
+     * POST /api/aprendices/validar-csv
+     */
+    public function apiValidarCSV(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Response::json(['success' => false, 'errors' => ['Método no permitido']], 405);
+            return;
+        }
+
+        if (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK) {
+            Response::json(['success' => false, 'errors' => ['Error al subir el archivo']], 400);
+            return;
+        }
+
+        // Validar extensión usando el nombre original
+        $extension = strtolower(pathinfo($_FILES['csv_file']['name'], PATHINFO_EXTENSION));
+        if ($extension !== 'csv') {
+            Response::json(['success' => false, 'errors' => ['El archivo debe ser CSV']], 400);
+            return;
+        }
+
+        $aprendizService = new \App\Services\AprendizService(
+            $this->aprendizRepository,
+            $this->fichaRepository
+        );
+
+        $result = $aprendizService->preValidarImportacion($_FILES['csv_file']['tmp_name']);
+        Response::json($result);
+    }
+
+    /**
+     * API: Obtiene estadísticas de aprendices (JSON)
+     * GET /api/aprendices/estadisticas
+     */
+    public function apiEstadisticas(): void
+    {
+        $aprendizService = new \App\Services\AprendizService(
+            $this->aprendizRepository,
+            $this->fichaRepository
+        );
+
+        $stats = $aprendizService->getEstadisticas();
+        Response::json(['success' => true, 'data' => $stats]);
+    }
+
+    /**
+     * API: Vincula múltiples aprendices a una ficha (JSON)
+     * POST /api/aprendices/vincular-multiples
+     */
+    public function apiVincularMultiples(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Response::json(['success' => false, 'errors' => ['Método no permitido']], 405);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        if (!isset($data['aprendices_ids']) || !isset($data['ficha_id'])) {
+            Response::json(['success' => false, 'errors' => ['Datos incompletos']], 400);
+            return;
+        }
+
+        $aprendizService = new \App\Services\AprendizService(
+            $this->aprendizRepository,
+            $this->fichaRepository
+        );
+
+        $result = $aprendizService->vincularMultiples($data['aprendices_ids'], (int)$data['ficha_id']);
+        
+        $statusCode = $result['success'] ? 200 : 400;
+        Response::json($result, $statusCode);
+    }
 }
 
