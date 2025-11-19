@@ -100,8 +100,9 @@
                             <thead>
                                 <tr>
                                     <th>Número de Ficha</th>
-                                    <th>Nombre</th>
+                                    <th>Nombre del Programa</th>
                                     <th>Estado</th>
+                                    <th>Aprendices</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -109,14 +110,38 @@
                                 <?php foreach ($fichasActivas as $ficha): ?>
                                 <tr>
                                     <td><strong><?= htmlspecialchars($ficha['numero_ficha']) ?></strong></td>
-                                    <td><?= htmlspecialchars($ficha['nombre']) ?></td>
                                     <td>
-                                        <span class="badge badge-success"><?= ucfirst($ficha['estado']) ?></span>
+                                        <div class="ficha-info">
+                                            <div class="ficha-nombre"><?= htmlspecialchars($ficha['nombre']) ?></div>
+                                            <small class="text-muted">Creada: <?= date('d/m/Y', strtotime($ficha['created_at'] ?? 'now')) ?></small>
+                                        </div>
                                     </td>
                                     <td>
-                                        <a href="#" class="btn btn-sm btn-primary" onclick="alert('Funcionalidad en desarrollo'); return false;">
-                                            Ver Detalles
-                                        </a>
+                                        <span class="badge badge-<?= $ficha['estado'] === 'activa' ? 'success' : 'secondary' ?>">
+                                            <?= ucfirst($ficha['estado']) ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="aprendices-info">
+                                            <strong><?= $ficha['total_aprendices'] ?? 0 ?></strong>
+                                            <small class="text-muted">registrados</small>
+                                            <?php if (($ficha['aprendices_activos'] ?? 0) != ($ficha['total_aprendices'] ?? 0)): ?>
+                                                <small class="text-success"><?= $ficha['aprendices_activos'] ?? 0 ?> activos</small>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td class="actions-cell">
+                                        <div class="btn-group">
+                                            <a href="/fichas/<?= $ficha['id'] ?>" class="btn btn-sm btn-primary" title="Ver detalles de la ficha">
+                                                👁️ Detalles
+                                            </a>
+                                            <a href="/asistencia/registrar?ficha=<?= $ficha['id'] ?>" class="btn btn-sm btn-success" title="Registrar asistencia">
+                                                ✓ Asistencia
+                                            </a>
+                                            <a href="/fichas/<?= $ficha['id'] ?>/editar" class="btn btn-sm btn-secondary" title="Editar ficha">
+                                                ✏️
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -148,6 +173,114 @@
     </div>
 
     <script src="/js/app.js"></script>
+    
+    <style>
+    /* Estilos adicionales para la tabla mejorada */
+    .ficha-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .ficha-nombre {
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .aprendices-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .aprendices-info strong {
+        font-size: 1.2em;
+        color: var(--color-primary, #39A900);
+    }
+    
+    .actions-cell {
+        min-width: 200px;
+    }
+    
+    .btn-group {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-group .btn {
+        flex: 1;
+        min-width: auto;
+        padding: 4px 8px;
+        font-size: 0.85em;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-radius: 8px;
+    }
+    
+    .table {
+        margin-bottom: 0;
+    }
+    
+    .table th {
+        background-color: var(--color-primary, #39A900);
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 12px;
+    }
+    
+    .table td {
+        padding: 12px;
+        vertical-align: middle;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        font-weight: 500;
+    }
+    
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .badge-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .text-muted {
+        color: #6c757d !important;
+        font-size: 0.9em;
+    }
+    
+    /* Responsividad */
+    @media (max-width: 768px) {
+        .btn-group {
+            flex-direction: column;
+        }
+        
+        .btn-group .btn {
+            margin-bottom: 2px;
+        }
+        
+        .actions-cell {
+            min-width: 120px;
+        }
+    }
+    </style>
 </body>
 </html>
 

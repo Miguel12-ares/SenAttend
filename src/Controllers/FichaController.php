@@ -54,6 +54,11 @@ class FichaController
             $total = $this->fichaRepository->count();
         }
 
+        // Agregar conteo de aprendices
+        foreach ($fichas as &$ficha) {
+            $ficha['total_aprendices'] = $this->fichaRepository->countAprendices($ficha['id']);
+        }
+
         // Calcular paginación
         $totalPages = ceil($total / $limit);
 
@@ -392,6 +397,12 @@ class FichaController
         );
 
         $result = $fichaService->getFichasAdvanced($filters, $page, $limit);
+        
+        // Agregar conteo de aprendices a cada ficha
+        foreach ($result['data'] as &$ficha) {
+            $ficha['total_aprendices'] = $this->fichaRepository->countAprendices($ficha['id']);
+        }
+        
         Response::json(['success' => true, 'result' => $result]);
     }
 
@@ -463,6 +474,38 @@ class FichaController
     }
 
     /**
+     * API: Valida un archivo CSV antes de importar fichas (JSON)
+     * POST /api/fichas/validar-csv
+     */
+    public function apiValidarCSV(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Response::json(['success' => false, 'errors' => ['Método no permitido']], 405);
+            return;
+        }
+
+        if (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK) {
+            Response::json(['success' => false, 'errors' => ['Error al subir el archivo']], 400);
+            return;
+        }
+
+        // Validar extensión usando el nombre original
+        $extension = strtolower(pathinfo($_FILES['csv_file']['name'], PATHINFO_EXTENSION));
+        if ($extension !== 'csv') {
+            Response::json(['success' => false, 'errors' => ['El archivo debe ser CSV']], 400);
+            return;
+        }
+
+        $fichaService = new \App\Services\FichaService(
+            $this->fichaRepository,
+            $this->aprendizRepository
+        );
+
+        $result = $fichaService->validarFormatoCSV($_FILES['csv_file']['tmp_name']);
+        Response::json($result);
+    }
+
+    /**
      * API: Obtiene estadísticas de fichas (JSON)
      * GET /api/fichas/estadisticas
      */
@@ -475,6 +518,80 @@ class FichaController
 
         $stats = $fichaService->getEstadisticas();
         Response::json(['success' => true, 'data' => $stats]);
+    }
+
+    /**
+     * API: Asigna un aprendiz a una ficha con validación de cupo (JSON)
+     * POST /api/fichas/{id}/asignar-aprendiz
+     */
+    public function apiAsignarAprendiz(int $id): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Response::json(['success' => false, 'errors' => ['Método no permitido']], 405);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data) {
+            $data = $_POST;
+        }
+
+        if (!isset($data['aprendiz_id'])) {
+            Response::json(['success' => false, 'errors' => ['ID de aprendiz no proporcionado']], 400);
+            return;
+        }
+
+        $fichaService = new \App\Services\FichaService(
+            $this->fichaRepository,
+            $this->aprendizRepository
+        );
+
+        $cupoMaximo = $data['cupo_maximo'] ?? 30;
+        $result = $fichaService->assignAprendiz($id, (int)$data['aprendiz_id'], $cupoMaximo);
+        
+        $statusCode = $result['success'] ? 200 : 400;
+        Response::json($result, $statusCode);
+    }
+
+    /**
+     * API: Valida cupo disponible en una ficha (JSON)
+     * GET /api/fichas/{id}/cupo
+     */
+    public function apiValidarCupo(int $id): void
+    {
+        $cupoMaximo = filter_input(INPUT_GET, 'cupo_maximo', FILTER_VALIDATE_INT) ?: 30;
+
+        $fichaService = new \App\Services\FichaService(
+            $this->fichaRepository,
+            $this->aprendizRepository
+        );
+
+        $result = $fichaService->validarCupoDisponible($id, $cupoMaximo);
+        Response::json(['success' => true, 'data' => $result]);
+    }
+
+    /**
+     * API: Busca fichas por número (JSON)
+     * GET /api/fichas/buscar-numero?numero=XXX&exacto=true/false
+     */
+    public function apiBuscarPorNumero(): void
+    {
+        $numero = filter_input(INPUT_GET, 'numero', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $exacto = filter_input(INPUT_GET, 'exacto', FILTER_VALIDATE_BOOLEAN);
+
+        if (!$numero) {
+            Response::json(['success' => false, 'errors' => ['Número de ficha requerido']], 400);
+            return;
+        }
+
+        $fichaService = new \App\Services\FichaService(
+            $this->fichaRepository,
+            $this->aprendizRepository
+        );
+
+        $fichas = $fichaService->searchByNumeroFicha($numero, $exacto);
+        Response::json(['success' => true, 'data' => $fichas]);
     }
 }
 

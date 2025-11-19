@@ -45,8 +45,8 @@ class DashboardController
             'total_usuarios' => $this->userRepository->count(),
         ];
 
-        // Obtener fichas activas recientes
-        $fichasActivas = $this->fichaRepository->findActive(10, 0);
+        // Obtener fichas activas recientes con información de aprendices
+        $fichasActivas = $this->fichaRepository->findWithStats(10, 0);
 
         // Incluir la vista
         require __DIR__ . '/../../views/dashboard/index.php';

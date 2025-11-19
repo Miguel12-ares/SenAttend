@@ -177,6 +177,11 @@ $routes = [
             'action' => 'apiImportarCSV',
             'middleware' => ['auth']
         ],
+        '/api/fichas/validar-csv' => [
+            'controller' => \App\Controllers\FichaController::class,
+            'action' => 'apiValidarCSV',
+            'middleware' => ['auth']
+        ],
         // API Aprendices POST
         '/api/aprendices' => [
             'controller' => \App\Controllers\AprendizController::class,
