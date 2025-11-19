@@ -45,7 +45,7 @@ class AprendizController
         // Obtener aprendices según filtros
         if ($fichaId) {
             $aprendices = $this->aprendizRepository->findByFicha($fichaId, $limit, $offset);
-            $total = count($this->aprendizRepository->findByFicha($fichaId, 1000, 0));
+            $total = $this->aprendizRepository->countByFicha($fichaId);
         } elseif ($search) {
             $aprendices = $this->aprendizRepository->search($search, $limit, $offset);
             $total = $this->aprendizRepository->countSearch($search);

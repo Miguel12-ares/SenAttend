@@ -81,6 +81,7 @@ class AprendizService
 
     /**
      * Crea un nuevo aprendiz con validaciones
+     * Incluye transacción para crear usuario+aprendiz si se requiere
      */
     public function create(array $data): array
     {
@@ -91,6 +92,9 @@ class AprendizService
         }
 
         try {
+            // Iniciar transacción
+            \App\Database\Connection::beginTransaction();
+
             $aprendizId = $this->aprendizRepository->create([
                 'documento' => trim($data['documento']),
                 'nombre' => ucwords(strtolower(trim($data['nombre']))),
@@ -104,15 +108,36 @@ class AprendizService
                 $this->aprendizRepository->attachToFicha($aprendizId, (int)$data['ficha_id']);
             }
 
+            // Si se requiere crear usuario (para futuras funcionalidades)
+            if (!empty($data['create_user']) && !empty($data['email'])) {
+                $this->createUserForAprendiz($aprendizId, $data);
+            }
+
+            // Confirmar transacción
+            \App\Database\Connection::commit();
+
             return [
                 'success' => true,
                 'message' => 'Aprendiz creado exitosamente',
                 'data' => ['id' => $aprendizId]
             ];
         } catch (\Exception $e) {
+            // Revertir transacción
+            \App\Database\Connection::rollBack();
             error_log("AprendizService::create error: " . $e->getMessage());
             return ['success' => false, 'errors' => ['Error al crear el aprendiz']];
         }
+    }
+
+    /**
+     * Crea un usuario asociado al aprendiz (para futuras funcionalidades)
+     */
+    private function createUserForAprendiz(int $aprendizId, array $data): void
+    {
+        // Esta funcionalidad se puede implementar cuando se requiera
+        // que los aprendices tengan acceso al sistema
+        // Por ahora solo registramos el log para futuras implementaciones
+        error_log("Usuario para aprendiz {$aprendizId} pendiente de implementar");
     }
 
     /**
@@ -607,6 +632,122 @@ class AprendizService
     }
 
     /**
+     * Importa aprendices desde archivo CSV con formato extendido
+     * Formato esperado: documento,nombres,apellidos,email,numero_ficha,codigo_carnet
+     */
+    public function importFromCSV(string $filePath, int $fichaId): array
+    {
+        // Validar que la ficha existe
+        $ficha = $this->fichaRepository->findById($fichaId);
+        if (!$ficha) {
+            return ['success' => false, 'errors' => ['La ficha seleccionada no existe']];
+        }
+
+        if (!file_exists($filePath)) {
+            return ['success' => false, 'errors' => ['Archivo no encontrado']];
+        }
+
+        try {
+            $file = fopen($filePath, 'r');
+            if (!$file) {
+                return ['success' => false, 'errors' => ['No se pudo abrir el archivo']];
+            }
+
+            $imported = 0;
+            $errors = [];
+            $skipped = 0;
+            $lineNumber = 0;
+
+            // Leer encabezado
+            $header = fgetcsv($file);
+            $lineNumber++;
+
+            while (($data = fgetcsv($file)) !== false) {
+                $lineNumber++;
+
+                // Validar que tenga al menos 3 columnas (documento, nombres, apellidos)
+                if (count($data) < 3) {
+                    $errors[] = "Línea {$lineNumber}: Datos incompletos (mínimo: documento, nombres, apellidos)";
+                    $skipped++;
+                    continue;
+                }
+
+                $documento = trim($data[0] ?? '');
+                $nombres = trim($data[1] ?? '');
+                $apellidos = trim($data[2] ?? '');
+                $email = trim($data[3] ?? '');
+                $numeroFicha = trim($data[4] ?? '');
+                $codigoCarnet = trim($data[5] ?? '');
+
+                // Validar datos mínimos
+                if (empty($documento) || empty($nombres) || empty($apellidos)) {
+                    $errors[] = "Línea {$lineNumber}: Documento, nombres o apellidos vacío";
+                    $skipped++;
+                    continue;
+                }
+
+                // Validar email si se proporciona
+                if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $errors[] = "Línea {$lineNumber}: Email {$email} no válido";
+                    $skipped++;
+                    continue;
+                }
+
+                // Verificar si ya existe
+                if ($this->aprendizRepository->findByDocumento($documento)) {
+                    $errors[] = "Línea {$lineNumber}: Documento {$documento} ya existe";
+                    $skipped++;
+                    continue;
+                }
+
+                // Crear aprendiz
+                try {
+                    $result = $this->create([
+                        'documento' => $documento,
+                        'nombre' => $nombres,
+                        'apellido' => $apellidos,
+                        'codigo_carnet' => $codigoCarnet,
+                        'estado' => 'activo',
+                        'ficha_id' => $fichaId,
+                        'email' => $email // Para futuras extensiones
+                    ]);
+
+                    if ($result['success']) {
+                        $imported++;
+                    } else {
+                        $errors[] = "Línea {$lineNumber}: " . implode(', ', $result['errors']);
+                        $skipped++;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Línea {$lineNumber}: Error al crear - " . $e->getMessage();
+                    $skipped++;
+                }
+            }
+
+            fclose($file);
+
+            $message = "Importación completada: {$imported} aprendices importados";
+            if ($skipped > 0) {
+                $message .= ", {$skipped} omitidos";
+            }
+
+            return [
+                'success' => true,
+                'message' => $message,
+                'data' => [
+                    'imported' => $imported,
+                    'skipped' => $skipped,
+                    'errors' => $errors
+                ]
+            ];
+
+        } catch (\Exception $e) {
+            error_log("AprendizService::importFromCSV error: " . $e->getMessage());
+            return ['success' => false, 'errors' => ['Error al procesar el archivo: ' . $e->getMessage()]];
+        }
+    }
+
+    /**
      * Valida múltiples operaciones de vinculación
      */
     public function vincularMultiples(array $aprendicesIds, int $fichaId): array
@@ -650,6 +791,74 @@ class AprendizService
                 'errores' => $errores
             ]
         ];
+    }
+
+    /**
+     * Valida documento y email únicos antes de crear aprendiz
+     */
+    public function validateUniqueFields(string $documento, ?string $email = null, ?int $excludeId = null): array
+    {
+        $errors = [];
+
+        // Validar documento único
+        $existingByDoc = $this->aprendizRepository->findByDocumento($documento);
+        if ($existingByDoc && (!$excludeId || $existingByDoc['id'] != $excludeId)) {
+            $errors[] = "El documento {$documento} ya está registrado";
+        }
+
+        // Validar email único si se proporciona
+        if (!empty($email)) {
+            // Nota: Aquí se podría agregar validación de email único
+            // si se extiende el esquema para incluir email en aprendices
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = "El email {$email} no tiene un formato válido";
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Busca aprendices por documento, nombre o código con filtros avanzados
+     */
+    public function findByDocumentoNombreCodigo(string $search, array $filters = []): array
+    {
+        // Usar el método de búsqueda avanzada existente
+        $searchFilters = array_merge($filters, ['search' => $search]);
+        $result = $this->getAprendicesAdvanced($searchFilters, 1, 100);
+        
+        return $result['data'];
+    }
+
+    /**
+     * Obtiene aprendices con paginación y filtros específicos del requerimiento
+     */
+    public function getAprendicesWithFilters(array $filters = [], int $page = 1, int $limit = 20): array
+    {
+        // Mapear filtros específicos del requerimiento
+        $mappedFilters = [];
+        
+        if (!empty($filters['documento'])) {
+            $mappedFilters['search'] = $filters['documento'];
+        }
+        
+        if (!empty($filters['nombre'])) {
+            $mappedFilters['search'] = $filters['nombre'];
+        }
+        
+        if (!empty($filters['codigo'])) {
+            $mappedFilters['search'] = $filters['codigo'];
+        }
+        
+        if (!empty($filters['ficha_id'])) {
+            $mappedFilters['ficha_id'] = $filters['ficha_id'];
+        }
+        
+        if (!empty($filters['estado'])) {
+            $mappedFilters['estado'] = $filters['estado'];
+        }
+
+        return $this->getAprendicesAdvanced($mappedFilters, $page, $limit);
     }
 }
 

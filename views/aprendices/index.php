@@ -251,21 +251,11 @@ ob_start();
 </div>
 
 <script src="/js/components.js"></script>
+<script src="/js/aprendices-import.js"></script>
+<script src="/js/search-simple.js"></script>
+
 <script>
-// ==============================================
-// BÚSQUEDA DINÁMICA
-// ==============================================
-
-new SearchBox('search', (value) => {
-    if (value.length >= 3 || value.length === 0) {
-        document.getElementById('filterForm').submit();
-    }
-});
-
-// ==============================================
-// IMPORTACIÓN CSV
-// ==============================================
-
+// Funciones para mantener compatibilidad con HTML existente
 function abrirModalImportar() {
     const modal = document.getElementById('importModal');
     if (modal) {
@@ -286,129 +276,6 @@ function cerrarModalImportar() {
     }
 }
 
-// Cerrar modal al hacer clic fuera
-document.getElementById('importModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        cerrarModalImportar();
-    }
-});
-
-// Cerrar modal con ESC
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        const modal = document.getElementById('importModal');
-        if (modal && modal.style.display === 'flex') {
-            cerrarModalImportar();
-        }
-    }
-});
-
-// Manejo de archivo seleccionado
-document.getElementById('csv_file')?.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        document.getElementById('fileName').textContent = file.name;
-        document.getElementById('fileSize').textContent = formatFileSize(file.size);
-        document.getElementById('fileInfo').style.display = 'flex';
-    }
-});
-
-function clearFile() {
-    document.getElementById('csv_file').value = '';
-    document.getElementById('fileInfo').style.display = 'none';
-}
-
-function formatFileSize(bytes) {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-}
-
-async function validarArchivo() {
-    const form = document.getElementById('importForm');
-    const formData = new FormData(form);
-
-    if (!formData.get('csv_file')?.name) {
-        Notification.error('Seleccione un archivo CSV');
-        return;
-    }
-
-    Loading.show('Validando archivo...');
-
-    const result = await API.post('/api/aprendices/validar-csv', formData);
-    
-    Loading.hide();
-
-    if (result.success && result.data.valid) {
-        if (result.data.tiene_errores) {
-            const errores = result.data.errores.slice(0, 10).join('<br>');
-            Notification.warning(`Archivo válido pero con ${result.data.errores.length} advertencias`);
-            
-            // Mostrar modal con errores
-            await Confirm.show(
-                'Advertencias de Validación',
-                `<div style="text-align: left; max-height: 300px; overflow-y: auto;">${errores}</div>`,
-                {
-                    confirmText: 'Entendido',
-                    confirmClass: 'btn-info'
-                }
-            );
-        } else {
-            Notification.success(`✓ Archivo válido: ${result.data.aprendices_validos} aprendices listos para importar`);
-        }
-    } else {
-        const error = result.error || result.data?.errors?.join(', ') || 'Error de validación';
-        Notification.error(error);
-    }
-}
-
-async function importarCSV() {
-    const form = document.getElementById('importForm');
-    const formData = new FormData(form);
-
-    if (!formData.get('csv_file')?.name) {
-        Notification.error('Seleccione un archivo CSV');
-        return;
-    }
-
-    if (!formData.get('ficha_id')) {
-        Notification.error('Seleccione una ficha');
-        return;
-    }
-
-    const confirmado = await Confirm.show(
-        'Confirmar Importación',
-        '¿Desea importar los aprendices desde el archivo CSV?',
-        {
-            confirmText: 'Importar',
-            confirmClass: 'btn-primary'
-        }
-    );
-
-    if (!confirmado) return;
-
-    Loading.show('Importando aprendices...');
-
-    const result = await API.post('/api/aprendices/importar', formData);
-    
-    Loading.hide();
-
-    if (result.success && result.data.success) {
-        Notification.success(result.data.message);
-        cerrarModalImportar();
-        
-        // Recargar después de 1.5 segundos
-        setTimeout(() => window.location.reload(), 1500);
-    } else {
-        const error = result.error || result.data?.errors?.join(', ') || 'Error al importar';
-        Notification.error(error);
-    }
-}
-
-// ==============================================
-// ELIMINACIÓN
-// ==============================================
-
 function confirmarEliminarAprendiz(id, nombre) {
     document.getElementById('aprendizName').textContent = nombre;
     document.getElementById('deleteForm').action = '/aprendices/' + id + '/eliminar';
@@ -427,33 +294,27 @@ function cerrarModalEliminar() {
     }
 }
 
-// Cerrar modal de eliminación al hacer clic fuera
-document.getElementById('deleteModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        cerrarModalEliminar();
-    }
+// Eventos básicos de modales
+document.getElementById('importModal')?.addEventListener('click', function(e) {
+    if (e.target === this) cerrarModalImportar();
 });
 
-// Cerrar modales con ESC
+document.getElementById('deleteModal')?.addEventListener('click', function(e) {
+    if (e.target === this) cerrarModalEliminar();
+});
+
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
+        const importModal = document.getElementById('importModal');
         const deleteModal = document.getElementById('deleteModal');
+        
+        if (importModal && importModal.style.display === 'flex') {
+            cerrarModalImportar();
+        }
         if (deleteModal && deleteModal.style.display === 'flex') {
             cerrarModalEliminar();
         }
     }
-});
-
-// ==============================================
-// CAMBIOS AUTOMÁTICOS EN FILTROS
-// ==============================================
-
-document.getElementById('estado')?.addEventListener('change', function() {
-    document.getElementById('filterForm').submit();
-});
-
-document.getElementById('ficha')?.addEventListener('change', function() {
-    document.getElementById('filterForm').submit();
 });
 </script>
 

@@ -48,6 +48,7 @@ ob_start();
                     <input 
                         type="text" 
                         name="search" 
+                        id="searchInput"
                         class="form-control" 
                         placeholder="Buscar por número o nombre..."
                         value="<?= htmlspecialchars($search ?? '') ?>"
@@ -360,98 +361,17 @@ ob_start();
         </div>
         <div class="modal-actions">
             <button type="button" onclick="cerrarModalImportar()" class="btn btn-secondary">Cancelar</button>
-            <button type="button" onclick="importarCSV()" class="btn btn-primary">Importar</button>
+            <button type="button" onclick="validarArchivoFichas()" class="btn btn-info">🔍 Validar</button>
+            <button type="button" onclick="importarCSV()" class="btn btn-primary">📂 Importar</button>
         </div>
     </div>
 </div>
 
 <script src="/js/components.js"></script>
+<script src="/js/fichas-import.js"></script>
+<script src="/js/search-simple.js"></script>
+
 <script>
-// ==============================================
-// BÚSQUEDA DINÁMICA
-// ==============================================
-
-new SearchBox('search', (value) => {
-    if (value.length >= 3 || value.length === 0) {
-        document.querySelector('.search-form').submit();
-    }
-});
-
-// ==============================================
-// IMPORTACIÓN CSV
-// ==============================================
-
-function abrirModalImportar() {
-    const modal = new Modal('importModal');
-    modal.open();
-}
-
-function cerrarModalImportar() {
-    const modal = new Modal('importModal');
-    modal.close();
-    document.getElementById('importForm').reset();
-    document.getElementById('fileInfo').style.display = 'none';
-}
-
-// Manejo de archivo seleccionado
-document.getElementById('csv_file')?.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        document.getElementById('fileName').textContent = file.name;
-        document.getElementById('fileSize').textContent = formatFileSize(file.size);
-        document.getElementById('fileInfo').style.display = 'flex';
-    }
-});
-
-function clearFile() {
-    document.getElementById('csv_file').value = '';
-    document.getElementById('fileInfo').style.display = 'none';
-}
-
-function formatFileSize(bytes) {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-}
-
-async function importarCSV() {
-    const form = document.getElementById('importForm');
-    const formData = new FormData(form);
-
-    if (!formData.get('csv_file')?.name) {
-        Notification.error('Seleccione un archivo CSV');
-        return;
-    }
-
-    const confirmado = await Confirm.show(
-        'Confirmar Importación',
-        '¿Desea importar las fichas desde el archivo CSV?',
-        {
-            confirmText: 'Importar',
-            confirmClass: 'btn-primary'
-        }
-    );
-
-    if (!confirmado) return;
-
-    Loading.show('Importando fichas...');
-
-    const result = await API.post('/api/fichas/importar', formData);
-    
-    Loading.hide();
-
-    if (result.success && result.data.success) {
-        Notification.success(result.data.message);
-        cerrarModalImportar();
-        
-        // Recargar después de 1.5 segundos
-        setTimeout(() => window.location.reload(), 1500);
-    } else {
-        const error = result.error || result.data?.errors?.join(', ') || 'Error al importar';
-        Notification.error(error);
-    }
-}
-
 // ==============================================
 // ELIMINACIÓN
 // ==============================================
@@ -471,14 +391,6 @@ document.getElementById('deleteModal')?.addEventListener('click', function(e) {
     if (e.target === this) {
         cerrarModal();
     }
-});
-
-// ==============================================
-// CAMBIOS AUTOMÁTICOS EN FILTROS
-// ==============================================
-
-document.querySelector('select[name="estado"]')?.addEventListener('change', function() {
-    document.querySelector('.search-form').submit();
 });
 </script>
 

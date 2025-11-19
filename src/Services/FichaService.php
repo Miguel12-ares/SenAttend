@@ -396,6 +396,144 @@ class FichaService
     }
 
     /**
+     * Asigna un aprendiz a una ficha con validación de cupo
+     * Incluye transacción para garantizar consistencia
+     */
+    public function assignAprendiz(int $fichaId, int $aprendizId, int $cupoMaximo = 30): array
+    {
+        $ficha = $this->fichaRepository->findById($fichaId);
+        if (!$ficha) {
+            return ['success' => false, 'errors' => ['Ficha no encontrada']];
+        }
+
+        $aprendiz = $this->aprendizRepository->findById($aprendizId);
+        if (!$aprendiz) {
+            return ['success' => false, 'errors' => ['Aprendiz no encontrado']];
+        }
+
+        // Validar que la ficha esté activa
+        if ($ficha['estado'] !== 'activa') {
+            return ['success' => false, 'errors' => ['No se pueden asignar aprendices a fichas finalizadas']];
+        }
+
+        // Validar que el aprendiz esté activo
+        if ($aprendiz['estado'] !== 'activo') {
+            return ['success' => false, 'errors' => ['No se pueden asignar aprendices retirados']];
+        }
+
+        // Verificar si ya está asignado
+        if ($this->aprendizRepository->isAttachedToFicha($aprendizId, $fichaId)) {
+            return ['success' => false, 'errors' => ['El aprendiz ya está asignado a esta ficha']];
+        }
+
+        // Validar cupo disponible
+        $aprendicesActuales = $this->fichaRepository->countAprendices($fichaId);
+        if ($aprendicesActuales >= $cupoMaximo) {
+            return [
+                'success' => false, 
+                'errors' => ["La ficha ha alcanzado el cupo máximo de {$cupoMaximo} aprendices"]
+            ];
+        }
+
+        try {
+            // Iniciar transacción
+            \App\Database\Connection::beginTransaction();
+
+            // Asignar aprendiz a la ficha
+            $result = $this->aprendizRepository->attachToFicha($aprendizId, $fichaId);
+            
+            if (!$result) {
+                throw new \Exception('Error al asignar el aprendiz a la ficha');
+            }
+
+            // Confirmar transacción
+            \App\Database\Connection::commit();
+
+            return [
+                'success' => true,
+                'message' => 'Aprendiz asignado exitosamente a la ficha',
+                'data' => [
+                    'ficha_id' => $fichaId,
+                    'aprendiz_id' => $aprendizId,
+                    'cupo_usado' => $aprendicesActuales + 1,
+                    'cupo_disponible' => $cupoMaximo - ($aprendicesActuales + 1)
+                ]
+            ];
+
+        } catch (\Exception $e) {
+            // Revertir transacción
+            \App\Database\Connection::rollBack();
+            error_log("FichaService::assignAprendiz error: " . $e->getMessage());
+            return ['success' => false, 'errors' => ['Error al asignar el aprendiz: ' . $e->getMessage()]];
+        }
+    }
+
+    /**
+     * Valida si una ficha puede recibir más aprendices
+     */
+    public function validarCupoDisponible(int $fichaId, int $cupoMaximo = 30): array
+    {
+        $ficha = $this->fichaRepository->findById($fichaId);
+        if (!$ficha) {
+            return ['valid' => false, 'message' => 'Ficha no encontrada'];
+        }
+
+        if ($ficha['estado'] !== 'activa') {
+            return ['valid' => false, 'message' => 'La ficha no está activa'];
+        }
+
+        $aprendicesActuales = $this->fichaRepository->countAprendices($fichaId);
+        $cupoDisponible = $cupoMaximo - $aprendicesActuales;
+
+        return [
+            'valid' => $cupoDisponible > 0,
+            'message' => $cupoDisponible > 0 ? 'Cupo disponible' : 'Cupo completo',
+            'data' => [
+                'cupo_usado' => $aprendicesActuales,
+                'cupo_maximo' => $cupoMaximo,
+                'cupo_disponible' => $cupoDisponible
+            ]
+        ];
+    }
+
+    /**
+     * Busca fichas por número con coincidencia exacta o parcial
+     */
+    public function searchByNumeroFicha(string $numeroFicha, bool $exactMatch = false): array
+    {
+        if ($exactMatch) {
+            $ficha = $this->fichaRepository->findByNumero($numeroFicha);
+            return $ficha ? [$ficha] : [];
+        }
+
+        return $this->fichaRepository->search($numeroFicha, 50, 0);
+    }
+
+    /**
+     * Obtiene fichas activas con información de programas (adaptado sin tabla programas_formacion)
+     */
+    public function getFichasActivas(int $limit = 50, int $offset = 0): array
+    {
+        return $this->fichaRepository->findActive($limit, $offset);
+    }
+
+    /**
+     * Paginación mejorada con metadatos completos
+     */
+    public function paginate(array $filters = [], int $page = 1, int $limit = 20): array
+    {
+        $result = $this->getFichasAdvanced($filters, $page, $limit);
+        
+        // Agregar metadatos adicionales de paginación
+        $result['pagination']['has_previous'] = $page > 1;
+        $result['pagination']['has_next'] = $page < $result['pagination']['total_pages'];
+        $result['pagination']['previous_page'] = $page > 1 ? $page - 1 : null;
+        $result['pagination']['next_page'] = $page < $result['pagination']['total_pages'] ? $page + 1 : null;
+        
+        return $result;
+    }
+
+    /**
      * Valida el formato de un archivo CSV antes de importar
      */
     public function validarFormatoCSV(string $filePath): array
@@ -404,9 +542,6 @@ class FichaService
             return ['valid' => false, 'errors' => ['Archivo no encontrado']];
         }
 
-        // Nota: La validación de extensión se hace en el Controller
-        // usando el nombre original del archivo, no el path temporal
-
         try {
             $file = fopen($filePath, 'r');
             if (!$file) {
@@ -414,17 +549,72 @@ class FichaService
             }
 
             $header = fgetcsv($file);
-            fclose($file);
+            $lineNumber = 1;
+            $errores = [];
+            $fichasValidas = 0;
+            $duplicados = [];
 
             if (!$header || count($header) < 2) {
+                fclose($file);
                 return ['valid' => false, 'errors' => ['El CSV debe tener al menos 2 columnas: numero_ficha, nombre']];
             }
 
+            // Validar contenido
+            while (($data = fgetcsv($file)) !== false) {
+                $lineNumber++;
+                
+                if (count($data) < 2) {
+                    $errores[] = "Línea {$lineNumber}: Datos incompletos";
+                    continue;
+                }
+
+                $numeroFicha = trim($data[0] ?? '');
+                $nombre = trim($data[1] ?? '');
+                $estado = trim($data[2] ?? 'activa');
+
+                if (empty($numeroFicha)) {
+                    $errores[] = "Línea {$lineNumber}: Número de ficha vacío";
+                    continue;
+                }
+
+                if (empty($nombre)) {
+                    $errores[] = "Línea {$lineNumber}: Nombre vacío";
+                    continue;
+                }
+
+                if (!in_array($estado, ['activa', 'finalizada'])) {
+                    $errores[] = "Línea {$lineNumber}: Estado '{$estado}' inválido";
+                    continue;
+                }
+
+                // Verificar duplicados en el archivo
+                if (in_array($numeroFicha, $duplicados)) {
+                    $errores[] = "Línea {$lineNumber}: Número de ficha '{$numeroFicha}' duplicado en el archivo";
+                    continue;
+                }
+
+                $duplicados[] = $numeroFicha;
+
+                // Verificar si ya existe en BD
+                if ($this->fichaRepository->findByNumero($numeroFicha)) {
+                    $errores[] = "Línea {$lineNumber}: Ficha '{$numeroFicha}' ya existe en el sistema";
+                    continue;
+                }
+
+                $fichasValidas++;
+            }
+
+            fclose($file);
+
             return [
                 'valid' => true,
-                'message' => 'Formato válido',
-                'columns' => count($header)
+                'message' => 'Validación completada',
+                'fichas_validas' => $fichasValidas,
+                'total_lineas' => $lineNumber - 1,
+                'errores' => $errores,
+                'tiene_errores' => !empty($errores)
             ];
+
         } catch (\Exception $e) {
             return ['valid' => false, 'errors' => ['Error al validar: ' . $e->getMessage()]];
         }
