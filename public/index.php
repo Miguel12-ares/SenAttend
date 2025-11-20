@@ -14,6 +14,7 @@ require_once __DIR__ . '/../config/config.php';
 // Importar clases necesarias
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
+use App\Controllers\QRController;
 use App\Middleware\AuthMiddleware;
 use App\Repositories\UserRepository;
 use App\Repositories\FichaRepository;
@@ -101,6 +102,17 @@ $routes = [
             'action' => 'registrar',
             'middleware' => ['auth']
         ],
+        // QR
+        '/qr/generar' => [
+            'controller' => QRController::class,
+            'action' => 'generar',
+            'middleware' => ['auth']
+        ],
+        '/qr/escanear' => [
+            'controller' => QRController::class,
+            'action' => 'escanear',
+            'middleware' => ['auth']
+        ],
         // Test de rutas (solo en desarrollo)
         '/test-routes' => [
             'controller' => function() {
@@ -134,6 +146,12 @@ $routes = [
         '/api/aprendices/estadisticas' => [
             'controller' => \App\Controllers\AprendizController::class,
             'action' => 'apiEstadisticas',
+            'middleware' => ['auth']
+        ],
+        // API QR
+        '/api/qr/buscar' => [
+            'controller' => QRController::class,
+            'action' => 'apiBuscarAprendiz',
             'middleware' => ['auth']
         ],
     ],
@@ -201,6 +219,12 @@ $routes = [
         '/api/aprendices/vincular-multiples' => [
             'controller' => \App\Controllers\AprendizController::class,
             'action' => 'apiVincularMultiples',
+            'middleware' => ['auth']
+        ],
+        // API QR POST
+        '/api/qr/procesar' => [
+            'controller' => QRController::class,
+            'action' => 'apiProcesarQR',
             'middleware' => ['auth']
         ],
     ],
@@ -395,6 +419,13 @@ try {
         $controller = new $controllerClass(
             $asistenciaService,
             $authService,
+            $fichaRepository
+        );
+    } elseif ($controllerClass === QRController::class) {
+        $controller = new $controllerClass(
+            $asistenciaService,
+            $authService,
+            $aprendizRepository,
             $fichaRepository
         );
     } else {

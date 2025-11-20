@@ -71,6 +71,20 @@
                             <p>Marcar asistencia de aprendices</p>
                         </a>
 
+                        <?php if (in_array($user['rol'], ['instructor', 'coordinador', 'admin'])): ?>
+                        <a href="/qr/escanear" class="action-card action-card-qr">
+                            <span class="action-icon">📷</span>
+                            <h4>Escanear QR</h4>
+                            <p>Registrar asistencia con código QR</p>
+                        </a>
+                        <?php endif; ?>
+
+                        <a href="/qr/generar" class="action-card action-card-qr">
+                            <span class="action-icon">🔲</span>
+                            <h4>Generar QR</h4>
+                            <p>Crear código QR personal</p>
+                        </a>
+
                         <a href="/fichas" class="action-card">
                             <span class="action-icon">📋</span>
                             <h4>Ver Fichas</h4>
@@ -160,6 +174,7 @@
                         <li>✓ Sistema de autenticación funcional</li>
                         <li>✓ Middleware de protección de rutas</li>
                         <li>✓ Base de datos con <?= $stats['total_fichas'] ?> fichas y <?= $stats['total_aprendices'] ?> aprendices</li>
+                        <li>✓ Módulo QR implementado - Generación y escaneo automático</li>
                     </ul>
                 </div>
             </div>
@@ -242,6 +257,16 @@
     
     .table tbody tr:hover {
         background-color: #f8f9fa;
+    }
+    
+    .action-card-qr {
+        border: 2px solid #39A900;
+        background: linear-gradient(135deg, #f8fff5 0%, #ffffff 100%);
+    }
+    
+    .action-card-qr:hover {
+        border-color: #2d8400;
+        background: linear-gradient(135deg, #e8f5e0 0%, #f8fff5 100%);
     }
     
     .badge {
