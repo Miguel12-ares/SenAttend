@@ -330,13 +330,11 @@ function mostrarInformacionAprendiz(data) {
 function generarCodigoQR(data) {
     const { aprendiz } = data;
     
-    // Datos a codificar en el QR
-    const qrData = JSON.stringify({
-        aprendiz_id: aprendiz.id,
-        documento: aprendiz.documento,
-        nombre: aprendiz.nombre_completo,
-        timestamp: new Date().toISOString()
-    });
+    // Datos simplificados para el QR: solo ID y fecha
+    // Formato: "ID|FECHA" (ej: "123|2025-11-20")
+    // Esto hace el código mucho más pequeño y fácil de escanear
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const qrData = `${aprendiz.id}|${today}`;
     
     // Limpiar contenedor
     qrCodeContainer.innerHTML = '';

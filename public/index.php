@@ -14,6 +14,7 @@ require_once __DIR__ . '/../config/config.php';
 // Importar clases necesarias
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
+use App\Controllers\HomeController;
 use App\Controllers\QRController;
 use App\Middleware\AuthMiddleware;
 use App\Repositories\UserRepository;
@@ -63,6 +64,11 @@ $routes = [
             'controller' => DashboardController::class,
             'action' => 'index',
             'middleware' => ['auth']
+        ],
+        '/home' => [
+            'controller' => HomeController::class,
+            'action' => 'index',
+            'middleware' => []
         ],
         '/login' => [
             'controller' => AuthController::class,
@@ -159,6 +165,12 @@ $routes = [
         '/auth/login' => [
             'controller' => AuthController::class,
             'action' => 'login',
+            'middleware' => []
+        ],
+        // API Pública - Validar aprendiz y generar QR
+        '/api/public/aprendiz/validar' => [
+            'controller' => HomeController::class,
+            'action' => 'apiValidarAprendiz',
             'middleware' => []
         ],
         // Fichas POST
@@ -427,6 +439,10 @@ try {
             $authService,
             $aprendizRepository,
             $fichaRepository
+        );
+    } elseif ($controllerClass === HomeController::class) {
+        $controller = new $controllerClass(
+            $aprendizRepository
         );
     } else {
         throw new RuntimeException("Unknown controller: {$controllerClass}");
