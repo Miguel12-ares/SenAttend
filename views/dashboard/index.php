@@ -31,10 +31,17 @@
             <div class="container">
                 <div class="dashboard-header">
                     <h2>Panel de Control</h2>
-                    <p class="text-muted">Gestión de asistencia y aprendices SENA</p>
+                    <p class="text-muted">
+                        <?php if ($user['rol'] === 'admin'): ?>
+                            Gestión de asistencia y aprendices SENA
+                        <?php else: ?>
+                            Sistema de Registro de Asistencia
+                        <?php endif; ?>
+                    </p>
                 </div>
 
-                <!-- Estadísticas -->
+                <!-- Estadísticas - Solo para Admin -->
+                <?php if ($user['rol'] === 'admin'): ?>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon stat-icon-fichas">📚</div>
@@ -60,31 +67,33 @@
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
 
                 <!-- Menú de acciones -->
                 <div class="actions-section">
                     <h3>Acciones Rápidas</h3>
                     <div class="actions-grid">
+                        
+                        <!-- Acciones para Instructor y Coordinador -->
+                        <?php if (in_array($user['rol'], ['instructor', 'coordinador'])): ?>
+                        
                         <a href="/asistencia/registrar" class="action-card">
                             <span class="action-icon">✓</span>
                             <h4>Registrar Asistencia</h4>
                             <p>Marcar asistencia de aprendices</p>
                         </a>
 
-                        <?php if (in_array($user['rol'], ['instructor', 'coordinador', 'admin'])): ?>
                         <a href="/qr/escanear" class="action-card action-card-qr">
                             <span class="action-icon">📷</span>
                             <h4>Escanear QR</h4>
                             <p>Registrar asistencia con código QR</p>
                         </a>
+
                         <?php endif; ?>
 
-                        <a href="/qr/generar" class="action-card action-card-qr">
-                            <span class="action-icon">🔲</span>
-                            <h4>Generar QR</h4>
-                            <p>Crear código QR personal</p>
-                        </a>
-
+                        <!-- Acciones para Admin -->
+                        <?php if ($user['rol'] === 'admin'): ?>
+                        
                         <a href="/fichas" class="action-card">
                             <span class="action-icon">📋</span>
                             <h4>Ver Fichas</h4>
@@ -102,11 +111,13 @@
                             <h4>Reportes</h4>
                             <p>Generar reportes de asistencia</p>
                         </a>
+
+                        <?php endif; ?>
                     </div>
                 </div>
 
-                <!-- Lista de fichas activas -->
-                <?php if (!empty($fichasActivas)): ?>
+                <!-- Lista de fichas activas - Solo para Admin -->
+                <?php if ($user['rol'] === 'admin' && !empty($fichasActivas)): ?>
                 <div class="fichas-section">
                     <h3>Fichas Activas Recientes</h3>
                     <div class="table-responsive">
@@ -167,14 +178,17 @@
 
                 <!-- Información del MVP -->
                 <div class="info-box">
-                    <h4>✅ Estado del Sistema - Fase 0 MVP</h4>
+                    <h4>✅ Estado del Sistema - SENAttend</h4>
                     <ul class="checklist">
                         <li>✓ Arquitectura MVC con PSR-4 configurada</li>
                         <li>✓ Conexión PDO persistente operativa</li>
                         <li>✓ Sistema de autenticación funcional</li>
                         <li>✓ Middleware de protección de rutas</li>
+                        <?php if ($user['rol'] === 'admin'): ?>
                         <li>✓ Base de datos con <?= $stats['total_fichas'] ?> fichas y <?= $stats['total_aprendices'] ?> aprendices</li>
+                        <?php endif; ?>
                         <li>✓ Módulo QR implementado - Generación y escaneo automático</li>
+                        <li>✓ Control de acceso basado en roles</li>
                     </ul>
                 </div>
             </div>

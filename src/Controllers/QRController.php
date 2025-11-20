@@ -174,15 +174,42 @@ class QRController
                 return;
             }
 
-            // Decodificar información del QR
-            $qrData = json_decode($data['qr_data'], true);
-            
-            if (!$qrData || !isset($qrData['aprendiz_id']) || !isset($qrData['documento'])) {
+            $qrDataRaw = $data['qr_data'];
+            $aprendizId = null;
+            $qrFecha = null;
+
+            // Intentar decodificar el formato nuevo (simple): "ID|FECHA"
+            if (strpos($qrDataRaw, '|') !== false) {
+                $parts = explode('|', $qrDataRaw);
+                if (count($parts) === 2) {
+                    $aprendizId = (int) $parts[0];
+                    $qrFecha = $parts[1];
+                }
+            } else {
+                // Formato antiguo (JSON) - mantener compatibilidad
+                $qrData = json_decode($qrDataRaw, true);
+                if ($qrData && isset($qrData['aprendiz_id'])) {
+                    $aprendizId = (int) $qrData['aprendiz_id'];
+                }
+            }
+
+            // Validar que se pudo extraer el ID del aprendiz
+            if (!$aprendizId) {
                 Response::error('Código QR inválido', 400);
                 return;
             }
 
-            $aprendizId = (int) $qrData['aprendiz_id'];
+            // Validar fecha del QR (opcional - seguridad adicional)
+            if ($qrFecha) {
+                $hoy = date('Y-m-d');
+                // Permitir QR del día actual y del día anterior (por si hay cambio de día)
+                $ayer = date('Y-m-d', strtotime('-1 day'));
+                if ($qrFecha !== $hoy && $qrFecha !== $ayer) {
+                    Response::error('Código QR expirado. Por favor genera uno nuevo.', 400);
+                    return;
+                }
+            }
+
             $fichaId = (int) $data['ficha_id'];
             $fecha = date('Y-m-d');
             $hora = date('H:i:s');
