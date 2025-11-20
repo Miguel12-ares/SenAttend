@@ -38,15 +38,22 @@ class DashboardController
         // Obtener usuario actual
         $user = $this->authService->getCurrentUser();
 
-        // Obtener estadísticas básicas
-        $stats = [
-            'total_fichas' => $this->fichaRepository->count(),
-            'total_aprendices' => $this->aprendizRepository->count(),
-            'total_usuarios' => $this->userRepository->count(),
-        ];
+        // Inicializar variables para la vista
+        $stats = [];
+        $fichasActivas = [];
 
-        // Obtener fichas activas recientes con información de aprendices
-        $fichasActivas = $this->fichaRepository->findWithStats(10, 0);
+        // Control de acceso basado en roles
+        // Solo admin puede ver estadísticas completas
+        if ($user['rol'] === 'admin') {
+            $stats = [
+                'total_fichas' => $this->fichaRepository->count(),
+                'total_aprendices' => $this->aprendizRepository->count(),
+                'total_usuarios' => $this->userRepository->count(),
+            ];
+
+            // Obtener fichas activas recientes con información de aprendices
+            $fichasActivas = $this->fichaRepository->findWithStats(10, 0);
+        }
 
         // Incluir la vista
         require __DIR__ . '/../../views/dashboard/index.php';
