@@ -173,12 +173,19 @@
             background: #f8f9fa;
             padding: 2rem;
             border-radius: 8px;
-            margin: 1rem 0;
+            margin: 1rem auto;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 400px;
         }
 
         .qr-code-container canvas {
             max-width: 100%;
             height: auto;
+            margin: 0 auto;
+            display: block;
         }
 
         .aprendiz-info {
@@ -377,7 +384,7 @@
                     aprendizInfo.innerHTML = `
                         <p><strong>Nombre:</strong> ${result.data.aprendiz.nombre_completo}</p>
                         <p><strong>Documento:</strong> ${result.data.aprendiz.documento}</p>
-                        <p><strong>Código de Carnet:</strong> ${result.data.aprendiz.codigo_carnet || 'N/A'}</p>
+                        <p><strong>Correo Electrónico:</strong> ${result.data.aprendiz.email || 'N/A'}</p>
                     `;
 
                     // Limpiar contenedor de QR

@@ -70,7 +70,7 @@
                                 <tr>
                                     <th>Documento</th>
                                     <th>Nombre Completo</th>
-                                    <th>Código Carnet</th>
+                                    <th>Correo Electrónico</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -80,7 +80,7 @@
                                     <tr>
                                         <td><?= htmlspecialchars($aprendiz['documento']) ?></td>
                                         <td><?= htmlspecialchars($aprendiz['nombre'] . ' ' . $aprendiz['apellido']) ?></td>
-                                        <td><?= htmlspecialchars($aprendiz['codigo_carnet'] ?? '-') ?></td>
+                                        <td><?= htmlspecialchars($aprendiz['email'] ?? '-') ?></td>
                                         <td>
                                             <span class="badge badge-<?= $aprendiz['estado'] === 'activo' ? 'success' : 'warning' ?>">
                                                 <?= htmlspecialchars($aprendiz['estado']) ?>

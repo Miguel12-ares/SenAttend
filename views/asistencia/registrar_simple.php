@@ -123,7 +123,7 @@
                                     <th>N°</th>
                                     <th>Documento</th>
                                     <th>Apellidos y Nombres</th>
-                                    <th>Código Carnet</th>
+                                    <th>Correo Electrónico</th>
                                     <th>Estado de Asistencia</th>
                                     <th>Hora</th>
                                 </tr>
@@ -135,7 +135,7 @@
                                     <td><?= $contador++ ?></td>
                                     <td><?= htmlspecialchars($aprendiz['documento']) ?></td>
                                     <td><strong><?= htmlspecialchars($aprendiz['apellido'] . ' ' . $aprendiz['nombre']) ?></strong></td>
-                                    <td><?= htmlspecialchars($aprendiz['codigo_carnet'] ?? 'N/A') ?></td>
+                                    <td><?= htmlspecialchars($aprendiz['email'] ?? 'N/A') ?></td>
                                     <td>
                                         <?php if (isset($aprendiz['asistencia_id']) && $aprendiz['asistencia_id']): ?>
                                             <!-- Ya tiene registro -->

@@ -308,10 +308,10 @@ function mostrarInformacionAprendiz(data) {
                 <span class="info-label">Nombre Completo:</span>
                 <span class="info-value">${aprendiz.nombre_completo}</span>
             </div>
-            ${aprendiz.codigo_carnet ? `
+            ${aprendiz.email ? `
             <div class="info-item">
-                <span class="info-label">Código Carnet:</span>
-                <span class="info-value">${aprendiz.codigo_carnet}</span>
+                <span class="info-label">Correo Electrónico:</span>
+                <span class="info-value">${aprendiz.email}</span>
             </div>
             ` : ''}
             <div class="info-item full-width">
