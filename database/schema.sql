@@ -1,10 +1,6 @@
 -- SENAttend - Esquema de Base de Datos MVP
 -- Sistema de Asistencia SENA
 -- Versión: 1.0
--- 
--- NOTA: Este archivo contiene solo las tablas base del sistema.
--- Para agregar el campo email y la tabla codigos_qr, ejecuta:
--- database/migrations/add_email_and_qr_table.sql
 
 -- Tabla: usuarios
 -- Almacena información de instructores, coordinadores y administradores
@@ -24,7 +20,6 @@ CREATE TABLE IF NOT EXISTS usuarios (
 
 -- Tabla: aprendices
 -- Almacena información de los aprendices
--- NOTA: El campo email se agrega mediante migración (add_email_and_qr_table.sql)
 CREATE TABLE IF NOT EXISTS aprendices (
     id INT AUTO_INCREMENT PRIMARY KEY,
     documento VARCHAR(20) UNIQUE NOT NULL,
@@ -92,8 +87,4 @@ CREATE TABLE IF NOT EXISTS asistencias (
 -- 3. Búsqueda de aprendices por documento
 -- 4. Consultas de asistencia por fecha, aprendiz y ficha
 -- 5. La clave única en asistencias previene duplicados por día
---
--- IMPORTANTE: 
--- - La tabla codigos_qr se crea mediante migración (add_email_and_qr_table.sql)
--- - El campo email en aprendices se agrega mediante migración (add_email_and_qr_table.sql)
 
