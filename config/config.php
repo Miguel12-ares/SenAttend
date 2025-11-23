@@ -53,14 +53,28 @@ if (file_exists($envPath)) {
     loadEnv($envPath);
 }
 
-// Definir constantes de la aplicación
-define('APP_ENV', getEnv('APP_ENV', 'production'));
-define('DB_HOST', getEnv('DB_HOST', '127.0.0.1'));
-define('DB_NAME', getEnv('DB_NAME', 'sena_asistencia'));
-define('DB_USER', getEnv('DB_USER', 'root'));
-define('DB_PASS', getEnv('DB_PASS', ''));
-define('ROOT_PATH', dirname(__DIR__));
-define('PUBLIC_PATH', ROOT_PATH . '/public');
+// Definir constantes de la aplicación (solo si no están definidas)
+if (!defined('APP_ENV')) {
+    define('APP_ENV', getEnv('APP_ENV', 'production'));
+}
+if (!defined('DB_HOST')) {
+    define('DB_HOST', getEnv('DB_HOST', '127.0.0.1'));
+}
+if (!defined('DB_NAME')) {
+    define('DB_NAME', getEnv('DB_NAME', 'sena_asistencia'));
+}
+if (!defined('DB_USER')) {
+    define('DB_USER', getEnv('DB_USER', 'root'));
+}
+if (!defined('DB_PASS')) {
+    define('DB_PASS', getEnv('DB_PASS', ''));
+}
+if (!defined('ROOT_PATH')) {
+    define('ROOT_PATH', dirname(__DIR__));
+}
+if (!defined('PUBLIC_PATH')) {
+    define('PUBLIC_PATH', ROOT_PATH . '/public');
+}
 
 // Configuración de errores según entorno
 if (APP_ENV === 'local' || APP_ENV === 'development') {
