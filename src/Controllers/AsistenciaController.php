@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Services\AsistenciaService;
 use App\Services\AuthService;
 use App\Repositories\FichaRepository;
+use App\Repositories\AprendizRepository;
 use App\Support\Response;
 use Exception;
 
@@ -21,15 +22,18 @@ class AsistenciaController
     private AsistenciaService $asistenciaService;
     private AuthService $authService;
     private FichaRepository $fichaRepository;
+    private AprendizRepository $aprendizRepository;
 
     public function __construct(
         AsistenciaService $asistenciaService,
         AuthService $authService,
-        FichaRepository $fichaRepository
+        FichaRepository $fichaRepository,
+        AprendizRepository $aprendizRepository
     ) {
         $this->asistenciaService = $asistenciaService;
         $this->authService = $authService;
         $this->fichaRepository = $fichaRepository;
+        $this->aprendizRepository = $aprendizRepository;
     }
 
     /**
@@ -583,7 +587,10 @@ class AsistenciaController
             // Validar estados
             foreach ($asistencias as $aprendizId => $estado) {
                 if (!in_array($estado, ['presente', 'ausente', 'tardanza'])) {
-                    $errores[] = "Estado inválido para aprendiz {$aprendizId}";
+                    // Obtener nombre completo del aprendiz para el mensaje de error
+                    $aprendiz = $this->aprendizRepository->findById((int)$aprendizId);
+                    $nombreCompleto = $aprendiz ? trim($aprendiz['nombre'] . ' ' . $aprendiz['apellido']) : "ID {$aprendizId}";
+                    $errores[] = "Estado inválido para aprendiz {$nombreCompleto}";
                 }
             }
         }

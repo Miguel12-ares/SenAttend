@@ -20,7 +20,10 @@ use App\Middleware\AuthMiddleware;
 use App\Repositories\UserRepository;
 use App\Repositories\FichaRepository;
 use App\Repositories\AprendizRepository;
+use App\Repositories\CodigoQRRepository;
 use App\Services\AuthService;
+use App\Services\EmailService;
+use App\Services\QRService;
 use App\Session\SessionManager;
 use App\Support\Response;
 
@@ -52,8 +55,11 @@ $session = new SessionManager();
 $userRepository = new UserRepository();
 $fichaRepository = new FichaRepository();
 $aprendizRepository = new AprendizRepository();
+$codigoQRRepository = new CodigoQRRepository();
 $asistenciaRepository = new \App\Repositories\AsistenciaRepository();
 $authService = new AuthService($userRepository, $session);
+$emailService = new EmailService();
+$qrService = new QRService($codigoQRRepository, $aprendizRepository, $emailService);
 $asistenciaService = new \App\Services\AsistenciaService($asistenciaRepository, $aprendizRepository, $fichaRepository);
 $authMiddleware = new AuthMiddleware($session);
 
@@ -431,18 +437,21 @@ try {
         $controller = new $controllerClass(
             $asistenciaService,
             $authService,
-            $fichaRepository
+            $fichaRepository,
+            $aprendizRepository
         );
     } elseif ($controllerClass === QRController::class) {
         $controller = new $controllerClass(
             $asistenciaService,
             $authService,
+            $qrService,
             $aprendizRepository,
             $fichaRepository
         );
     } elseif ($controllerClass === HomeController::class) {
         $controller = new $controllerClass(
-            $aprendizRepository
+            $aprendizRepository,
+            $qrService
         );
     } else {
         throw new RuntimeException("Unknown controller: {$controllerClass}");
