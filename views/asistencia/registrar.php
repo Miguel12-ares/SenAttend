@@ -133,6 +133,7 @@
                 <?php endif; ?>
 
                 <!-- Tabla de Aprendices - Dev 3: Tabla responsive con funcionalidades avanzadas -->
+                <?php if ($ficha && !empty($aprendices) && $validacionFecha['valido']): ?>
                 <div id="contenedorAprendices" style="display: none;">
                     <!-- Controles de tabla -->
                     <div class="tabla-controles">
@@ -170,7 +171,7 @@
                                         <th class="col-foto">Foto</th>
                                         <th class="col-documento">Documento</th>
                                         <th class="col-nombre">Apellidos y Nombres</th>
-                                        <th class="col-carnet">Código Carnet</th>
+                                        <th class="col-email">Correo Electrónico</th>
                                         <th class="col-estado">Estado de Asistencia</th>
                                         <th class="col-hora">Hora</th>
                                         <th class="col-observaciones">Observaciones</th>
@@ -335,7 +336,7 @@
                 <td class="col-nombre">
                     <strong>${aprendiz.apellido}, ${aprendiz.nombre}</strong>
                 </td>
-                <td class="col-carnet">${aprendiz.codigo_carnet || 'N/A'}</td>
+                <td class="col-email">${aprendiz.email || 'N/A'}</td>
                 <td class="col-estado">
                     ${renderizarEstadoAsistencia(aprendiz)}
                 </td>
