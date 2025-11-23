@@ -44,15 +44,16 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="codigo_carnet">Código Carnet</label>
+                                <label for="email">Correo Electrónico</label>
                                 <input 
-                                    type="text" 
-                                    id="codigo_carnet" 
-                                    name="codigo_carnet" 
+                                    type="email" 
+                                    id="email" 
+                                    name="email" 
                                     class="form-control"
-                                    value="<?= htmlspecialchars($aprendiz['codigo_carnet'] ?? '') ?>"
-                                    maxlength="50"
-                                    placeholder="ABC123">
+                                    value="<?= htmlspecialchars($aprendiz['email'] ?? '') ?>"
+                                    maxlength="100"
+                                    placeholder="aprendiz@ejemplo.com">
+                                <small class="form-text">Opcional - Requerido para envío de códigos QR</small>
                             </div>
                         </div>
 

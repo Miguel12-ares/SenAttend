@@ -112,7 +112,7 @@ ob_start();
                     <tr>
                         <th>Documento</th>
                         <th>Nombre Completo</th>
-                        <th>Código Carnet</th>
+                        <th>Correo Electrónico</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
@@ -126,7 +126,7 @@ ob_start();
                             <td>
                                 <?= htmlspecialchars($aprendiz['apellido'] . ', ' . $aprendiz['nombre']) ?>
                             </td>
-                            <td><?= htmlspecialchars($aprendiz['codigo_carnet'] ?? 'N/A') ?></td>
+                            <td><?= htmlspecialchars($aprendiz['email'] ?? 'N/A') ?></td>
                             <td>
                                 <span class="badge badge-<?= $aprendiz['estado'] === 'activo' ? 'success' : 'secondary' ?>">
                                     <?= ucfirst($aprendiz['estado']) ?>
@@ -200,7 +200,7 @@ ob_start();
                         <div class="file-upload-icon">📄</div>
                         <div class="file-upload-text">
                             <strong>Click para seleccionar archivo</strong> o arrastra aquí<br>
-                            <small>Formato: documento, nombre, apellido, codigo_carnet</small>
+                            <small>Formato: documento, nombre, apellido, email</small>
                         </div>
                         <input 
                             type="file" 
@@ -221,7 +221,7 @@ ob_start();
 
                 <div class="alert alert-info">
                     <strong>Formato del CSV:</strong><br>
-                    • Primera línea: encabezados (documento, nombre, apellido, codigo_carnet)<br>
+                    • Primera línea: encabezados (documento, nombre, apellido, email)<br>
                     • Documento: 6-20 dígitos numéricos<br>
                     • Los aprendices duplicados serán omitidos
                 </div>

@@ -63,7 +63,7 @@ ob_start();
                         <div class="file-upload-icon">📄</div>
                         <div class="file-upload-text">
                             <strong>Click para seleccionar archivo</strong> o arrastra aquí<br>
-                            <small>Formato: documento, nombres, apellidos, email, numero_ficha, codigo_carnet</small>
+                            <small>Formato: documento, nombres, apellidos, email, numero_ficha</small>
                         </div>
                         <input 
                             type="file" 
@@ -84,7 +84,7 @@ ob_start();
 
                 <div class="alert alert-info">
                     <strong>Formato del CSV:</strong><br>
-                    • Primera línea: encabezados (documento, nombres, apellidos, email, numero_ficha, codigo_carnet)<br>
+                    • Primera línea: encabezados (documento, nombres, apellidos, email, numero_ficha)<br>
                     • Documento: 6-20 dígitos numéricos únicos<br>
                     • Email: formato válido y único (opcional)<br>
                     • Código carnet: alfanumérico (opcional)<br>

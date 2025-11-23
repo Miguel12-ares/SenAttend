@@ -18,7 +18,7 @@ class AprendizRepository
     {
         try {
             $stmt = Connection::prepare(
-                'SELECT a.id, a.documento, a.nombre, a.apellido, a.codigo_carnet, a.estado 
+                'SELECT a.id, a.documento, a.nombre, a.apellido, a.email, a.estado 
                  FROM aprendices a
                  INNER JOIN ficha_aprendiz fa ON a.id = fa.id_aprendiz
                  WHERE fa.id_ficha = :id_ficha
@@ -45,7 +45,7 @@ class AprendizRepository
     {
         try {
             $stmt = Connection::prepare(
-                'SELECT id, documento, nombre, apellido, codigo_carnet, estado 
+                'SELECT id, documento, nombre, apellido, email, estado 
                  FROM aprendices 
                  WHERE documento = :documento 
                  LIMIT 1'
@@ -68,7 +68,7 @@ class AprendizRepository
     {
         try {
             $stmt = Connection::prepare(
-                'SELECT id, documento, nombre, apellido, codigo_carnet, estado 
+                'SELECT id, documento, nombre, apellido, email, estado 
                  FROM aprendices 
                  WHERE id = :id 
                  LIMIT 1'
@@ -84,28 +84,6 @@ class AprendizRepository
         }
     }
 
-    /**
-     * Busca aprendices por código de carnet
-     */
-    public function findByCodigoCarnet(string $codigoCarnet): ?array
-    {
-        try {
-            $stmt = Connection::prepare(
-                'SELECT id, documento, nombre, apellido, codigo_carnet, estado 
-                 FROM aprendices 
-                 WHERE codigo_carnet = :codigo_carnet 
-                 LIMIT 1'
-            );
-
-            $stmt->execute(['codigo_carnet' => $codigoCarnet]);
-            $aprendiz = $stmt->fetch();
-
-            return $aprendiz ?: null;
-        } catch (PDOException $e) {
-            error_log("Error finding aprendiz by codigo_carnet: " . $e->getMessage());
-            return null;
-        }
-    }
 
     /**
      * Crea un nuevo aprendiz
@@ -114,15 +92,15 @@ class AprendizRepository
     {
         try {
             $stmt = Connection::prepare(
-                'INSERT INTO aprendices (documento, nombre, apellido, codigo_carnet, estado) 
-                 VALUES (:documento, :nombre, :apellido, :codigo_carnet, :estado)'
+                'INSERT INTO aprendices (documento, nombre, apellido, email, estado) 
+                 VALUES (:documento, :nombre, :apellido, :email, :estado)'
             );
 
             $stmt->execute([
                 'documento' => $data['documento'],
                 'nombre' => $data['nombre'],
                 'apellido' => $data['apellido'],
-                'codigo_carnet' => $data['codigo_carnet'],
+                'email' => $data['email'] ?? null,
                 'estado' => $data['estado'] ?? 'activo',
             ]);
 
@@ -154,9 +132,9 @@ class AprendizRepository
                 $fields[] = 'apellido = :apellido';
                 $params['apellido'] = $data['apellido'];
             }
-            if (isset($data['codigo_carnet'])) {
-                $fields[] = 'codigo_carnet = :codigo_carnet';
-                $params['codigo_carnet'] = $data['codigo_carnet'];
+            if (isset($data['email'])) {
+                $fields[] = 'email = :email';
+                $params['email'] = $data['email'];
             }
             if (isset($data['estado'])) {
                 $fields[] = 'estado = :estado';
@@ -184,7 +162,7 @@ class AprendizRepository
     {
         try {
             $stmt = Connection::prepare(
-                'SELECT id, documento, nombre, apellido, codigo_carnet, estado 
+                'SELECT id, documento, nombre, apellido, email, estado 
                  FROM aprendices 
                  ORDER BY apellido ASC, nombre ASC 
                  LIMIT :limit OFFSET :offset'
@@ -279,12 +257,12 @@ class AprendizRepository
     {
         try {
             $stmt = Connection::prepare(
-                'SELECT id, documento, nombre, apellido, codigo_carnet, estado 
+                'SELECT id, documento, nombre, apellido, email, estado 
                  FROM aprendices 
                  WHERE documento LIKE :search 
                     OR nombre LIKE :search 
                     OR apellido LIKE :search
-                    OR codigo_carnet LIKE :search
+                    OR email LIKE :search
                  ORDER BY apellido ASC, nombre ASC 
                  LIMIT :limit OFFSET :offset'
             );
@@ -313,7 +291,7 @@ class AprendizRepository
                  WHERE documento LIKE :search 
                     OR nombre LIKE :search 
                     OR apellido LIKE :search
-                    OR codigo_carnet LIKE :search'
+                    OR email LIKE :search'
             );
             $searchTerm = "%{$search}%";
             $stmt->execute(['search' => $searchTerm]);
@@ -332,7 +310,7 @@ class AprendizRepository
     {
         try {
             $stmt = Connection::prepare(
-                'SELECT id, documento, nombre, apellido, codigo_carnet, estado 
+                'SELECT id, documento, nombre, apellido, email, estado 
                  FROM aprendices 
                  WHERE estado = :estado 
                  ORDER BY apellido ASC, nombre ASC 
@@ -405,9 +383,9 @@ class AprendizRepository
             $params = [];
             $joins = '';
 
-            // Filtro de búsqueda por documento, nombre, apellido o código carnet
+            // Filtro de búsqueda por documento, nombre, apellido o email
             if (!empty($filters['search'])) {
-                $conditions[] = '(a.documento LIKE :search OR a.nombre LIKE :search OR a.apellido LIKE :search OR a.codigo_carnet LIKE :search)';
+                $conditions[] = '(a.documento LIKE :search OR a.nombre LIKE :search OR a.apellido LIKE :search OR a.email LIKE :search)';
                 $params['search'] = "%{$filters['search']}%";
             }
 
@@ -436,7 +414,7 @@ class AprendizRepository
             }
 
             // Construir query
-            $sql = 'SELECT DISTINCT a.id, a.documento, a.nombre, a.apellido, a.codigo_carnet, a.estado, a.created_at 
+            $sql = 'SELECT DISTINCT a.id, a.documento, a.nombre, a.apellido, a.email, a.estado, a.created_at 
                     FROM aprendices a ' . $joins;
             
             if (!empty($conditions)) {
@@ -478,7 +456,7 @@ class AprendizRepository
             $joins = '';
 
             if (!empty($filters['search'])) {
-                $conditions[] = '(a.documento LIKE :search OR a.nombre LIKE :search OR a.apellido LIKE :search OR a.codigo_carnet LIKE :search)';
+                $conditions[] = '(a.documento LIKE :search OR a.nombre LIKE :search OR a.apellido LIKE :search OR a.email LIKE :search)';
                 $params['search'] = "%{$filters['search']}%";
             }
 
@@ -556,11 +534,11 @@ class AprendizRepository
     {
         try {
             $stmt = Connection::prepare(
-                'SELECT a.id, a.documento, a.nombre, a.apellido, a.codigo_carnet, a.estado,
+                'SELECT a.id, a.documento, a.nombre, a.apellido, a.email, a.estado,
                         COUNT(DISTINCT fa.id_ficha) as total_fichas
                  FROM aprendices a
                  LEFT JOIN ficha_aprendiz fa ON a.id = fa.id_aprendiz
-                 GROUP BY a.id, a.documento, a.nombre, a.apellido, a.codigo_carnet, a.estado
+                 GROUP BY a.id, a.documento, a.nombre, a.apellido, a.email, a.estado
                  ORDER BY a.apellido ASC, a.nombre ASC
                  LIMIT :limit OFFSET :offset'
             );
@@ -642,7 +620,7 @@ class AprendizRepository
         try {
             $placeholders = implode(',', array_fill(0, count($documentos), '?'));
             $stmt = Connection::prepare(
-                "SELECT id, documento, nombre, apellido, codigo_carnet, estado 
+                "SELECT id, documento, nombre, apellido, email, estado 
                  FROM aprendices 
                  WHERE documento IN ($placeholders)"
             );

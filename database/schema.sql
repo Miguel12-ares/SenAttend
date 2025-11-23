@@ -1,13 +1,10 @@
 -- SENAttend - Esquema de Base de Datos MVP
 -- Sistema de Asistencia SENA
 -- Versión: 1.0
-
--- Eliminar base de datos si existe (solo para desarrollo)
--- DROP DATABASE IF EXISTS sena_asistencia;
-
--- Crear base de datos
--- CREATE DATABASE IF NOT EXISTS sena_asistencia DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- USE sena_asistencia;
+-- 
+-- NOTA: Este archivo contiene solo las tablas base del sistema.
+-- Para agregar el campo email y la tabla codigos_qr, ejecuta:
+-- database/migrations/add_email_and_qr_table.sql
 
 -- Tabla: usuarios
 -- Almacena información de instructores, coordinadores y administradores
@@ -27,17 +24,16 @@ CREATE TABLE IF NOT EXISTS usuarios (
 
 -- Tabla: aprendices
 -- Almacena información de los aprendices
+-- NOTA: El campo email se agrega mediante migración (add_email_and_qr_table.sql)
 CREATE TABLE IF NOT EXISTS aprendices (
     id INT AUTO_INCREMENT PRIMARY KEY,
     documento VARCHAR(20) UNIQUE NOT NULL,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
-    codigo_carnet VARCHAR(50),
     estado ENUM('activo', 'retirado') NOT NULL DEFAULT 'activo',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_documento (documento),
-    INDEX idx_codigo_carnet (codigo_carnet),
     INDEX idx_estado (estado)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -93,7 +89,11 @@ CREATE TABLE IF NOT EXISTS asistencias (
 -- Los índices están optimizados para las consultas más frecuentes:
 -- 1. Búsqueda de usuarios por email y documento
 -- 2. Búsqueda de fichas por número
--- 3. Búsqueda de aprendices por documento y código de carnet
+-- 3. Búsqueda de aprendices por documento
 -- 4. Consultas de asistencia por fecha, aprendiz y ficha
 -- 5. La clave única en asistencias previene duplicados por día
+--
+-- IMPORTANTE: 
+-- - La tabla codigos_qr se crea mediante migración (add_email_and_qr_table.sql)
+-- - El campo email en aprendices se agrega mediante migración (add_email_and_qr_table.sql)
 

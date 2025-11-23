@@ -37,8 +37,8 @@
                             <span class="info-value"><strong><?= htmlspecialchars($aprendiz['documento']) ?></strong></span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Código Carnet:</span>
-                            <span class="info-value"><?= htmlspecialchars($aprendiz['codigo_carnet'] ?? 'No asignado') ?></span>
+                            <span class="info-label">Correo Electrónico:</span>
+                            <span class="info-value"><?= htmlspecialchars($aprendiz['email'] ?? 'No asignado') ?></span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Nombre:</span>

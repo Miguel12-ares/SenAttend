@@ -64,10 +64,12 @@ class AprendizService
             $errors[] = 'El apellido no puede exceder 100 caracteres';
         }
 
-        // Validar código de carnet (opcional)
-        if (!empty($data['codigo_carnet'])) {
-            if (strlen($data['codigo_carnet']) > 50) {
-                $errors[] = 'El código de carnet no puede exceder 50 caracteres';
+        // Validar email (opcional pero debe ser válido si se proporciona)
+        if (!empty($data['email'])) {
+            if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'El correo electrónico no tiene un formato válido';
+            } elseif (strlen($data['email']) > 100) {
+                $errors[] = 'El correo electrónico no puede exceder 100 caracteres';
             }
         }
 
@@ -99,7 +101,7 @@ class AprendizService
                 'documento' => trim($data['documento']),
                 'nombre' => ucwords(strtolower(trim($data['nombre']))),
                 'apellido' => ucwords(strtolower(trim($data['apellido']))),
-                'codigo_carnet' => !empty($data['codigo_carnet']) ? trim($data['codigo_carnet']) : null,
+                'email' => !empty($data['email']) ? trim($data['email']) : null,
                 'estado' => $data['estado'] ?? 'activo',
             ]);
 
@@ -162,7 +164,7 @@ class AprendizService
                 'documento' => trim($data['documento']),
                 'nombre' => ucwords(strtolower(trim($data['nombre']))),
                 'apellido' => ucwords(strtolower(trim($data['apellido']))),
-                'codigo_carnet' => !empty($data['codigo_carnet']) ? trim($data['codigo_carnet']) : null,
+                'email' => !empty($data['email']) ? trim($data['email']) : null,
                 'estado' => $data['estado'],
             ]);
 
@@ -262,7 +264,7 @@ class AprendizService
 
     /**
      * Importa aprendices desde archivo CSV
-     * Formato esperado: documento,nombre,apellido,codigo_carnet
+     * Formato esperado: documento,nombre,apellido,email
      */
     public function importarCSV(string $filePath, int $fichaId): array
     {
@@ -304,11 +306,18 @@ class AprendizService
                 $documento = trim($data[0] ?? '');
                 $nombre = trim($data[1] ?? '');
                 $apellido = trim($data[2] ?? '');
-                $codigoCarnet = trim($data[3] ?? '');
+                $email = trim($data[3] ?? '');
 
                 // Validar datos mínimos
                 if (empty($documento) || empty($nombre) || empty($apellido)) {
                     $errors[] = "Línea {$lineNumber}: Documento, nombre o apellido vacío";
+                    $skipped++;
+                    continue;
+                }
+
+                // Validar email si se proporciona
+                if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $errors[] = "Línea {$lineNumber}: Email {$email} no válido";
                     $skipped++;
                     continue;
                 }
@@ -326,7 +335,7 @@ class AprendizService
                         'documento' => $documento,
                         'nombre' => $nombre,
                         'apellido' => $apellido,
-                        'codigo_carnet' => $codigoCarnet,
+                        'email' => !empty($email) ? $email : null,
                         'estado' => 'activo',
                         'ficha_id' => $fichaId
                     ]);
@@ -633,7 +642,7 @@ class AprendizService
 
     /**
      * Importa aprendices desde archivo CSV con formato extendido
-     * Formato esperado: documento,nombres,apellidos,email,numero_ficha,codigo_carnet
+     * Formato esperado: documento,nombres,apellidos,email,numero_ficha
      */
     public function importFromCSV(string $filePath, int $fichaId): array
     {
@@ -677,7 +686,6 @@ class AprendizService
                 $apellidos = trim($data[2] ?? '');
                 $email = trim($data[3] ?? '');
                 $numeroFicha = trim($data[4] ?? '');
-                $codigoCarnet = trim($data[5] ?? '');
 
                 // Validar datos mínimos
                 if (empty($documento) || empty($nombres) || empty($apellidos)) {
@@ -706,10 +714,9 @@ class AprendizService
                         'documento' => $documento,
                         'nombre' => $nombres,
                         'apellido' => $apellidos,
-                        'codigo_carnet' => $codigoCarnet,
+                        'email' => !empty($email) ? $email : null,
                         'estado' => 'activo',
-                        'ficha_id' => $fichaId,
-                        'email' => $email // Para futuras extensiones
+                        'ficha_id' => $fichaId
                     ]);
 
                     if ($result['success']) {
