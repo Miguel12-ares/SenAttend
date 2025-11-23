@@ -3,7 +3,7 @@
     "type": "project",
     "description": "SENAttend - Sistema de Asistencia SENA con arquitectura MVC",
     "require": {
-        "php": "8.4"
+        "php": ">=8.2"
     },
     "autoload": {
         "psr-4": {
