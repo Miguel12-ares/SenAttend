@@ -15,6 +15,7 @@ require_once __DIR__ . '/../config/config.php';
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
 use App\Controllers\HomeController;
+use App\Controllers\ProfileController;
 use App\Controllers\QRController;
 use App\Middleware\AuthMiddleware;
 use App\Repositories\UserRepository;
@@ -125,6 +126,12 @@ $routes = [
             'action' => 'escanear',
             'middleware' => ['auth']
         ],
+        // Perfil
+        '/perfil' => [
+            'controller' => ProfileController::class,
+            'action' => 'index',
+            'middleware' => ['auth']
+        ],
         // Test de rutas (solo en desarrollo)
         '/test-routes' => [
             'controller' => function() {
@@ -172,6 +179,12 @@ $routes = [
             'controller' => AuthController::class,
             'action' => 'login',
             'middleware' => []
+        ],
+        // Perfil
+        '/perfil/cambiar-password' => [
+            'controller' => ProfileController::class,
+            'action' => 'cambiarPassword',
+            'middleware' => ['auth']
         ],
         // API Pública - Validar aprendiz y generar QR
         '/api/public/aprendiz/validar' => [
@@ -452,6 +465,11 @@ try {
         $controller = new $controllerClass(
             $aprendizRepository,
             $qrService
+        );
+    } elseif ($controllerClass === ProfileController::class) {
+        $controller = new $controllerClass(
+            $authService,
+            $session
         );
     } else {
         throw new RuntimeException("Unknown controller: {$controllerClass}");

@@ -22,9 +22,8 @@
 }
 
 .qr-header .icon {
-    width: 40px;
-    height: 40px;
-    color: #39A900;
+    font-size: 1.5rem;
+    color: #212529;
 }
 
 .qr-header .subtitle {
@@ -105,8 +104,8 @@
 }
 
 .btn .icon {
-    width: 20px;
-    height: 20px;
+    font-size: 0.9rem;
+    color: inherit;
 }
 
 .btn:disabled {
@@ -178,9 +177,9 @@
 }
 
 .alert .icon {
-    width: 24px;
-    height: 24px;
+    font-size: 1rem;
     flex-shrink: 0;
+    color: inherit;
 }
 
 .alert-success {
@@ -351,9 +350,9 @@
 }
 
 .info-banner .icon {
-    width: 20px;
-    height: 20px;
+    font-size: 0.9rem;
     flex-shrink: 0;
+    color: inherit;
 }
 
 /* Historial */
@@ -494,10 +493,10 @@
 }
 
 .empty-state .icon {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 15px;
-    opacity: 0.3;
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+    color: #6c757d;
+    opacity: 0.7;
 }
 
 .empty-state p {
@@ -604,10 +603,9 @@
 }
 
 .modal-error .modal-icon {
-    width: 48px;
-    height: 48px;
+    font-size: 1rem;
     flex-shrink: 0;
-    animation: errorPulse 1.5s ease-in-out infinite;
+    color: #212529;
 }
 
 .modal-success .modal-header {
@@ -621,10 +619,9 @@
 }
 
 .modal-success .modal-icon {
-    width: 48px;
-    height: 48px;
+    font-size: 1rem;
     flex-shrink: 0;
-    animation: successPulse 1.5s ease-in-out infinite;
+    color: #212529;
 }
 
 .modal-header h3 {

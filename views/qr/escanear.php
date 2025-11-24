@@ -8,6 +8,7 @@
 $title = 'Escanear Código QR - SENAttend';
 $additionalStyles = '<link rel="stylesheet" href="/css/qr.css">';
 $showHeader = true;
+$currentPage = 'qr-escanear';
 
 // Obtener usuario de sesión (pasado desde el controlador)
 $user = $user ?? null;
@@ -18,10 +19,7 @@ ob_start();
 <div class="qr-container">
     <div class="qr-header">
         <h1>
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                <circle cx="12" cy="13" r="4"/>
-            </svg>
+            <i class="fas fa-camera"></i>
             Escanear Código QR
         </h1>
         <p class="subtitle">Escanea el código QR del aprendiz para registrar su asistencia</p>
@@ -43,11 +41,7 @@ ob_start();
         </div>
         
         <div class="info-banner">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="16" x2="12" y2="12"/>
-                <line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
+            <i class="fas fa-circle-info"></i>
             <span>Fecha de registro: <strong><?= date('d/m/Y') ?></strong> | Hora límite tardanza: <strong>07:30 AM</strong></span>
         </div>
     </div>
@@ -59,16 +53,11 @@ ob_start();
             <div id="reader"></div>
             <div class="scanner-controls">
                 <button id="btnIniciarScanner" class="btn btn-primary">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="5 3 19 12 5 21 5 3"/>
-                    </svg>
+                    <i class="fas fa-play"></i>
                     Iniciar Escáner
                 </button>
                 <button id="btnDetenerScanner" class="btn btn-danger" style="display: none;">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="6" y="4" width="4" height="16"/>
-                        <rect x="14" y="4" width="4" height="16"/>
-                    </svg>
+                    <i class="fas fa-stop"></i>
                     Detener
                 </button>
             </div>
@@ -226,7 +215,7 @@ async function procesarQR(qrData) {
             historialRegistros.unshift(registro);
             
             mostrarMensaje(
-                `✓ Asistencia registrada: ${registro.aprendiz.nombre} - ${registro.estado.toUpperCase()}`,
+                `<i class="fas fa-check"></i> Asistencia registrada: ${registro.aprendiz.nombre} - ${registro.estado.toUpperCase()}`,
                 'success'
             );
             
@@ -244,7 +233,7 @@ async function procesarQR(qrData) {
             }, 2000);
             
         } else {
-            mostrarMensaje(`✗ Error: ${result.message}`, 'error');
+            mostrarMensaje(`<i class="fas fa-xmark"></i> Error: ${result.message}`, 'error');
             
             // Reactivar escáner después de 4 segundos (tiempo para leer el error)
             setTimeout(() => {
@@ -272,12 +261,7 @@ function actualizarHistorial() {
     if (historialRegistros.length === 0) {
         historialContainer.innerHTML = `
             <div class="empty-state">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="7" height="7"/>
-                    <rect x="14" y="3" width="7" height="7"/>
-                    <rect x="14" y="14" width="7" height="7"/>
-                    <rect x="3" y="14" width="7" height="7"/>
-                </svg>
+                <i class="fas fa-qrcode"></i>
                 <p>No hay registros aún. Escanea el código QR de un aprendiz para comenzar.</p>
             </div>
         `;
@@ -346,20 +330,9 @@ let mensajeTimeout = null;
 // Mostrar mensaje
 function mostrarMensaje(mensaje, tipo = 'info') {
     const iconos = {
-        success: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
-        </svg>`,
-        error: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="15" y1="9" x2="9" y2="15"/>
-            <line x1="9" y1="9" x2="15" y2="15"/>
-        </svg>`,
-        info: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="16" x2="12" y2="12"/>
-            <line x1="12" y1="8" x2="12.01" y2="8"/>
-        </svg>`
+        success: `<i class="fas fa-check-circle"></i>`,
+        error: `<i class="fas fa-xmark-circle"></i>`,
+        info: `<i class="fas fa-circle-info"></i>`
     };
     
     // Limpiar temporizador anterior si existe

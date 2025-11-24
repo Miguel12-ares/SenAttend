@@ -6,6 +6,7 @@
 
 $title = 'Gestión de Fichas - SENAttend';
 $showHeader = true;
+$currentPage = 'fichas';
 
 ob_start();
 ?>
@@ -16,8 +17,8 @@ ob_start();
     <div class="page-header">
         <h1>Gestión de Fichas</h1>
         <div class="page-actions">
-            <button onclick="abrirModalImportar()" class="btn btn-secondary">📂 Importar CSV</button>
-            <a href="/fichas/crear" class="btn btn-primary">+ Nueva Ficha</a>
+            <button onclick="abrirModalImportar()" class="btn btn-secondary"><i class="fas fa-folder-open"></i> Importar CSV</button>
+            <a href="/fichas/crear" class="btn btn-primary"><i class="fas fa-plus"></i> Nueva Ficha</a>
         </div>
     </div>
 
@@ -77,17 +78,18 @@ ob_start();
                 <a href="/fichas/crear" class="btn btn-primary">Crear primera ficha</a>
             </div>
         <?php else: ?>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Número Ficha</th>
-                        <th>Nombre</th>
-                        <th>Estado</th>
-                        <th>Aprendices</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Número Ficha</th>
+                            <th>Nombre</th>
+                            <th>Estado</th>
+                            <th>Aprendices</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                     <?php foreach ($fichas as $ficha): ?>
                         <tr>
                             <td>
@@ -107,23 +109,24 @@ ob_start();
                             </td>
                             <td class="actions">
                                 <a href="/fichas/<?= $ficha['id'] ?>" class="btn-action btn-view" title="Ver detalles">
-                                    👁️
+                                    <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="/fichas/<?= $ficha['id'] ?>/editar" class="btn-action btn-edit" title="Editar">
-                                    ✏️
+                                    <i class="fas fa-pen-to-square"></i>
                                 </a>
                                 <button 
                                     onclick="confirmarEliminar(<?= $ficha['id'] ?>, '<?= htmlspecialchars($ficha['numero_ficha'], ENT_QUOTES) ?>')" 
                                     class="btn-action btn-delete" 
                                     title="Eliminar"
                                 >
-                                    🗑️
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </td>
                         </tr>
                     <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Paginación -->
             <?php if ($totalPages > 1): ?>
@@ -207,45 +210,7 @@ ob_start();
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table th {
-    background-color: var(--color-primary);
-    color: white;
-    padding: 1rem;
-    text-align: left;
-}
-
-.table td {
-    padding: 1rem;
-    border-bottom: 1px solid var(--color-gray-200);
-}
-
-.table tbody tr:hover {
-    background-color: var(--color-gray-100);
-}
-
-.actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.btn-action {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    transition: background 0.2s;
-}
-
-.btn-action:hover {
-    background-color: var(--color-gray-200);
-}
+/* Los estilos de tablas, .actions y .btn-action están centralizados en style.css y components.css */
 
 .pagination {
     display: flex;
@@ -328,7 +293,7 @@ ob_start();
                 <div class="form-group">
                     <label>Archivo CSV</label>
                     <div class="file-upload-area" onclick="document.getElementById('csv_file').click()">
-                        <div class="file-upload-icon">📄</div>
+                        <div class="file-upload-icon"><i class="fas fa-file"></i></div>
                         <div class="file-upload-text">
                             <strong>Click para seleccionar archivo</strong> o arrastra aquí<br>
                             <small>Formato: numero_ficha, nombre, estado</small>
@@ -346,7 +311,7 @@ ob_start();
                             <div class="file-selected-name" id="fileName"></div>
                             <div class="file-selected-size" id="fileSize"></div>
                         </div>
-                        <button type="button" class="file-remove" onclick="clearFile()">×</button>
+                        <button type="button" class="file-remove" onclick="clearFile()"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
 
@@ -361,8 +326,8 @@ ob_start();
         </div>
         <div class="modal-actions">
             <button type="button" onclick="cerrarModalImportar()" class="btn btn-secondary">Cancelar</button>
-            <button type="button" onclick="validarArchivoFichas()" class="btn btn-info">🔍 Validar</button>
-            <button type="button" onclick="importarCSV()" class="btn btn-primary">📂 Importar</button>
+            <button type="button" onclick="validarArchivoFichas()" class="btn btn-info"><i class="fas fa-magnifying-glass"></i> Validar</button>
+            <button type="button" onclick="importarCSV()" class="btn btn-primary"><i class="fas fa-folder-open"></i> Importar</button>
         </div>
     </div>
 </div>

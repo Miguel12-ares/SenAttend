@@ -7,29 +7,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Asistencia - SENAttend</title>
+    <link rel="stylesheet" href="/css/fontawesome/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/asistencia-registrar.css">
 </head>
 <body>
     <div class="wrapper">
-        <header class="header">
-            <div class="container">
-                <div class="header-content">
-                    <div class="logo">
-                        <h1>SENAttend</h1>
-                        <p class="subtitle">Registro de Asistencia</p>
-                    </div>
-                    <nav class="nav">
-                        <a href="/" class="btn btn-secondary btn-sm">Volver al Dashboard</a>
-                        <span class="user-info">
-                            <strong><?= htmlspecialchars($user['nombre'] ?? 'Usuario') ?></strong>
-                            <span class="badge badge-<?= $user['rol'] ?? 'instructor' ?>"><?= ucfirst($user['rol'] ?? 'Instructor') ?></span>
-                        </span>
-                        <a href="/auth/logout" class="btn btn-secondary btn-sm">Cerrar Sesión</a>
-                    </nav>
-                </div>
-            </div>
-        </header>
+        <?php 
+        $currentPage = 'asistencia';
+        require __DIR__ . '/../components/header.php'; 
+        ?>
 
         <main class="main-content">
             <div class="container asistencia-form">
@@ -83,7 +70,7 @@
 
                     <?php if (isset($validacionFecha) && !$validacionFecha['valido']): ?>
                     <div class="alert alert-error" style="margin-top: 1rem;">
-                        ⚠️ <?= htmlspecialchars($validacionFecha['mensaje']) ?>
+                        <i class="fas fa-triangle-exclamation"></i> <?= htmlspecialchars($validacionFecha['mensaje']) ?>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -117,56 +104,87 @@
                     <input type="hidden" name="fecha" value="<?= htmlspecialchars($fechaSeleccionada) ?>">
 
                     <div class="tabla-asistencia">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>N°</th>
-                                    <th>Documento</th>
-                                    <th>Apellidos y Nombres</th>
-                                    <th>Correo Electrónico</th>
-                                    <th>Estado de Asistencia</th>
-                                    <th>Hora</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php $contador = 1; ?>
-                                <?php foreach ($aprendices as $aprendiz): ?>
-                                <tr>
-                                    <td><?= $contador++ ?></td>
-                                    <td><?= htmlspecialchars($aprendiz['documento']) ?></td>
-                                    <td><strong><?= htmlspecialchars($aprendiz['apellido'] . ' ' . $aprendiz['nombre']) ?></strong></td>
-                                    <td><?= htmlspecialchars($aprendiz['email'] ?? 'N/A') ?></td>
-                                    <td>
-                                        <?php if (isset($aprendiz['asistencia_id']) && $aprendiz['asistencia_id']): ?>
-                                            <!-- Ya tiene registro -->
-                                            <span class="badge-estado badge-<?= $aprendiz['asistencia_estado'] ?>">
-                                                <?= ucfirst($aprendiz['asistencia_estado']) ?>
-                                            </span>
-                                        <?php else: ?>
-                                            <!-- Registrar nuevo -->
-                                            <div class="estado-radio">
-                                                <label>
-                                                    <input type="radio" name="asistencias[<?= $aprendiz['id_aprendiz'] ?>]" value="presente" required>
-                                                    Presente
-                                                </label>
-                                                <label>
-                                                    <input type="radio" name="asistencias[<?= $aprendiz['id_aprendiz'] ?>]" value="ausente">
-                                                    Ausente
-                                                </label>
-                                                <label>
-                                                    <input type="radio" name="asistencias[<?= $aprendiz['id_aprendiz'] ?>]" value="tardanza">
-                                                    Tardanza
-                                                </label>
-                                            </div>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <?= isset($aprendiz['asistencia_hora']) && $aprendiz['asistencia_hora'] ? date('h:i A', strtotime($aprendiz['asistencia_hora'])) : '--' ?>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>N°</th>
+                                        <th>Documento</th>
+                                        <th>Apellidos y Nombres</th>
+                                        <th>Correo Electrónico</th>
+                                        <th>Estado de Asistencia</th>
+                                        <th>Hora</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php 
+                                    $offset = ($page - 1) * $perPage;
+                                    $aprendicesPaginados = array_slice($aprendices, $offset, $perPage);
+                                    $contador = $offset + 1; 
+                                    ?>
+                                    <?php foreach ($aprendicesPaginados as $aprendiz): ?>
+                                    <tr>
+                                        <td><?= $contador++ ?></td>
+                                        <td><?= htmlspecialchars($aprendiz['documento']) ?></td>
+                                        <td><strong><?= htmlspecialchars($aprendiz['apellido'] . ' ' . $aprendiz['nombre']) ?></strong></td>
+                                        <td><?= htmlspecialchars($aprendiz['email'] ?? 'N/A') ?></td>
+                                        <td>
+                                            <?php if (isset($aprendiz['asistencia_id']) && $aprendiz['asistencia_id']): ?>
+                                                <!-- Ya tiene registro -->
+                                                <span class="badge-estado badge-<?= $aprendiz['asistencia_estado'] ?>">
+                                                    <?= ucfirst($aprendiz['asistencia_estado']) ?>
+                                                </span>
+                                            <?php else: ?>
+                                                <!-- Registrar nuevo -->
+                                                <div class="estado-radio">
+                                                    <label>
+                                                        <input type="radio" name="asistencias[<?= $aprendiz['id_aprendiz'] ?>]" value="presente" required>
+                                                        Presente
+                                                    </label>
+                                                    <label>
+                                                        <input type="radio" name="asistencias[<?= $aprendiz['id_aprendiz'] ?>]" value="ausente">
+                                                        Ausente
+                                                    </label>
+                                                    <label>
+                                                        <input type="radio" name="asistencias[<?= $aprendiz['id_aprendiz'] ?>]" value="tardanza">
+                                                        Tardanza
+                                                    </label>
+                                                </div>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?= isset($aprendiz['asistencia_hora']) && $aprendiz['asistencia_hora'] ? date('h:i A', strtotime($aprendiz['asistencia_hora'])) : '--' ?>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <?php if ($totalPages > 1): ?>
+                        <div class="pagination">
+                            <?php if ($page > 1): ?>
+                                <a href="?ficha=<?= $fichaSeleccionada ?>&fecha=<?= htmlspecialchars($fechaSeleccionada) ?>&page=<?= $page - 1 ?>" class="btn btn-secondary">
+                                    « Anterior
+                                </a>
+                            <?php else: ?>
+                                <span class="btn btn-secondary" style="opacity: 0.5; cursor: not-allowed;">« Anterior</span>
+                            <?php endif; ?>
+
+                            <span class="pagination-info">
+                                Página <?= $page ?> de <?= $totalPages ?> 
+                                (Mostrando <?= count($aprendicesPaginados) ?> de <?= $totalAprendices ?> aprendices)
+                            </span>
+
+                            <?php if ($page < $totalPages): ?>
+                                <a href="?ficha=<?= $fichaSeleccionada ?>&fecha=<?= htmlspecialchars($fechaSeleccionada) ?>&page=<?= $page + 1 ?>" class="btn btn-secondary">
+                                    Siguiente »
+                                </a>
+                            <?php else: ?>
+                                <span class="btn btn-secondary" style="opacity: 0.5; cursor: not-allowed;">Siguiente »</span>
+                            <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
                     </div>
 
                     <div style="margin-top: 2rem; text-align: center;">

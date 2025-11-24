@@ -65,34 +65,36 @@
                 </div>
                 <div class="card-body">
                     <?php if (!empty($aprendices)): ?>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Documento</th>
-                                    <th>Nombre Completo</th>
-                                    <th>Correo Electrónico</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($aprendices as $aprendiz): ?>
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
                                     <tr>
-                                        <td><?= htmlspecialchars($aprendiz['documento']) ?></td>
-                                        <td><?= htmlspecialchars($aprendiz['nombre'] . ' ' . $aprendiz['apellido']) ?></td>
-                                        <td><?= htmlspecialchars($aprendiz['email'] ?? '-') ?></td>
-                                        <td>
-                                            <span class="badge badge-<?= $aprendiz['estado'] === 'activo' ? 'success' : 'warning' ?>">
-                                                <?= htmlspecialchars($aprendiz['estado']) ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <a href="/aprendices/<?= $aprendiz['id'] ?>" class="btn btn-sm btn-info">Ver</a>
-                                        </td>
+                                        <th>Documento</th>
+                                        <th>Nombre Completo</th>
+                                        <th>Correo Electrónico</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
                                     </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($aprendices as $aprendiz): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($aprendiz['documento']) ?></td>
+                                            <td><?= htmlspecialchars($aprendiz['nombre'] . ' ' . $aprendiz['apellido']) ?></td>
+                                            <td><?= htmlspecialchars($aprendiz['email'] ?? '-') ?></td>
+                                            <td>
+                                                <span class="badge badge-<?= $aprendiz['estado'] === 'activo' ? 'success' : 'warning' ?>">
+                                                    <?= htmlspecialchars($aprendiz['estado']) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="/aprendices/<?= $aprendiz['id'] ?>" class="btn btn-sm btn-info">Ver</a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     <?php else: ?>
                         <div class="alert alert-info">
                             <p>No hay aprendices vinculados a esta ficha.</p>

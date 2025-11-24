@@ -4,28 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - SENAttend</title>
+    <link rel="stylesheet" href="/css/fontawesome/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/dashboard.css">
 </head>
 <body>
     <div class="wrapper">
-        <header class="header">
-            <div class="container">
-                <div class="header-content">
-                    <div class="logo">
-                        <h1>SENAttend</h1>
-                        <p class="subtitle">Sistema de Asistencia SENA</p>
-                    </div>
-                    <nav class="nav">
-                        <span class="user-info">
-                            Bienvenido, <strong><?= htmlspecialchars($user['nombre']) ?></strong>
-                            <span class="badge badge-<?= $user['rol'] ?>"><?= ucfirst($user['rol']) ?></span>
-                        </span>
-                        <a href="/auth/logout" class="btn btn-secondary btn-sm">Cerrar Sesión</a>
-                    </nav>
-                </div>
-            </div>
-        </header>
+        <?php 
+        $currentPage = 'dashboard';
+        require __DIR__ . '/../components/header.php'; 
+        ?>
 
         <main class="main-content">
             <div class="container">
@@ -44,7 +32,7 @@
                 <?php if ($user['rol'] === 'admin'): ?>
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-icon stat-icon-fichas">📚</div>
+                        <div class="stat-icon stat-icon-fichas"><i class="fas fa-book"></i></div>
                         <div class="stat-content">
                             <h3><?= number_format($stats['total_fichas']) ?></h3>
                             <p>Fichas Registradas</p>
@@ -52,7 +40,7 @@
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon stat-icon-aprendices">👥</div>
+                        <div class="stat-icon stat-icon-aprendices"><i class="fas fa-users"></i></div>
                         <div class="stat-content">
                             <h3><?= number_format($stats['total_aprendices']) ?></h3>
                             <p>Aprendices Activos</p>
@@ -60,7 +48,7 @@
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon stat-icon-usuarios">👤</div>
+                        <div class="stat-icon stat-icon-usuarios"><i class="fas fa-user"></i></div>
                         <div class="stat-content">
                             <h3><?= number_format($stats['total_usuarios']) ?></h3>
                             <p>Usuarios del Sistema</p>
@@ -78,13 +66,13 @@
                         <?php if (in_array($user['rol'], ['instructor', 'coordinador'])): ?>
                         
                         <a href="/asistencia/registrar" class="action-card">
-                            <span class="action-icon">✓</span>
+                            <span class="action-icon"><i class="fas fa-check"></i></span>
                             <h4>Registrar Asistencia</h4>
                             <p>Marcar asistencia de aprendices</p>
                         </a>
 
                         <a href="/qr/escanear" class="action-card action-card-qr">
-                            <span class="action-icon">📷</span>
+                            <span class="action-icon"><i class="fas fa-camera"></i></span>
                             <h4>Escanear QR</h4>
                             <p>Registrar asistencia con código QR</p>
                         </a>
@@ -95,19 +83,19 @@
                         <?php if ($user['rol'] === 'admin'): ?>
                         
                         <a href="/fichas" class="action-card">
-                            <span class="action-icon">📋</span>
+                            <span class="action-icon"><i class="fas fa-clipboard-list"></i></span>
                             <h4>Ver Fichas</h4>
                             <p>Consultar fichas registradas</p>
                         </a>
 
                         <a href="/aprendices" class="action-card">
-                            <span class="action-icon">👥</span>
+                            <span class="action-icon"><i class="fas fa-users"></i></span>
                             <h4>Gestionar Aprendices</h4>
                             <p>Administrar aprendices</p>
                         </a>
 
                         <a href="#" class="action-card" onclick="alert('Próximamente: Reportes y estadísticas'); return false;">
-                            <span class="action-icon">📊</span>
+                            <span class="action-icon"><i class="fas fa-chart-bar"></i></span>
                             <h4>Reportes</h4>
                             <p>Generar reportes de asistencia</p>
                         </a>
@@ -120,7 +108,7 @@
                 <?php if ($user['rol'] === 'admin' && !empty($fichasActivas)): ?>
                 <div class="fichas-section">
                     <h3>Fichas Activas Recientes</h3>
-                    <div class="table-responsive">
+                    <div class="table-wrapper">
                         <table class="table">
                             <thead>
                                 <tr>
@@ -158,13 +146,13 @@
                                     <td class="actions-cell">
                                         <div class="btn-group">
                                             <a href="/fichas/<?= $ficha['id'] ?>" class="btn btn-sm btn-primary" title="Ver detalles de la ficha">
-                                                👁️ Detalles
+                                                <i class="fas fa-eye"></i> Detalles
                                             </a>
                                             <a href="/asistencia/registrar?ficha=<?= $ficha['id'] ?>" class="btn btn-sm btn-success" title="Registrar asistencia">
-                                                ✓ Asistencia
+                                                <i class="fas fa-check"></i> Asistencia
                                             </a>
                                             <a href="/fichas/<?= $ficha['id'] ?>/editar" class="btn btn-sm btn-secondary" title="Editar ficha">
-                                                ✏️
+                                                <i class="fas fa-pen-to-square"></i>
                                             </a>
                                         </div>
                                     </td>
@@ -178,17 +166,17 @@
 
                 <!-- Información del MVP -->
                 <div class="info-box">
-                    <h4>✅ Estado del Sistema - SENAttend</h4>
+                    <h4><i class="fas fa-check-circle"></i> Estado del Sistema - SENAttend</h4>
                     <ul class="checklist">
-                        <li>✓ Arquitectura MVC con PSR-4 configurada</li>
-                        <li>✓ Conexión PDO persistente operativa</li>
-                        <li>✓ Sistema de autenticación funcional</li>
-                        <li>✓ Middleware de protección de rutas</li>
+                        <li><i class="fas fa-check"></i> Arquitectura MVC con PSR-4 configurada</li>
+                        <li><i class="fas fa-check"></i> Conexión PDO persistente operativa</li>
+                        <li><i class="fas fa-check"></i> Sistema de autenticación funcional</li>
+                        <li><i class="fas fa-check"></i> Middleware de protección de rutas</li>
                         <?php if ($user['rol'] === 'admin'): ?>
-                        <li>✓ Base de datos con <?= $stats['total_fichas'] ?> fichas y <?= $stats['total_aprendices'] ?> aprendices</li>
+                        <li><i class="fas fa-check"></i> Base de datos con <?= $stats['total_fichas'] ?> fichas y <?= $stats['total_aprendices'] ?> aprendices</li>
                         <?php endif; ?>
-                        <li>✓ Módulo QR implementado - Generación y escaneo automático</li>
-                        <li>✓ Control de acceso basado en roles</li>
+                        <li><i class="fas fa-check"></i> Módulo QR implementado - Generación y escaneo automático</li>
+                        <li><i class="fas fa-check"></i> Control de acceso basado en roles</li>
                     </ul>
                 </div>
             </div>
@@ -234,44 +222,30 @@
     
     .btn-group {
         display: flex;
-        gap: 4px;
+        gap: 0.5rem;
+        align-items: center;
         flex-wrap: wrap;
     }
     
     .btn-group .btn {
-        flex: 1;
-        min-width: auto;
-        padding: 4px 8px;
-        font-size: 0.85em;
+        padding: 0.5rem 0.875rem;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        white-space: nowrap;
+        margin: 0;
     }
     
-    .table-responsive {
-        overflow-x: auto;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border-radius: 8px;
+    .btn-group .btn i,
+    .btn-group .btn .fas,
+    .btn-group .btn .far {
+        font-size: 0.875rem;
+        margin: 0;
+        line-height: 1;
     }
     
-    .table {
-        margin-bottom: 0;
-    }
-    
-    .table th {
-        background-color: var(--color-primary, #39A900);
-        color: white;
-        font-weight: 600;
-        border: none;
-        padding: 12px;
-    }
-    
-    .table td {
-        padding: 12px;
-        vertical-align: middle;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .table tbody tr:hover {
-        background-color: #f8f9fa;
-    }
+    /* Los estilos de tablas están centralizados en style.css y dashboard.css */
     
     .action-card-qr {
         border: 2px solid #39A900;

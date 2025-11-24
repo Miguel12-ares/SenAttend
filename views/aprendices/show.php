@@ -66,37 +66,39 @@
             <div class="card" style="margin-top: 20px;">
                 <div class="card-header">
                     <h2>Fichas Vinculadas (<?= count($fichas ?? []) ?>)</h2>
-                    <button onclick="mostrarModalVincular()" class="btn btn-sm btn-primary">+ Vincular a Ficha</button>
+                    <button onclick="mostrarModalVincular()" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> Vincular a Ficha</button>
                 </div>
                 <div class="card-body">
                     <?php if (!empty($fichas)): ?>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Número</th>
-                                    <th>Programa</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($fichas as $ficha): ?>
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
                                     <tr>
-                                        <td><?= htmlspecialchars($ficha['numero_ficha']) ?></td>
-                                        <td><?= htmlspecialchars($ficha['nombre']) ?></td>
-                                        <td>
-                                            <span class="badge badge-<?= $ficha['estado'] === 'activa' ? 'success' : 'secondary' ?>">
-                                                <?= htmlspecialchars($ficha['estado']) ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <a href="/fichas/<?= $ficha['id'] ?>" class="btn btn-sm btn-info">Ver Ficha</a>
-                                            <button onclick="desvincular(<?= $ficha['id'] ?>)" class="btn btn-sm btn-danger">Desvincular</button>
-                                        </td>
+                                        <th>Número</th>
+                                        <th>Programa</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
                                     </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($fichas as $ficha): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($ficha['numero_ficha']) ?></td>
+                                            <td><?= htmlspecialchars($ficha['nombre']) ?></td>
+                                            <td>
+                                                <span class="badge badge-<?= $ficha['estado'] === 'activa' ? 'success' : 'secondary' ?>">
+                                                    <?= htmlspecialchars($ficha['estado']) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="/fichas/<?= $ficha['id'] ?>" class="btn btn-sm btn-info">Ver Ficha</a>
+                                                <button onclick="desvincular(<?= $ficha['id'] ?>)" class="btn btn-sm btn-danger">Desvincular</button>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     <?php else: ?>
                         <div class="alert alert-info">
                             <p>No hay fichas vinculadas a este aprendiz.</p>

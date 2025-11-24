@@ -8,6 +8,7 @@
 $title = 'Generar Código QR - SENAttend';
 $additionalStyles = '<link rel="stylesheet" href="/css/qr.css">';
 $showHeader = true;
+$currentPage = 'qr-generar';
 
 // Obtener usuario de sesión (pasado desde el controlador)
 $user = $user ?? null;
@@ -18,12 +19,7 @@ ob_start();
 <div class="qr-container">
     <div class="qr-header">
         <h1>
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="7" height="7"/>
-                <rect x="14" y="3" width="7" height="7"/>
-                <rect x="14" y="14" width="7" height="7"/>
-                <rect x="3" y="14" width="7" height="7"/>
-            </svg>
+            <i class="fas fa-qrcode"></i>
             Generar Código QR
         </h1>
         <p class="subtitle">Genera tu código QR personal para registrar asistencia</p>
@@ -45,10 +41,7 @@ ob_start();
                 >
             </div>
             <button id="btnBuscar" class="btn btn-primary">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"/>
-                    <path d="m21 21-4.35-4.35"/>
-                </svg>
+                <i class="fas fa-magnifying-glass"></i>
                 Buscar
             </button>
         </div>
@@ -75,19 +68,11 @@ ob_start();
             </div>
             <div class="qr-actions">
                 <button id="btnDescargar" class="btn btn-success">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="7 10 12 15 17 10"/>
-                        <line x1="12" y1="15" x2="12" y2="3"/>
-                    </svg>
+                    <i class="fas fa-download"></i>
                     Descargar QR
                 </button>
                 <button id="btnNuevo" class="btn btn-secondary">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="1 4 1 10 7 10"/>
-                        <polyline points="23 20 23 14 17 14"/>
-                        <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
-                    </svg>
+                    <i class="fas fa-rotate"></i>
                     Generar Nuevo
                 </button>
             </div>
@@ -100,7 +85,7 @@ ob_start();
                 <li>Muestra tu código QR al instructor cuando ingreses a clase</li>
                 <li>El instructor escaneará tu código y se registrará tu asistencia automáticamente</li>
             </ol>
-            <p class="note">💡 <strong>Importante:</strong> Este código QR es personal e intransferible. No lo compartas con otros aprendices.</p>
+            <p class="note"><i class="fas fa-lightbulb"></i> <strong>Importante:</strong> Este código QR es personal e intransferible. No lo compartas con otros aprendices.</p>
         </div>
     </div>
 </div>
@@ -109,11 +94,7 @@ ob_start();
 <div id="modalError" class="modal-overlay" style="display: none;">
     <div class="modal-container modal-error">
         <div class="modal-header">
-            <svg class="modal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="15" y1="9" x2="9" y2="15"/>
-                <line x1="9" y1="9" x2="15" y2="15"/>
-            </svg>
+            <i class="fas fa-xmark-circle modal-icon"></i>
             <h3 id="modalErrorTitulo">Error</h3>
         </div>
         <div class="modal-body">
@@ -121,9 +102,7 @@ ob_start();
         </div>
         <div class="modal-footer">
             <button id="btnCerrarModalError" class="btn btn-primary">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 6 6 18M6 6l12 12"/>
-                </svg>
+                <i class="fas fa-times"></i>
                 Cerrar
             </button>
         </div>
@@ -134,10 +113,7 @@ ob_start();
 <div id="modalExito" class="modal-overlay" style="display: none;">
     <div class="modal-container modal-success">
         <div class="modal-header">
-            <svg class="modal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                <polyline points="22 4 12 14.01 9 11.01"/>
-            </svg>
+            <i class="fas fa-check-circle modal-icon"></i>
             <h3>¡Descarga Exitosa!</h3>
         </div>
         <div class="modal-body">
@@ -146,9 +122,7 @@ ob_start();
         </div>
         <div class="modal-footer">
             <button id="btnCerrarModalExito" class="btn btn-success">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="20 6 9 17 4 12"/>
-                </svg>
+                <i class="fas fa-check"></i>
                 Entendido
             </button>
         </div>
@@ -281,10 +255,7 @@ async function buscarAprendiz() {
     } finally {
         btnBuscar.disabled = false;
         btnBuscar.innerHTML = `
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.35-4.35"/>
-            </svg>
+            <i class="fas fa-magnifying-glass"></i>
             Buscar
         `;
     }

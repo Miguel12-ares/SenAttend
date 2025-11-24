@@ -354,9 +354,18 @@ class AprendizService
 
             fclose($file);
 
-            $message = "Importación completada: {$imported} aprendices importados";
-            if ($skipped > 0) {
-                $message .= ", {$skipped} omitidos";
+            // Construir mensaje descriptivo
+            if ($imported > 0) {
+                $message = "Importación completada: {$imported} aprendices importados";
+                if ($skipped > 0) {
+                    $message .= ", {$skipped} registros omitidos";
+                }
+            } else {
+                if ($skipped > 0) {
+                    $message = "No se importaron aprendices. {$skipped} registros omitidos (duplicados o con errores)";
+                } else {
+                    $message = "No se encontraron registros válidos para importar";
+                }
             }
 
             return [
@@ -592,22 +601,27 @@ class AprendizService
 
             fclose($file);
 
-            // Verificar documentos existentes en BD
+            // Verificar documentos existentes en BD (solo como advertencia, no bloquea)
+            $documentosDuplicados = [];
             if (!empty($documentosEnArchivo)) {
                 $existentes = $this->aprendizRepository->findByDocumentos($documentosEnArchivo);
                 if (!empty($existentes)) {
                     foreach ($existentes as $existente) {
-                        $erroresValidacion[] = "Documento {$existente['documento']} ya existe en el sistema";
+                        $documento = $existente['documento'];
+                        $documentosDuplicados[] = $documento;
+                        $erroresValidacion[] = "Línea (archivo): Documento {$documento} ya existe en el sistema (será omitido)";
                     }
                 }
             }
 
+            // La validación es exitosa incluso con duplicados (solo son advertencias)
             return [
                 'valid' => true,
                 'aprendices_validos' => $aprendicesValidos,
                 'total_lineas' => $lineNumber - 1,
                 'errores' => $erroresValidacion,
-                'tiene_errores' => !empty($erroresValidacion)
+                'tiene_errores' => !empty($erroresValidacion),
+                'documentos_duplicados' => $documentosDuplicados
             ];
 
         } catch (\Exception $e) {

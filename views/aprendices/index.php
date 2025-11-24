@@ -6,6 +6,7 @@
 
 $title = 'Gestión de Aprendices - SENAttend';
 $showHeader = true;
+$currentPage = 'aprendices';
 
 ob_start();
 ?>
@@ -16,8 +17,8 @@ ob_start();
     <div class="page-header">
         <h1>Gestión de Aprendices</h1>
         <div class="page-actions">
-            <button onclick="abrirModalImportar()" class="btn btn-secondary">📂 Importar CSV</button>
-            <a href="/aprendices/crear" class="btn btn-primary">+ Nuevo Aprendiz</a>
+            <button onclick="abrirModalImportar()" class="btn btn-secondary"><i class="fas fa-folder-open"></i> Importar CSV</button>
+            <a href="/aprendices/crear" class="btn btn-primary"><i class="fas fa-plus"></i> Nuevo Aprendiz</a>
         </div>
     </div>
 
@@ -69,7 +70,7 @@ ob_start();
                             placeholder="Documento, nombre, apellido..."
                             value="<?= htmlspecialchars($search ?? '') ?>"
                         >
-                        <span class="search-box-icon">🔍</span>
+                        <span class="search-box-icon"><i class="fas fa-magnifying-glass"></i></span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -107,17 +108,18 @@ ob_start();
                 <a href="/aprendices/crear" class="btn btn-primary">Crear primer aprendiz</a>
             </div>
         <?php else: ?>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Documento</th>
-                        <th>Nombre Completo</th>
-                        <th>Correo Electrónico</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Documento</th>
+                            <th>Nombre Completo</th>
+                            <th>Correo Electrónico</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                     <?php foreach ($aprendices as $aprendiz): ?>
                         <tr>
                             <td>
@@ -134,23 +136,24 @@ ob_start();
                             </td>
                             <td class="actions">
                                 <a href="/aprendices/<?= $aprendiz['id'] ?>" class="btn-action btn-view" title="Ver detalles">
-                                    👁️
+                                    <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="/aprendices/<?= $aprendiz['id'] ?>/editar" class="btn-action btn-edit" title="Editar">
-                                    ✏️
+                                    <i class="fas fa-pen-to-square"></i>
                                 </a>
                                 <button 
                                     onclick="confirmarEliminarAprendiz(<?= $aprendiz['id'] ?>, '<?= htmlspecialchars($aprendiz['nombre'] . ' ' . $aprendiz['apellido'], ENT_QUOTES) ?>')" 
                                     class="btn-action btn-delete" 
                                     title="Eliminar"
                                 >
-                                    🗑️
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </td>
                         </tr>
                     <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Paginación -->
             <?php if ($totalPages > 1): ?>
@@ -197,7 +200,7 @@ ob_start();
                 <div class="form-group">
                     <label>Archivo CSV</label>
                     <div class="file-upload-area" onclick="document.getElementById('csv_file').click()">
-                        <div class="file-upload-icon">📄</div>
+                        <div class="file-upload-icon"><i class="fas fa-file"></i></div>
                         <div class="file-upload-text">
                             <strong>Click para seleccionar archivo</strong> o arrastra aquí<br>
                             <small>Formato: documento, nombre, apellido, email</small>
@@ -215,7 +218,7 @@ ob_start();
                             <div class="file-selected-name" id="fileName"></div>
                             <div class="file-selected-size" id="fileSize"></div>
                         </div>
-                        <button type="button" class="file-remove" onclick="clearFile()">×</button>
+                        <button type="button" class="file-remove" onclick="clearFile()"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
 
@@ -364,25 +367,7 @@ document.addEventListener('keydown', function(e) {
     background-color: var(--color-gray-100);
 }
 
-.actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.btn-action {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    transition: background 0.2s;
-    text-decoration: none;
-}
-
-.btn-action:hover {
-    background-color: var(--color-gray-200);
-}
+/* Los estilos de .actions y .btn-action ahora están en components.css */
 
 .pagination {
     display: flex;

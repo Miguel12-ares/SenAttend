@@ -600,8 +600,19 @@ class AprendizController
 
         $result = $aprendizService->importarCSVRobusto($_FILES['csv_file']['tmp_name'], $fichaId);
         
-        $statusCode = $result['success'] ? 200 : 400;
-        Response::json($result, $statusCode);
+        // Asegurar formato consistente de respuesta
+        if ($result['success']) {
+            Response::json([
+                'success' => true,
+                'message' => $result['message'] ?? 'Importación completada',
+                'data' => $result['data'] ?? $result
+            ], 200);
+        } else {
+            Response::json([
+                'success' => false,
+                'errors' => $result['errors'] ?? ['Error al importar']
+            ], 400);
+        }
     }
 
     /**
@@ -633,7 +644,19 @@ class AprendizController
         );
 
         $result = $aprendizService->preValidarImportacion($_FILES['csv_file']['tmp_name']);
-        Response::json($result);
+        
+        // Formatear respuesta de manera consistente
+        if (isset($result['valid']) && $result['valid']) {
+            Response::json([
+                'success' => true,
+                'data' => $result
+            ]);
+        } else {
+            Response::json([
+                'success' => false,
+                'errors' => $result['errors'] ?? ['Error de validación']
+            ], 400);
+        }
     }
 
     /**

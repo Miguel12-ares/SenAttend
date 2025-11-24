@@ -163,7 +163,13 @@ class API {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || data.errors?.[0] || 'Error en la petición');
+                // Retornar los datos del error para que puedan ser procesados
+                return { 
+                    success: false, 
+                    error: data.error || data.errors?.[0] || 'Error en la petición',
+                    data: data, // Incluir los datos del error para acceso completo
+                    status: response.status 
+                };
             }
 
             return { success: true, data, status: response.status };
@@ -420,17 +426,17 @@ class CSVUploader {
 
         Loading.hide();
 
-        if (result.success && result.data.success) {
-            Notification.success(result.data.message);
+        if (result.success) {
+            Notification.success(result.message || result.data?.message || 'Importación completada exitosamente');
             
             if (this.options.onSuccess) {
-                this.options.onSuccess(result.data);
+                this.options.onSuccess(result.data || result);
             } else {
                 // Recargar página por defecto
                 setTimeout(() => window.location.reload(), 1500);
             }
         } else {
-            const error = result.error || result.data?.errors?.join(', ') || 'Error al importar';
+            const error = result.error || result.errors?.join(', ') || result.data?.errors?.join(', ') || 'Error al importar';
             Notification.error(error);
 
             if (this.options.onError) {

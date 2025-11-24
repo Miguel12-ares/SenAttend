@@ -17,6 +17,12 @@
 
         // Validación de formularios
         setupFormValidation();
+
+        // Menú hamburguesa
+        setupMobileMenu();
+
+        // Detectar scroll en tablas
+        setupTableScrollDetection();
     });
 
     /**
@@ -71,6 +77,61 @@
                     alert('Por favor complete todos los campos requeridos');
                 }
             });
+        });
+    }
+
+    /**
+     * Configura el menú hamburguesa para móviles
+     */
+    function setupMobileMenu() {
+        const menuToggle = document.getElementById('menuToggle');
+        const mainNav = document.getElementById('mainNav');
+        
+        if (menuToggle && mainNav) {
+            menuToggle.addEventListener('click', function() {
+                menuToggle.classList.toggle('active');
+                mainNav.classList.toggle('active');
+            });
+
+            // Cerrar menú al hacer clic fuera
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768) {
+                    if (!menuToggle.contains(e.target) && !mainNav.contains(e.target)) {
+                        menuToggle.classList.remove('active');
+                        mainNav.classList.remove('active');
+                    }
+                }
+            });
+
+            // Cerrar menú al cambiar de tamaño de ventana
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    menuToggle.classList.remove('active');
+                    mainNav.classList.remove('active');
+                }
+            });
+        }
+    }
+
+    /**
+     * Detecta scroll horizontal en tablas y añade indicador visual
+     */
+    function setupTableScrollDetection() {
+        const tableWrappers = document.querySelectorAll('.table-wrapper');
+        
+        tableWrappers.forEach(function(wrapper) {
+            function checkScroll() {
+                const isScrollable = wrapper.scrollWidth > wrapper.clientWidth;
+                if (isScrollable) {
+                    wrapper.classList.add('scrollable');
+                } else {
+                    wrapper.classList.remove('scrollable');
+                }
+            }
+
+            checkScroll();
+            wrapper.addEventListener('scroll', checkScroll);
+            window.addEventListener('resize', checkScroll);
         });
     }
 

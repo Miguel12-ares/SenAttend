@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SENAttend - Sistema de Asistencia SENA</title>
+    <link rel="stylesheet" href="/css/fontawesome/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <style>
         .home-wrapper {
@@ -83,15 +84,13 @@
         }
 
         .home-features li::before {
-            content: "✓";
+            content: "\f00c";
+            font-family: "Font Awesome 7 Free";
+            font-weight: 900;
             display: inline-block;
-            width: 24px;
-            height: 24px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            text-align: center;
-            line-height: 24px;
-            font-weight: bold;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+            color: rgba(255,255,255,0.95);
         }
 
         .qr-card {

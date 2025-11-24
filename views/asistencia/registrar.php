@@ -9,6 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Asistencia - SENAttend</title>
+    <link rel="stylesheet" href="/css/fontawesome/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/asistencia-registrar.css">
     <link rel="stylesheet" href="/css/asistencia-registrar-optimizado.css">
@@ -94,7 +95,7 @@
 
                             <div class="form-group-inline">
                                 <button type="button" class="btn btn-primary" id="btnCargarAprendices">
-                                    <span class="btn-text">📋 Cargar Aprendices</span>
+                                    <span class="btn-text"><i class="fas fa-clipboard-list"></i> Cargar Aprendices</span>
                                     <span class="btn-loader" style="display: none;">
                                         <div class="spinner-small"></div> Cargando...
                                     </span>
@@ -105,7 +106,7 @@
 
                     <?php if ($ficha && !$validacionFecha['valido']): ?>
                     <div class="alert alert-error" style="margin-top: 1rem;">
-                        ⚠️ <?= htmlspecialchars($validacionFecha['mensaje']) ?>
+                        <i class="fas fa-triangle-exclamation"></i> <?= htmlspecialchars($validacionFecha['mensaje']) ?>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -139,13 +140,13 @@
                     <div class="tabla-controles">
                         <div class="controles-izquierda">
                             <button type="button" class="btn btn-success btn-sm" id="btnMarcarTodosPresente">
-                                ✅ Marcar Todos Presente
+                                <i class="fas fa-check"></i> Marcar Todos Presente
                             </button>
                             <button type="button" class="btn btn-danger btn-sm" id="btnMarcarTodosAusente">
-                                ❌ Marcar Todos Ausente
+                                <i class="fas fa-xmark"></i> Marcar Todos Ausente
                             </button>
                             <button type="button" class="btn btn-warning btn-sm" id="btnLimpiarSeleccion">
-                                🔄 Limpiar Selección
+                                <i class="fas fa-rotate"></i> Limpiar Selección
                             </button>
                         </div>
                         <div class="controles-derecha">
@@ -185,7 +186,7 @@
 
                         <div class="botones-accion">
                             <button type="submit" class="btn-guardar" id="btnGuardar" disabled>
-                                <span class="btn-text">💾 Guardar Asistencia</span>
+                                <span class="btn-text"><i class="fas fa-floppy-disk"></i> Guardar Asistencia</span>
                                 <span class="btn-loader" style="display: none;">
                                     <div class="spinner-small"></div> Guardando...
                                 </span>
@@ -199,14 +200,14 @@
 
                 <?php elseif ($ficha && empty($aprendices)): ?>
                 <div class="empty-state">
-                    <h3>📋 No hay aprendices en esta ficha</h3>
+                    <h3><i class="fas fa-clipboard-list"></i> No hay aprendices en esta ficha</h3>
                     <p>La ficha seleccionada no tiene aprendices asignados.</p>
                     <a href="/aprendices" class="btn btn-primary">Gestionar Aprendices</a>
                 </div>
 
                 <?php elseif (!$ficha): ?>
                 <div class="empty-state">
-                    <h3>👆 Seleccione una ficha para comenzar</h3>
+                    <h3><i class="fas fa-hand-point-up"></i> Seleccione una ficha para comenzar</h3>
                     <p>Elija una ficha y fecha para registrar la asistencia.</p>
                 </div>
                 <?php endif; ?>
