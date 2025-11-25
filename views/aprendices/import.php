@@ -6,11 +6,10 @@
 
 $title = 'Importar Aprendices CSV - SENAttend';
 $showHeader = true;
+$additionalStyles = asset_css('css/components.css');
 
 ob_start();
 ?>
-
-<link rel="stylesheet" href="/css/components.css">
 
 <div class="container">
     <div class="page-header">
@@ -370,7 +369,7 @@ ob_start();
 }
 </style>
 
-<script src="/js/components.js"></script>
+<script src="<?= asset('js/components.js') ?>"></script>
 <script>
 // ==============================================
 // MANEJO DE ARCHIVO

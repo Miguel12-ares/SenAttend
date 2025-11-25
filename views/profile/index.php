@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil - SENAttend</title>
-    <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="<?= asset('assets/vendor/fontawesome/css/all.min.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/components.css') ?>">
 </head>
 <body>
     <div class="wrapper">
@@ -145,7 +145,7 @@
         </footer>
     </div>
 
-    <script src="/js/app.js"></script>
+    <script src="<?= asset('js/app.js') ?>"></script>
     <script>
         // Validación del formulario de contraseña
         document.getElementById('passwordForm').addEventListener('submit', function(e) {

@@ -6,8 +6,8 @@
 $title = 'Editar Ficha - SENAttend';
 $showHeader = true;
 $currentPage = 'fichas';
-$additionalStyles = '<link rel="stylesheet" href="/css/components.css"><link rel="stylesheet" href="/css/fichas.css">';
-$additionalScripts = '<script src="/js/components.js"></script>';
+$additionalStyles = asset_css('css/components.css') . asset_css('css/fichas.css');
+$additionalScripts = asset_js('js/components.js');
 
 ob_start();
 ?>

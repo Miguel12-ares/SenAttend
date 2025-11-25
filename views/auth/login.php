@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - SENAttend</title>
-    <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/components/header-public.css">
-    <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" href="<?= asset('assets/vendor/fontawesome/css/all.min.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/components/header-public.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/login.css') ?>">
 </head>
 <body class="login-page">
     <?php include __DIR__ . '/../components/header-public.php'; ?>
@@ -65,7 +65,7 @@
         </div>
     </div>
 
-    <script src="/js/app.js"></script>
+    <script src="<?= asset('js/app.js') ?>"></script>
     <script>
         // Validación simple del formulario
         document.getElementById('loginForm').addEventListener('submit', function(e) {

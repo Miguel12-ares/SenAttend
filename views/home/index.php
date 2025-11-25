@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SENAttend - Generar Código QR</title>
-    <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/components/header-public.css">
-    <link rel="stylesheet" href="/css/home/home.css">
+    <link rel="stylesheet" href="<?= asset('assets/vendor/fontawesome/css/all.min.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/components/header-public.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/home/home.css') ?>">
 </head>
 <body>
     <?php include __DIR__ . '/../components/header-public.php'; ?>
@@ -99,7 +99,7 @@
 
     <!-- QR Code Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="/js/app.js"></script>
-    <script src="/js/home/home.js"></script>
+    <script src="<?= asset('js/app.js') ?>"></script>
+    <script src="<?= asset('js/home/home.js') ?>"></script>
 </body>
 </html>

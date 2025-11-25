@@ -7,8 +7,8 @@
 $title = 'Gestión de Aprendices - SENAttend';
 $showHeader = true;
 $currentPage = 'aprendices';
-$additionalStyles = '<link rel="stylesheet" href="/css/components.css"><link rel="stylesheet" href="/css/fichas.css"><link rel="stylesheet" href="/css/aprendices.css">';
-$additionalScripts = '<script src="/js/aprendices.js"></script><script src="/js/aprendices-import.js"></script><script src="/js/search-simple.js"></script>';
+$additionalStyles = asset_css('css/components.css') . asset_css('css/fichas.css') . asset_css('css/aprendices.css');
+$additionalScripts = asset_js('js/aprendices.js') . asset_js('js/aprendices-import.js') . asset_js('js/search-simple.js');
 
 ob_start();
 ?>

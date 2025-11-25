@@ -47,6 +47,50 @@ if (!function_exists('getEnv')) {
     }
 }
 
+/**
+ * Helpers para rutas de assets y base URI
+ */
+if (!function_exists('base_uri')) {
+    function base_uri(): string
+    {
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        if ($scriptName === '') {
+            return '';
+        }
+
+        $directory = str_replace('\\', '/', dirname($scriptName));
+        if ($directory === '/' || $directory === '\\' || $directory === '.') {
+            return '';
+        }
+
+        return rtrim($directory, '/');
+    }
+}
+
+if (!function_exists('asset')) {
+    function asset(string $path): string
+    {
+        $base = base_uri();
+        $normalizedPath = '/' . ltrim(str_replace('\\', '/', $path), '/');
+
+        return $base . $normalizedPath;
+    }
+}
+
+if (!function_exists('asset_css')) {
+    function asset_css(string $path): string
+    {
+        return '<link rel="stylesheet" href="' . asset($path) . '">';
+    }
+}
+
+if (!function_exists('asset_js')) {
+    function asset_js(string $path): string
+    {
+        return '<script src="' . asset($path) . '"></script>';
+    }
+}
+
 // Cargar .env si existe
 $envPath = __DIR__ . '/../.env';
 if (file_exists($envPath)) {

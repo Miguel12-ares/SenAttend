@@ -6,8 +6,8 @@
 $title = 'Detalle de Aprendiz - SENAttend';
 $showHeader = true;
 $currentPage = 'aprendices';
-$additionalStyles = '<link rel="stylesheet" href="/css/components.css"><link rel="stylesheet" href="/css/fichas.css"><link rel="stylesheet" href="/css/aprendices.css">';
-$additionalScripts = '<script src="/js/components.js"></script>';
+$additionalStyles = asset_css('css/components.css') . asset_css('css/fichas.css') . asset_css('css/aprendices.css');
+$additionalScripts = asset_js('js/components.js');
 
 ob_start();
 ?>

@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SENAttend - Sistema de Asistencia SENA</title>
-    <link rel="stylesheet" href="/assets/vendor/fontawesome/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/components/header-public.css">
-    <link rel="stylesheet" href="/css/welcome/welcome.css">
+    <link rel="stylesheet" href="<?= asset('assets/vendor/fontawesome/css/all.min.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/components/header-public.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/welcome/welcome.css') ?>">
 </head>
 <body>
     <?php include __DIR__ . '/../components/header-public.php'; ?>
@@ -156,7 +156,7 @@
         </div>
     </footer>
 
-    <script src="/js/app.js"></script>
+    <script src="<?= asset('js/app.js') ?>"></script>
 </body>
 </html>
 
