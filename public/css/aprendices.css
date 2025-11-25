@@ -1,0 +1,89 @@
+/**
+ * SENAttend - Estilos para Gestión de Aprendices
+ * Diseño responsive con colores SENA y iconos Font Awesome
+ */
+
+/* === Variables específicas === */
+:root {
+    --aprendiz-card-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    --aprendiz-card-hover-shadow: 0 4px 20px rgba(57, 169, 0, 0.15);
+    --aprendiz-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === Filter Panel === */
+.filter-panel {
+    background: var(--color-white);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--aprendiz-card-shadow);
+    overflow: hidden;
+}
+
+.filter-panel-header {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: var(--color-white);
+    padding: 1rem 1.5rem;
+}
+
+.filter-panel-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-panel-title i {
+    font-size: 1rem;
+}
+
+.filter-panel-body {
+    padding: 1.5rem;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: var(--color-gray-100);
+    border-top: 1px solid var(--color-gray-200);
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+/* === Search Box === */
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    padding-left: 2.75rem;
+}
+
+.search-box-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-gray-600);
+    pointer-events: none;
+    font-size: 1rem;
+}
+
+/* === Responsive adjustments === */
+@media (max-width: 768px) {
+    .filter-panel-body {
+        padding: 1rem;
+    }
+
+    .filter-actions {
+        flex-direction: column;
+        padding: 1rem;
+    }
+
+    .filter-actions .btn {
+        width: 100%;
+    }
+}
+

@@ -24,7 +24,7 @@
                         <p class="subtitle">Registro de Asistencia</p>
                     </div>
                     <nav class="nav">
-                        <a href="/" class="btn btn-secondary btn-sm">Volver al Dashboard</a>
+                        <a href="/dashboard" class="btn btn-secondary btn-sm">Volver al Dashboard</a>
                         <span class="user-info">
                             <strong><?= htmlspecialchars($user['nombre']) ?></strong>
                             <span class="badge badge-<?= $user['rol'] ?>"><?= ucfirst($user['rol']) ?></span>

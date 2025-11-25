@@ -17,6 +17,7 @@ use App\Controllers\DashboardController;
 use App\Controllers\HomeController;
 use App\Controllers\ProfileController;
 use App\Controllers\QRController;
+use App\Controllers\WelcomeController;
 use App\Middleware\AuthMiddleware;
 use App\Repositories\UserRepository;
 use App\Repositories\FichaRepository;
@@ -68,6 +69,11 @@ $authMiddleware = new AuthMiddleware($session);
 $routes = [
     'GET' => [
         '/' => [
+            'controller' => WelcomeController::class,
+            'action' => 'index',
+            'middleware' => []
+        ],
+        '/dashboard' => [
             'controller' => DashboardController::class,
             'action' => 'index',
             'middleware' => ['auth']
@@ -471,6 +477,8 @@ try {
             $authService,
             $session
         );
+    } elseif ($controllerClass === WelcomeController::class) {
+        $controller = new $controllerClass();
     } else {
         throw new RuntimeException("Unknown controller: {$controllerClass}");
     }

@@ -7,18 +7,21 @@
 $title = 'Gestión de Fichas - SENAttend';
 $showHeader = true;
 $currentPage = 'fichas';
+$additionalStyles = '<link rel="stylesheet" href="/css/components.css"><link rel="stylesheet" href="/css/fichas.css">';
+$additionalScripts = '<script src="/js/fichas.js"></script><script src="/js/fichas-import.js"></script><script src="/js/search-simple.js"></script>';
 
 ob_start();
 ?>
 
-<link rel="stylesheet" href="/css/components.css">
-
 <div class="container">
     <div class="page-header">
-        <h1>Gestión de Fichas</h1>
+        <div>
+            <h1><i class="fas fa-clipboard-list"></i> Gestión de Fichas</h1>
+            <p>Administra las fichas de formación del SENA</p>
+        </div>
         <div class="page-actions">
-            <button onclick="abrirModalImportar()" class="btn btn-secondary"><i class="fas fa-folder-open"></i> Importar CSV</button>
-            <a href="/fichas/crear" class="btn btn-primary"><i class="fas fa-plus"></i> Nueva Ficha</a>
+            <button onclick="abrirModalImportar()" class="btn btn-secondary"><i class="fas fa-file-import"></i> <span class="btn-text">Importar CSV</span></button>
+            <a href="/fichas/crear" class="btn btn-primary"><i class="fas fa-plus-circle"></i> <span class="btn-text">Nueva Ficha</span></a>
         </div>
     </div>
 
@@ -44,27 +47,32 @@ ob_start();
     <!-- Barra de búsqueda y filtros -->
     <div class="search-filter-bar">
         <form method="GET" action="/fichas" class="search-form">
-            <div class="form-row">
-                <div class="form-col">
-                    <input 
-                        type="text" 
-                        name="search" 
-                        id="searchInput"
-                        class="form-control" 
-                        placeholder="Buscar por número o nombre..."
-                        value="<?= htmlspecialchars($search ?? '') ?>"
-                    >
+            <div class="form-row-filter">
+                <div class="form-group">
+                    <label for="searchInput"><i class="fas fa-search"></i> Buscar</label>
+                    <div class="search-box">
+                        <input 
+                            type="text" 
+                            name="search" 
+                            id="searchInput"
+                            class="form-control" 
+                            placeholder="Buscar por número o nombre..."
+                            value="<?= htmlspecialchars($search ?? '') ?>"
+                        >
+                        <span class="search-box-icon"><i class="fas fa-search"></i></span>
+                    </div>
                 </div>
-                <div class="form-col">
-                    <select name="estado" class="form-control">
+                <div class="form-group">
+                    <label for="estado"><i class="fas fa-filter"></i> Estado</label>
+                    <select name="estado" id="estado" class="form-control">
                         <option value="">Todos los estados</option>
                         <option value="activa" <?= ($estado ?? '') === 'activa' ? 'selected' : '' ?>>Activas</option>
                         <option value="finalizada" <?= ($estado ?? '') === 'finalizada' ? 'selected' : '' ?>>Finalizadas</option>
                     </select>
                 </div>
-                <div class="form-col">
-                    <button type="submit" class="btn btn-primary">Buscar</button>
-                    <a href="/fichas" class="btn btn-secondary">Limpiar</a>
+                <div class="form-group" style="display: flex; align-items: flex-end; gap: 0.5rem;">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> <span class="btn-text">Buscar</span></button>
+                    <a href="/fichas" class="btn btn-secondary"><i class="fas fa-times"></i> <span class="btn-text">Limpiar</span></a>
                 </div>
             </div>
         </form>
@@ -74,19 +82,20 @@ ob_start();
     <div class="table-container">
         <?php if (empty($fichas)): ?>
             <div class="empty-state">
+                <i class="fas fa-clipboard-list"></i>
                 <p>No se encontraron fichas</p>
-                <a href="/fichas/crear" class="btn btn-primary">Crear primera ficha</a>
+                <a href="/fichas/crear" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Crear primera ficha</a>
             </div>
         <?php else: ?>
             <div class="table-wrapper">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Número Ficha</th>
-                            <th>Nombre</th>
-                            <th>Estado</th>
-                            <th>Aprendices</th>
-                            <th>Acciones</th>
+                            <th><i class="fas fa-hashtag"></i> Número Ficha</th>
+                            <th><i class="fas fa-book"></i> Nombre</th>
+                            <th><i class="fas fa-info-circle"></i> Estado</th>
+                            <th><i class="fas fa-users"></i> Aprendices</th>
+                            <th><i class="fas fa-cog"></i> Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -98,14 +107,18 @@ ob_start();
                             <td><?= htmlspecialchars($ficha['nombre']) ?></td>
                             <td>
                                 <span class="badge badge-<?= $ficha['estado'] === 'activa' ? 'success' : 'secondary' ?>">
+                                    <i class="fas fa-<?= $ficha['estado'] === 'activa' ? 'check-circle' : 'archive' ?>"></i>
                                     <?= ucfirst($ficha['estado']) ?>
                                 </span>
                             </td>
                             <td>
-                                <?php 
-                                $totalAprendices = $this->fichaRepository->countAprendices($ficha['id']); 
-                                echo $totalAprendices;
-                                ?>
+                                <span style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-users" style="color: var(--color-primary);"></i>
+                                    <strong><?php 
+                                    $totalAprendices = $this->fichaRepository->countAprendices($ficha['id']); 
+                                    echo $totalAprendices;
+                                    ?></strong>
+                                </span>
                             </td>
                             <td class="actions">
                                 <a href="/fichas/<?= $ficha['id'] ?>" class="btn-action btn-view" title="Ver detalles">
@@ -133,17 +146,17 @@ ob_start();
                 <div class="pagination">
                     <?php if ($page > 1): ?>
                         <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search ?? '') ?>&estado=<?= urlencode($estado ?? '') ?>" class="btn btn-secondary">
-                            « Anterior
+                            <i class="fas fa-chevron-left"></i> <span class="btn-text">Anterior</span>
                         </a>
                     <?php endif; ?>
 
                     <span class="pagination-info">
-                        Página <?= $page ?> de <?= $totalPages ?> (<?= $total ?> registros)
+                        <i class="fas fa-file-alt"></i> Página <?= $page ?> de <?= $totalPages ?> (<?= $total ?> registros)
                     </span>
 
                     <?php if ($page < $totalPages): ?>
                         <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search ?? '') ?>&estado=<?= urlencode($estado ?? '') ?>" class="btn btn-secondary">
-                            Siguiente »
+                            <span class="btn-text">Siguiente</span> <i class="fas fa-chevron-right"></i>
                         </a>
                     <?php endif; ?>
                 </div>
@@ -155,118 +168,33 @@ ob_start();
 <!-- Modal de confirmación de eliminación -->
 <div id="deleteModal" class="modal">
     <div class="modal-content">
-        <h2>Confirmar Eliminación</h2>
-        <p>¿Está seguro de eliminar la ficha <strong id="fichaName"></strong>?</p>
-        <p class="warning-text">Esta acción no se puede deshacer.</p>
+        <h2 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación</h2>
+        <div class="modal-body">
+            <p>¿Está seguro de eliminar la ficha <strong id="fichaName"></strong>?</p>
+            <p class="warning-text"><i class="fas fa-info-circle"></i> Esta acción no se puede deshacer.</p>
+        </div>
         <form id="deleteForm" method="POST">
             <div class="modal-actions">
-                <button type="button" onclick="cerrarModal()" class="btn btn-secondary">Cancelar</button>
-                <button type="submit" class="btn btn-danger">Eliminar</button>
+                <button type="button" onclick="cerrarModal()" class="btn btn-secondary"><i class="fas fa-times"></i> <span class="btn-text">Cancelar</span></button>
+                <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> <span class="btn-text">Eliminar</span></button>
             </div>
         </form>
     </div>
 </div>
 
 <style>
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+.btn-text {
+    display: inline;
 }
 
-.page-header h1 {
-    margin: 0;
-}
-
-.search-filter-bar {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.form-row {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-end;
-}
-
-.form-col {
-    flex: 1;
-}
-
-.form-col:last-child {
-    flex: 0 0 auto;
-    display: flex;
-    gap: 0.5rem;
-}
-
-.table-container {
-    background: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-/* Los estilos de tablas, .actions y .btn-action están centralizados en style.css y components.css */
-
-.pagination {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--color-gray-200);
-}
-
-.pagination-info {
-    color: var(--color-gray-600);
-}
-
-.empty-state {
-    text-align: center;
-    padding: 3rem;
-    color: var(--color-gray-600);
-}
-
-.badge-secondary {
-    background-color: var(--color-gray-600);
-    color: white;
-}
-
-/* Modal */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal.active {
-    display: flex;
-}
-
-.modal-content {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    max-width: 500px;
-    width: 90%;
-}
-
-.modal-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    margin-top: 1.5rem;
+@media (max-width: 768px) {
+    .btn-text {
+        display: none;
+    }
+    
+    .btn i {
+        margin: 0;
+    }
 }
 
 .btn-danger {
@@ -278,22 +206,26 @@ ob_start();
     background-color: #c82333;
 }
 
-.warning-text {
-    color: var(--color-danger);
-    font-size: 0.9rem;
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-left: 4px solid var(--color-info);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
 }
 </style>
 
 <!-- Modal de Importación CSV -->
 <div id="importModal" class="modal">
     <div class="modal-content">
-        <h2 class="modal-title">Importar Fichas desde CSV</h2>
+        <h2 class="modal-title"><i class="fas fa-file-import"></i> Importar Fichas desde CSV</h2>
         <div class="modal-body">
             <form id="importForm" enctype="multipart/form-data">
                 <div class="form-group">
-                    <label>Archivo CSV</label>
+                    <label><i class="fas fa-file-csv"></i> Archivo CSV</label>
                     <div class="file-upload-area" onclick="document.getElementById('csv_file').click()">
-                        <div class="file-upload-icon"><i class="fas fa-file"></i></div>
+                        <div class="file-upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
                         <div class="file-upload-text">
                             <strong>Click para seleccionar archivo</strong> o arrastra aquí<br>
                             <small>Formato: numero_ficha, nombre, estado</small>
@@ -316,7 +248,7 @@ ob_start();
                 </div>
 
                 <div class="alert alert-info">
-                    <strong>Formato del CSV:</strong><br>
+                    <strong><i class="fas fa-info-circle"></i> Formato del CSV:</strong><br>
                     • Primera línea: encabezados (numero_ficha, nombre, estado)<br>
                     • Número de ficha: 4-20 caracteres alfanuméricos<br>
                     • Estado: activa o finalizada (opcional, por defecto: activa)<br>
@@ -325,39 +257,12 @@ ob_start();
             </form>
         </div>
         <div class="modal-actions">
-            <button type="button" onclick="cerrarModalImportar()" class="btn btn-secondary">Cancelar</button>
-            <button type="button" onclick="validarArchivoFichas()" class="btn btn-info"><i class="fas fa-magnifying-glass"></i> Validar</button>
-            <button type="button" onclick="importarCSV()" class="btn btn-primary"><i class="fas fa-folder-open"></i> Importar</button>
+            <button type="button" onclick="cerrarModalImportar()" class="btn btn-secondary"><i class="fas fa-times"></i> <span class="btn-text">Cancelar</span></button>
+            <button type="button" onclick="validarArchivoFichas()" class="btn btn-info"><i class="fas fa-check-circle"></i> <span class="btn-text">Validar</span></button>
+            <button type="button" onclick="importarCSV()" class="btn btn-primary"><i class="fas fa-file-import"></i> <span class="btn-text">Importar</span></button>
         </div>
     </div>
 </div>
-
-<script src="/js/components.js"></script>
-<script src="/js/fichas-import.js"></script>
-<script src="/js/search-simple.js"></script>
-
-<script>
-// ==============================================
-// ELIMINACIÓN
-// ==============================================
-
-function confirmarEliminar(id, nombre) {
-    document.getElementById('fichaName').textContent = nombre;
-    document.getElementById('deleteForm').action = '/fichas/' + id + '/eliminar';
-    document.getElementById('deleteModal').classList.add('active');
-}
-
-function cerrarModal() {
-    document.getElementById('deleteModal').classList.remove('active');
-}
-
-// Cerrar modal al hacer clic fuera
-document.getElementById('deleteModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        cerrarModal();
-    }
-});
-</script>
 
 <?php
 $content = ob_get_clean();

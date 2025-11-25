@@ -163,22 +163,6 @@
                     </div>
                 </div>
                 <?php endif; ?>
-
-                <!-- Información del MVP -->
-                <div class="info-box">
-                    <h4><i class="fas fa-check-circle"></i> Estado del Sistema - SENAttend</h4>
-                    <ul class="checklist">
-                        <li><i class="fas fa-check"></i> Arquitectura MVC con PSR-4 configurada</li>
-                        <li><i class="fas fa-check"></i> Conexión PDO persistente operativa</li>
-                        <li><i class="fas fa-check"></i> Sistema de autenticación funcional</li>
-                        <li><i class="fas fa-check"></i> Middleware de protección de rutas</li>
-                        <?php if ($user['rol'] === 'admin'): ?>
-                        <li><i class="fas fa-check"></i> Base de datos con <?= $stats['total_fichas'] ?> fichas y <?= $stats['total_aprendices'] ?> aprendices</li>
-                        <?php endif; ?>
-                        <li><i class="fas fa-check"></i> Módulo QR implementado - Generación y escaneo automático</li>
-                        <li><i class="fas fa-check"></i> Control de acceso basado en roles</li>
-                    </ul>
-                </div>
             </div>
         </main>
 

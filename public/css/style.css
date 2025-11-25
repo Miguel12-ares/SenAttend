@@ -81,12 +81,23 @@ body {
 .logo h1 {
     font-size: 1.75rem;
     font-weight: 700;
-    margin-bottom: 0.15rem;
+    margin: 0;
 }
 
-.logo .subtitle {
-    font-size: 0.85rem;
-    opacity: 0.9;
+/* Iconos de usuario en móvil - dentro del header-left */
+.nav-user-mobile {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    padding-left: 0.75rem;
+}
+
+.nav-user-mobile .user-icon-link,
+.nav-user-mobile .logout-icon-link {
+    width: 36px;
+    height: 36px;
+    font-size: 1.5rem;
 }
 
 /* Menú Hamburguesa */
@@ -275,7 +286,7 @@ body {
 
 /* === Footer === */
 .footer {
-    background-color: var(--color-secondary);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
     color: var(--color-white);
     padding: 1.5rem 0;
     text-align: center;
@@ -642,8 +653,27 @@ li .fas, li .far, li .fab {
         flex-wrap: wrap;
     }
 
+    .header-left {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 0;
+    }
+
     .logo h1 {
         font-size: 1.5rem;
+        margin: 0;
+    }
+
+    /* Mostrar iconos de usuario en móvil dentro del header-left */
+    .nav-user-mobile {
+        display: flex;
+    }
+
+    /* Ocultar iconos de usuario en el nav en móvil */
+    .nav .nav-user {
+        display: none;
     }
 
     .nav {
@@ -671,16 +701,6 @@ li .fas, li .far, li .fab {
         width: 100%;
         padding: 0.75rem 1rem;
         justify-content: flex-start;
-    }
-
-    .nav-user {
-        flex-direction: column;
-        width: 100%;
-        padding-left: 0;
-        border-left: none;
-        border-top: 1px solid rgba(255, 255, 255, 0.2);
-        padding-top: 1rem;
-        align-items: stretch;
     }
 
     .user-badge {

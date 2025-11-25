@@ -383,7 +383,7 @@ class QRController
     private function redirectConError(string $mensaje): void
     {
         $_SESSION['errors'] = [$mensaje];
-        Response::redirect('/');
+        Response::redirect('/dashboard');
     }
 
     /**

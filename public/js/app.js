@@ -84,6 +84,7 @@
      * Configura el menú hamburguesa para móviles
      */
     function setupMobileMenu() {
+        // Menú principal (autenticado)
         const menuToggle = document.getElementById('menuToggle');
         const mainNav = document.getElementById('mainNav');
         
@@ -109,6 +110,46 @@
                     menuToggle.classList.remove('active');
                     mainNav.classList.remove('active');
                 }
+            });
+        }
+
+        // Menú público (no autenticado)
+        const menuTogglePublic = document.getElementById('menuTogglePublic');
+        const mainNavPublic = document.getElementById('mainNavPublic');
+        
+        if (menuTogglePublic && mainNavPublic) {
+            menuTogglePublic.addEventListener('click', function() {
+                menuTogglePublic.classList.toggle('active');
+                mainNavPublic.classList.toggle('active');
+            });
+
+            // Cerrar menú al hacer clic fuera
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768) {
+                    if (!menuTogglePublic.contains(e.target) && !mainNavPublic.contains(e.target)) {
+                        menuTogglePublic.classList.remove('active');
+                        mainNavPublic.classList.remove('active');
+                    }
+                }
+            });
+
+            // Cerrar menú al cambiar de tamaño de ventana
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    menuTogglePublic.classList.remove('active');
+                    mainNavPublic.classList.remove('active');
+                }
+            });
+
+            // Cerrar menú al hacer clic en un enlace
+            const navLinks = mainNavPublic.querySelectorAll('a');
+            navLinks.forEach(function(link) {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        menuTogglePublic.classList.remove('active');
+                        mainNavPublic.classList.remove('active');
+                    }
+                });
             });
         }
     }

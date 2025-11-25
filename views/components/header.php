@@ -17,15 +17,25 @@ $currentPage = $currentPage ?? '';
                 </button>
                 <div class="logo">
                     <h1>SENAttend</h1>
-                    <p class="subtitle">Sistema de Asistencia SENA</p>
                 </div>
+                
+                <?php if ($user): ?>
+                <div class="nav-user-mobile">
+                    <a href="/perfil" class="user-icon-link" title="Mi Perfil">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <a href="/auth/logout" class="logout-icon-link" title="Cerrar Sesión">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+                <?php endif; ?>
             </div>
             
             <?php if ($user): ?>
             <nav class="nav" id="mainNav">
                 <ul class="nav-menu">
                     <?php if ($user['rol'] === 'admin'): ?>
-                        <li><a href="/" class="<?= $currentPage === 'dashboard' ? 'active' : '' ?>">
+                        <li><a href="/dashboard" class="<?= $currentPage === 'dashboard' ? 'active' : '' ?>">
                             <i class="fas fa-home"></i> Dashboard
                         </a></li>
                         <li><a href="/fichas" class="<?= $currentPage === 'fichas' ? 'active' : '' ?>">
@@ -35,7 +45,7 @@ $currentPage = $currentPage ?? '';
                             <i class="fas fa-users"></i> Aprendices
                         </a></li>
                     <?php elseif (in_array($user['rol'], ['instructor', 'coordinador'])): ?>
-                        <li><a href="/" class="<?= $currentPage === 'dashboard' ? 'active' : '' ?>">
+                        <li><a href="/dashboard" class="<?= $currentPage === 'dashboard' ? 'active' : '' ?>">
                             <i class="fas fa-home"></i> Dashboard
                         </a></li>
                         <li><a href="/asistencia/registrar" class="<?= $currentPage === 'asistencia' ? 'active' : '' ?>">
