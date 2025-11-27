@@ -47,20 +47,78 @@ if (!function_exists('getEnv')) {
     }
 }
 
+/**
+ * Helpers para rutas de assets y base URI
+ */
+if (!function_exists('base_uri')) {
+    function base_uri(): string
+    {
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        if ($scriptName === '') {
+            return '';
+        }
+
+        $directory = str_replace('\\', '/', dirname($scriptName));
+        if ($directory === '/' || $directory === '\\' || $directory === '.') {
+            return '';
+        }
+
+        return rtrim($directory, '/');
+    }
+}
+
+if (!function_exists('asset')) {
+    function asset(string $path): string
+    {
+        $base = base_uri();
+        $normalizedPath = '/' . ltrim(str_replace('\\', '/', $path), '/');
+
+        return $base . $normalizedPath;
+    }
+}
+
+if (!function_exists('asset_css')) {
+    function asset_css(string $path): string
+    {
+        return '<link rel="stylesheet" href="' . asset($path) . '">';
+    }
+}
+
+if (!function_exists('asset_js')) {
+    function asset_js(string $path): string
+    {
+        return '<script src="' . asset($path) . '"></script>';
+    }
+}
+
 // Cargar .env si existe
 $envPath = __DIR__ . '/../.env';
 if (file_exists($envPath)) {
     loadEnv($envPath);
 }
 
-// Definir constantes de la aplicación
-define('APP_ENV', getEnv('APP_ENV', 'production'));
-define('DB_HOST', getEnv('DB_HOST', '127.0.0.1'));
-define('DB_NAME', getEnv('DB_NAME', 'sena_asistencia'));
-define('DB_USER', getEnv('DB_USER', 'root'));
-define('DB_PASS', getEnv('DB_PASS', ''));
-define('ROOT_PATH', dirname(__DIR__));
-define('PUBLIC_PATH', ROOT_PATH . '/public');
+// Definir constantes de la aplicación (solo si no están definidas)
+if (!defined('APP_ENV')) {
+    define('APP_ENV', getEnv('APP_ENV', 'production'));
+}
+if (!defined('DB_HOST')) {
+    define('DB_HOST', getEnv('DB_HOST', '127.0.0.1'));
+}
+if (!defined('DB_NAME')) {
+    define('DB_NAME', getEnv('DB_NAME', 'sena_asistencia'));
+}
+if (!defined('DB_USER')) {
+    define('DB_USER', getEnv('DB_USER', 'root'));
+}
+if (!defined('DB_PASS')) {
+    define('DB_PASS', getEnv('DB_PASS', ''));
+}
+if (!defined('ROOT_PATH')) {
+    define('ROOT_PATH', dirname(__DIR__));
+}
+if (!defined('PUBLIC_PATH')) {
+    define('PUBLIC_PATH', ROOT_PATH . '/public');
+}
 
 // Configuración de errores según entorno
 if (APP_ENV === 'local' || APP_ENV === 'development') {

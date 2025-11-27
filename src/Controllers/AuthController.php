@@ -27,7 +27,7 @@ class AuthController
     {
         // Si ya está autenticado, redirigir al dashboard
         if ($this->authService->isAuthenticated()) {
-            Response::redirect('/');
+            Response::redirect('/dashboard');
         }
 
         $this->session->start();
@@ -73,7 +73,7 @@ class AuthController
         }
 
         // Login exitoso - redirigir a URL original o dashboard
-        $intendedUrl = $this->session->get('intended_url', '/');
+        $intendedUrl = $this->session->get('intended_url', '/dashboard');
         $this->session->remove('intended_url');
 
         Response::redirect($intendedUrl);

@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Services\AsistenciaService;
 use App\Services\AuthService;
+use App\Services\QRService;
 use App\Repositories\AprendizRepository;
 use App\Repositories\FichaRepository;
 use App\Support\Response;
@@ -19,17 +20,20 @@ class QRController
 {
     private AsistenciaService $asistenciaService;
     private AuthService $authService;
+    private QRService $qrService;
     private AprendizRepository $aprendizRepository;
     private FichaRepository $fichaRepository;
 
     public function __construct(
         AsistenciaService $asistenciaService,
         AuthService $authService,
+        QRService $qrService,
         AprendizRepository $aprendizRepository,
         FichaRepository $fichaRepository
     ) {
         $this->asistenciaService = $asistenciaService;
         $this->authService = $authService;
+        $this->qrService = $qrService;
         $this->aprendizRepository = $aprendizRepository;
         $this->fichaRepository = $fichaRepository;
     }
@@ -175,51 +179,21 @@ class QRController
             }
 
             $qrDataRaw = $data['qr_data'];
-            $aprendizId = null;
-            $qrFecha = null;
 
-            // Intentar decodificar el formato nuevo (simple): "ID|FECHA"
-            if (strpos($qrDataRaw, '|') !== false) {
-                $parts = explode('|', $qrDataRaw);
-                if (count($parts) === 2) {
-                    $aprendizId = (int) $parts[0];
-                    $qrFecha = $parts[1];
-                }
-            } else {
-                // Formato antiguo (JSON) - mantener compatibilidad
-                $qrData = json_decode($qrDataRaw, true);
-                if ($qrData && isset($qrData['aprendiz_id'])) {
-                    $aprendizId = (int) $qrData['aprendiz_id'];
-                }
-            }
+            // Validar código QR usando el servicio (verifica expiración y uso)
+            $validacionQR = $this->qrService->validarCodigoQR($qrDataRaw);
 
-            // Validar que se pudo extraer el ID del aprendiz
-            if (!$aprendizId) {
-                Response::error('Código QR inválido', 400);
+            if (!$validacionQR['success']) {
+                Response::error($validacionQR['message'], 400);
                 return;
             }
 
-            // Validar fecha del QR (opcional - seguridad adicional)
-            if ($qrFecha) {
-                $hoy = date('Y-m-d');
-                // Permitir QR del día actual y del día anterior (por si hay cambio de día)
-                $ayer = date('Y-m-d', strtotime('-1 day'));
-                if ($qrFecha !== $hoy && $qrFecha !== $ayer) {
-                    Response::error('Código QR expirado. Por favor genera uno nuevo.', 400);
-                    return;
-                }
-            }
+            $aprendizId = $validacionQR['data']['aprendiz_id'];
+            $aprendiz = $validacionQR['data']['aprendiz'];
 
             $fichaId = (int) $data['ficha_id'];
             $fecha = date('Y-m-d');
             $hora = date('H:i:s');
-
-            // Verificar que el aprendiz existe
-            $aprendiz = $this->aprendizRepository->findById($aprendizId);
-            if (!$aprendiz) {
-                Response::error('Aprendiz no encontrado', 404);
-                return;
-            }
 
             // Verificar que la ficha existe y está activa
             $ficha = $this->fichaRepository->findById($fichaId);
@@ -353,7 +327,7 @@ class QRController
                         'nombre' => $aprendiz['nombre'],
                         'apellido' => $aprendiz['apellido'],
                         'nombre_completo' => $aprendiz['nombre'] . ' ' . $aprendiz['apellido'],
-                        'codigo_carnet' => $aprendiz['codigo_carnet']
+                        'email' => $aprendiz['email'] ?? null
                     ],
                     'fichas' => $fichas
                 ],
@@ -409,7 +383,7 @@ class QRController
     private function redirectConError(string $mensaje): void
     {
         $_SESSION['errors'] = [$mensaje];
-        Response::redirect('/');
+        Response::redirect('/dashboard');
     }
 
     /**

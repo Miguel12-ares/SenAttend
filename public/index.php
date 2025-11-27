@@ -15,12 +15,17 @@ require_once __DIR__ . '/../config/config.php';
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
 use App\Controllers\HomeController;
+use App\Controllers\ProfileController;
 use App\Controllers\QRController;
+use App\Controllers\WelcomeController;
 use App\Middleware\AuthMiddleware;
 use App\Repositories\UserRepository;
 use App\Repositories\FichaRepository;
 use App\Repositories\AprendizRepository;
+use App\Repositories\CodigoQRRepository;
 use App\Services\AuthService;
+use App\Services\EmailService;
+use App\Services\QRService;
 use App\Session\SessionManager;
 use App\Support\Response;
 
@@ -52,8 +57,11 @@ $session = new SessionManager();
 $userRepository = new UserRepository();
 $fichaRepository = new FichaRepository();
 $aprendizRepository = new AprendizRepository();
+$codigoQRRepository = new CodigoQRRepository();
 $asistenciaRepository = new \App\Repositories\AsistenciaRepository();
 $authService = new AuthService($userRepository, $session);
+$emailService = new EmailService();
+$qrService = new QRService($codigoQRRepository, $aprendizRepository, $emailService);
 $asistenciaService = new \App\Services\AsistenciaService($asistenciaRepository, $aprendizRepository, $fichaRepository);
 $authMiddleware = new AuthMiddleware($session);
 
@@ -61,6 +69,11 @@ $authMiddleware = new AuthMiddleware($session);
 $routes = [
     'GET' => [
         '/' => [
+            'controller' => WelcomeController::class,
+            'action' => 'index',
+            'middleware' => []
+        ],
+        '/dashboard' => [
             'controller' => DashboardController::class,
             'action' => 'index',
             'middleware' => ['auth']
@@ -119,6 +132,12 @@ $routes = [
             'action' => 'escanear',
             'middleware' => ['auth']
         ],
+        // Perfil
+        '/perfil' => [
+            'controller' => ProfileController::class,
+            'action' => 'index',
+            'middleware' => ['auth']
+        ],
         // Test de rutas (solo en desarrollo)
         '/test-routes' => [
             'controller' => function() {
@@ -166,6 +185,12 @@ $routes = [
             'controller' => AuthController::class,
             'action' => 'login',
             'middleware' => []
+        ],
+        // Perfil
+        '/perfil/cambiar-password' => [
+            'controller' => ProfileController::class,
+            'action' => 'cambiarPassword',
+            'middleware' => ['auth']
         ],
         // API Pública - Validar aprendiz y generar QR
         '/api/public/aprendiz/validar' => [
@@ -431,19 +456,29 @@ try {
         $controller = new $controllerClass(
             $asistenciaService,
             $authService,
-            $fichaRepository
+            $fichaRepository,
+            $aprendizRepository
         );
     } elseif ($controllerClass === QRController::class) {
         $controller = new $controllerClass(
             $asistenciaService,
             $authService,
+            $qrService,
             $aprendizRepository,
             $fichaRepository
         );
     } elseif ($controllerClass === HomeController::class) {
         $controller = new $controllerClass(
-            $aprendizRepository
+            $aprendizRepository,
+            $qrService
         );
+    } elseif ($controllerClass === ProfileController::class) {
+        $controller = new $controllerClass(
+            $authService,
+            $session
+        );
+    } elseif ($controllerClass === WelcomeController::class) {
+        $controller = new $controllerClass();
     } else {
         throw new RuntimeException("Unknown controller: {$controllerClass}");
     }

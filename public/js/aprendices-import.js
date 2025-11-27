@@ -121,8 +121,8 @@ class AprendicesImport {
                 
                 hideLoading();
 
-                if (result.success && result.data.success) {
-                    showNotification('success', result.data.message);
+                if (result.success) {
+                    showNotification('success', result.message || 'Importación completada exitosamente');
                     cerrarModalImportar();
                     
                     // Recargar búsqueda si existe, sino recargar página
@@ -134,7 +134,7 @@ class AprendicesImport {
                         }
                     }, 1500);
                 } else {
-                    const error = result.error || result.data?.errors?.join(', ') || 'Error al importar';
+                    const error = result.error || result.errors?.join(', ') || 'Error al importar';
                     showNotification('error', error);
                 }
             } catch (error) {

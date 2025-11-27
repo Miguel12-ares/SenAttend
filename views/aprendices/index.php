@@ -6,18 +6,22 @@
 
 $title = 'Gestión de Aprendices - SENAttend';
 $showHeader = true;
+$currentPage = 'aprendices';
+$additionalStyles = asset_css('css/components.css') . asset_css('css/fichas.css') . asset_css('css/aprendices.css');
+$additionalScripts = asset_js('js/aprendices.js') . asset_js('js/aprendices-import.js') . asset_js('js/search-simple.js');
 
 ob_start();
 ?>
 
-<link rel="stylesheet" href="/css/components.css">
-
 <div class="container">
     <div class="page-header">
-        <h1>Gestión de Aprendices</h1>
+        <div>
+            <h1><i class="fas fa-users"></i> Gestión de Aprendices</h1>
+            <p>Administra los aprendices del SENA</p>
+        </div>
         <div class="page-actions">
-            <button onclick="abrirModalImportar()" class="btn btn-secondary">📂 Importar CSV</button>
-            <a href="/aprendices/crear" class="btn btn-primary">+ Nuevo Aprendiz</a>
+            <button onclick="abrirModalImportar()" class="btn btn-secondary"><i class="fas fa-file-import"></i> <span class="btn-text">Importar CSV</span></button>
+            <a href="/aprendices/crear" class="btn btn-primary"><i class="fas fa-user-plus"></i> <span class="btn-text">Nuevo Aprendiz</span></a>
         </div>
     </div>
 
@@ -54,12 +58,12 @@ ob_start();
     <!-- Panel de filtros -->
     <div class="filter-panel">
         <div class="filter-panel-header">
-            <h3 class="filter-panel-title">Filtros de Búsqueda</h3>
+            <h3 class="filter-panel-title"><i class="fas fa-filter"></i> Filtros de Búsqueda</h3>
         </div>
         <form method="GET" action="/aprendices" id="filterForm">
             <div class="filter-panel-body">
                 <div class="form-group">
-                    <label for="search">Buscar</label>
+                    <label for="search"><i class="fas fa-search"></i> Buscar</label>
                     <div class="search-box">
                         <input 
                             type="text" 
@@ -69,11 +73,11 @@ ob_start();
                             placeholder="Documento, nombre, apellido..."
                             value="<?= htmlspecialchars($search ?? '') ?>"
                         >
-                        <span class="search-box-icon">🔍</span>
+                        <span class="search-box-icon"><i class="fas fa-search"></i></span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="estado">Estado</label>
+                    <label for="estado"><i class="fas fa-info-circle"></i> Estado</label>
                     <select name="estado" id="estado" class="form-control">
                         <option value="">Todos los estados</option>
                         <option value="activo" <?= ($estado ?? '') === 'activo' ? 'selected' : '' ?>>Activos</option>
@@ -81,7 +85,7 @@ ob_start();
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="ficha">Ficha</label>
+                    <label for="ficha"><i class="fas fa-clipboard-list"></i> Ficha</label>
                     <select name="ficha" id="ficha" class="form-control">
                         <option value="">Todas las fichas</option>
                         <?php foreach ($fichas as $f): ?>
@@ -93,8 +97,8 @@ ob_start();
                 </div>
             </div>
             <div class="filter-actions">
-                <a href="/aprendices" class="btn btn-secondary">Limpiar</a>
-                <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+                <a href="/aprendices" class="btn btn-secondary"><i class="fas fa-times"></i> <span class="btn-text">Limpiar</span></a>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> <span class="btn-text">Aplicar Filtros</span></button>
             </div>
         </form>
     </div>
@@ -103,21 +107,23 @@ ob_start();
     <div class="table-container">
         <?php if (empty($aprendices)): ?>
             <div class="empty-state">
+                <i class="fas fa-users"></i>
                 <p>No se encontraron aprendices</p>
-                <a href="/aprendices/crear" class="btn btn-primary">Crear primer aprendiz</a>
+                <a href="/aprendices/crear" class="btn btn-primary"><i class="fas fa-user-plus"></i> Crear primer aprendiz</a>
             </div>
         <?php else: ?>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Documento</th>
-                        <th>Nombre Completo</th>
-                        <th>Código Carnet</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-id-card"></i> Documento</th>
+                            <th><i class="fas fa-user"></i> Nombre Completo</th>
+                            <th><i class="fas fa-envelope"></i> Correo Electrónico</th>
+                            <th><i class="fas fa-info-circle"></i> Estado</th>
+                            <th><i class="fas fa-cog"></i> Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                     <?php foreach ($aprendices as $aprendiz): ?>
                         <tr>
                             <td>
@@ -126,48 +132,50 @@ ob_start();
                             <td>
                                 <?= htmlspecialchars($aprendiz['apellido'] . ', ' . $aprendiz['nombre']) ?>
                             </td>
-                            <td><?= htmlspecialchars($aprendiz['codigo_carnet'] ?? 'N/A') ?></td>
+                            <td><?= htmlspecialchars($aprendiz['email'] ?? 'N/A') ?></td>
                             <td>
                                 <span class="badge badge-<?= $aprendiz['estado'] === 'activo' ? 'success' : 'secondary' ?>">
+                                    <i class="fas fa-<?= $aprendiz['estado'] === 'activo' ? 'check-circle' : 'archive' ?>"></i>
                                     <?= ucfirst($aprendiz['estado']) ?>
                                 </span>
                             </td>
                             <td class="actions">
                                 <a href="/aprendices/<?= $aprendiz['id'] ?>" class="btn-action btn-view" title="Ver detalles">
-                                    👁️
+                                    <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="/aprendices/<?= $aprendiz['id'] ?>/editar" class="btn-action btn-edit" title="Editar">
-                                    ✏️
+                                    <i class="fas fa-pen-to-square"></i>
                                 </a>
                                 <button 
                                     onclick="confirmarEliminarAprendiz(<?= $aprendiz['id'] ?>, '<?= htmlspecialchars($aprendiz['nombre'] . ' ' . $aprendiz['apellido'], ENT_QUOTES) ?>')" 
                                     class="btn-action btn-delete" 
                                     title="Eliminar"
                                 >
-                                    🗑️
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </td>
                         </tr>
                     <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Paginación -->
             <?php if ($totalPages > 1): ?>
                 <div class="pagination">
                     <?php if ($page > 1): ?>
                         <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search ?? '') ?>&estado=<?= urlencode($estado ?? '') ?>&ficha=<?= urlencode($fichaId ?? '') ?>" class="btn btn-secondary">
-                            « Anterior
+                            <i class="fas fa-chevron-left"></i> <span class="btn-text">Anterior</span>
                         </a>
                     <?php endif; ?>
 
                     <span class="pagination-info">
-                        Página <?= $page ?> de <?= $totalPages ?> (<?= $total ?> registros)
+                        <i class="fas fa-file-alt"></i> Página <?= $page ?> de <?= $totalPages ?> (<?= $total ?> registros)
                     </span>
 
                     <?php if ($page < $totalPages): ?>
                         <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search ?? '') ?>&estado=<?= urlencode($estado ?? '') ?>&ficha=<?= urlencode($fichaId ?? '') ?>" class="btn btn-secondary">
-                            Siguiente »
+                            <span class="btn-text">Siguiente</span> <i class="fas fa-chevron-right"></i>
                         </a>
                     <?php endif; ?>
                 </div>
@@ -177,13 +185,13 @@ ob_start();
 </div>
 
 <!-- Modal de Importación CSV -->
-<div id="importModal" class="modal" style="display: none;">
+<div id="importModal" class="modal">
     <div class="modal-content" onclick="event.stopPropagation();">
-        <h2 class="modal-title">Importar Aprendices desde CSV</h2>
+        <h2 class="modal-title"><i class="fas fa-file-import"></i> Importar Aprendices desde CSV</h2>
         <div class="modal-body">
             <form id="importForm" enctype="multipart/form-data">
                 <div class="form-group">
-                    <label for="import_ficha_id">Seleccionar Ficha *</label>
+                    <label for="import_ficha_id"><i class="fas fa-clipboard-list"></i> Seleccionar Ficha *</label>
                     <select name="ficha_id" id="import_ficha_id" class="form-control" required>
                         <option value="">-- Seleccione una ficha --</option>
                         <?php foreach ($fichas as $f): ?>
@@ -195,12 +203,12 @@ ob_start();
                 </div>
 
                 <div class="form-group">
-                    <label>Archivo CSV</label>
+                    <label><i class="fas fa-file-csv"></i> Archivo CSV</label>
                     <div class="file-upload-area" onclick="document.getElementById('csv_file').click()">
-                        <div class="file-upload-icon">📄</div>
+                        <div class="file-upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
                         <div class="file-upload-text">
                             <strong>Click para seleccionar archivo</strong> o arrastra aquí<br>
-                            <small>Formato: documento, nombre, apellido, codigo_carnet</small>
+                            <small>Formato: documento, nombre, apellido, email</small>
                         </div>
                         <input 
                             type="file" 
@@ -215,192 +223,56 @@ ob_start();
                             <div class="file-selected-name" id="fileName"></div>
                             <div class="file-selected-size" id="fileSize"></div>
                         </div>
-                        <button type="button" class="file-remove" onclick="clearFile()">×</button>
+                        <button type="button" class="file-remove" onclick="clearFile()"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
 
                 <div class="alert alert-info">
-                    <strong>Formato del CSV:</strong><br>
-                    • Primera línea: encabezados (documento, nombre, apellido, codigo_carnet)<br>
+                    <strong><i class="fas fa-info-circle"></i> Formato del CSV:</strong><br>
+                    • Primera línea: encabezados (documento, nombre, apellido, email)<br>
                     • Documento: 6-20 dígitos numéricos<br>
                     • Los aprendices duplicados serán omitidos
                 </div>
             </form>
         </div>
         <div class="modal-actions">
-            <button type="button" onclick="cerrarModalImportar()" class="btn btn-secondary">Cancelar</button>
-            <button type="button" onclick="validarArchivo()" class="btn btn-info">Validar</button>
-            <button type="button" onclick="importarCSV()" class="btn btn-primary">Importar</button>
+            <button type="button" onclick="cerrarModalImportar()" class="btn btn-secondary"><i class="fas fa-times"></i> <span class="btn-text">Cancelar</span></button>
+            <button type="button" onclick="validarArchivo()" class="btn btn-info"><i class="fas fa-check-circle"></i> <span class="btn-text">Validar</span></button>
+            <button type="button" onclick="importarCSV()" class="btn btn-primary"><i class="fas fa-file-import"></i> <span class="btn-text">Importar</span></button>
         </div>
     </div>
 </div>
 
 <!-- Modal de confirmación de eliminación -->
-<div id="deleteModal" class="modal" style="display: none;">
+<div id="deleteModal" class="modal">
     <div class="modal-content" onclick="event.stopPropagation();">
-        <h2>Confirmar Eliminación</h2>
-        <p>¿Está seguro de eliminar al aprendiz <strong id="aprendizName"></strong>?</p>
-        <p class="warning-text">Esta acción no se puede deshacer.</p>
+        <h2 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación</h2>
+        <div class="modal-body">
+            <p>¿Está seguro de eliminar al aprendiz <strong id="aprendizName"></strong>?</p>
+            <p class="warning-text"><i class="fas fa-info-circle"></i> Esta acción no se puede deshacer.</p>
+        </div>
         <form id="deleteForm" method="POST">
             <div class="modal-actions">
-                <button type="button" onclick="cerrarModalEliminar()" class="btn btn-secondary">Cancelar</button>
-                <button type="submit" class="btn btn-danger">Eliminar</button>
+                <button type="button" onclick="cerrarModalEliminar()" class="btn btn-secondary"><i class="fas fa-times"></i> <span class="btn-text">Cancelar</span></button>
+                <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> <span class="btn-text">Eliminar</span></button>
             </div>
         </form>
     </div>
 </div>
 
-<script src="/js/components.js"></script>
-<script src="/js/aprendices-import.js"></script>
-<script src="/js/search-simple.js"></script>
-
-<script>
-// Funciones para mantener compatibilidad con HTML existente
-function abrirModalImportar() {
-    const modal = document.getElementById('importModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-function cerrarModalImportar() {
-    const modal = document.getElementById('importModal');
-    if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-        const form = document.getElementById('importForm');
-        if (form) form.reset();
-        const fileInfo = document.getElementById('fileInfo');
-        if (fileInfo) fileInfo.style.display = 'none';
-    }
-}
-
-function confirmarEliminarAprendiz(id, nombre) {
-    document.getElementById('aprendizName').textContent = nombre;
-    document.getElementById('deleteForm').action = '/aprendices/' + id + '/eliminar';
-    const modal = document.getElementById('deleteModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-function cerrarModalEliminar() {
-    const modal = document.getElementById('deleteModal');
-    if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-    }
-}
-
-// Eventos básicos de modales
-document.getElementById('importModal')?.addEventListener('click', function(e) {
-    if (e.target === this) cerrarModalImportar();
-});
-
-document.getElementById('deleteModal')?.addEventListener('click', function(e) {
-    if (e.target === this) cerrarModalEliminar();
-});
-
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        const importModal = document.getElementById('importModal');
-        const deleteModal = document.getElementById('deleteModal');
-        
-        if (importModal && importModal.style.display === 'flex') {
-            cerrarModalImportar();
-        }
-        if (deleteModal && deleteModal.style.display === 'flex') {
-            cerrarModalEliminar();
-        }
-    }
-});
-</script>
-
 <style>
-/* Estilos adicionales específicos */
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+.btn-text {
+    display: inline;
 }
 
-.page-header h1 {
-    margin: 0;
-}
-
-.page-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.table-container {
-    background: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table th {
-    background-color: var(--color-primary);
-    color: white;
-    padding: 1rem;
-    text-align: left;
-}
-
-.table td {
-    padding: 1rem;
-    border-bottom: 1px solid var(--color-gray-200);
-}
-
-.table tbody tr:hover {
-    background-color: var(--color-gray-100);
-}
-
-.actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.btn-action {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    transition: background 0.2s;
-    text-decoration: none;
-}
-
-.btn-action:hover {
-    background-color: var(--color-gray-200);
-}
-
-.pagination {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--color-gray-200);
-}
-
-.pagination-info {
-    color: var(--color-gray-600);
-}
-
-.empty-state {
-    text-align: center;
-    padding: 3rem;
-    color: var(--color-gray-600);
+@media (max-width: 768px) {
+    .btn-text {
+        display: none;
+    }
+    
+    .btn i {
+        margin: 0;
+    }
 }
 
 .btn-danger {
@@ -412,9 +284,13 @@ document.addEventListener('keydown', function(e) {
     background-color: #c82333;
 }
 
-.warning-text {
-    color: var(--color-danger);
-    font-size: 0.9rem;
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-left: 4px solid var(--color-info);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
 }
 </style>
 

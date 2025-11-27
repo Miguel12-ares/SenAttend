@@ -109,7 +109,7 @@ class AprendizController
         $documento = filter_input(INPUT_POST, 'documento', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $apellido = filter_input(INPUT_POST, 'apellido', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $codigoCarnet = filter_input(INPUT_POST, 'codigo_carnet', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
         $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: 'activo';
         $fichaId = filter_input(INPUT_POST, 'ficha_id', FILTER_VALIDATE_INT);
 
@@ -145,7 +145,7 @@ class AprendizController
                 'documento' => $documento,
                 'nombre' => $nombre,
                 'apellido' => $apellido,
-                'codigo_carnet' => $codigoCarnet,
+                'email' => $email,
                 'estado' => $estado,
             ]);
 
@@ -200,7 +200,7 @@ class AprendizController
         $documento = filter_input(INPUT_POST, 'documento', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $apellido = filter_input(INPUT_POST, 'apellido', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $codigoCarnet = filter_input(INPUT_POST, 'codigo_carnet', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
         $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
         $errors = [];
@@ -238,7 +238,7 @@ class AprendizController
                 'documento' => $documento,
                 'nombre' => $nombre,
                 'apellido' => $apellido,
-                'codigo_carnet' => $codigoCarnet,
+                'email' => $email,
                 'estado' => $estado,
             ]);
 
@@ -301,9 +301,10 @@ class AprendizController
             fgetcsv($file);
             
             while (($data = fgetcsv($file)) !== false) {
-                if (count($data) < 4) continue;
+                if (count($data) < 3) continue;
                 
-                [$documento, $nombre, $apellido, $codigoCarnet] = $data;
+                [$documento, $nombre, $apellido] = $data;
+                $email = $data[3] ?? null; // Email opcional
                 
                 // Verificar si ya existe
                 if ($this->aprendizRepository->findByDocumento($documento)) {
@@ -316,7 +317,7 @@ class AprendizController
                     'documento' => trim($documento),
                     'nombre' => trim($nombre),
                     'apellido' => trim($apellido),
-                    'codigo_carnet' => trim($codigoCarnet),
+                    'email' => !empty($email) ? trim($email) : null,
                     'estado' => 'activo',
                 ]);
                 
@@ -599,8 +600,19 @@ class AprendizController
 
         $result = $aprendizService->importarCSVRobusto($_FILES['csv_file']['tmp_name'], $fichaId);
         
-        $statusCode = $result['success'] ? 200 : 400;
-        Response::json($result, $statusCode);
+        // Asegurar formato consistente de respuesta
+        if ($result['success']) {
+            Response::json([
+                'success' => true,
+                'message' => $result['message'] ?? 'Importación completada',
+                'data' => $result['data'] ?? $result
+            ], 200);
+        } else {
+            Response::json([
+                'success' => false,
+                'errors' => $result['errors'] ?? ['Error al importar']
+            ], 400);
+        }
     }
 
     /**
@@ -632,7 +644,19 @@ class AprendizController
         );
 
         $result = $aprendizService->preValidarImportacion($_FILES['csv_file']['tmp_name']);
-        Response::json($result);
+        
+        // Formatear respuesta de manera consistente
+        if (isset($result['valid']) && $result['valid']) {
+            Response::json([
+                'success' => true,
+                'data' => $result
+            ]);
+        } else {
+            Response::json([
+                'success' => false,
+                'errors' => $result['errors'] ?? ['Error de validación']
+            ], 400);
+        }
     }
 
     /**

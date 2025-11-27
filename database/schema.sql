@@ -2,13 +2,6 @@
 -- Sistema de Asistencia SENA
 -- Versión: 1.0
 
--- Eliminar base de datos si existe (solo para desarrollo)
--- DROP DATABASE IF EXISTS sena_asistencia;
-
--- Crear base de datos
--- CREATE DATABASE IF NOT EXISTS sena_asistencia DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- USE sena_asistencia;
-
 -- Tabla: usuarios
 -- Almacena información de instructores, coordinadores y administradores
 CREATE TABLE IF NOT EXISTS usuarios (
@@ -32,12 +25,10 @@ CREATE TABLE IF NOT EXISTS aprendices (
     documento VARCHAR(20) UNIQUE NOT NULL,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
-    codigo_carnet VARCHAR(50),
     estado ENUM('activo', 'retirado') NOT NULL DEFAULT 'activo',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_documento (documento),
-    INDEX idx_codigo_carnet (codigo_carnet),
     INDEX idx_estado (estado)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -93,7 +84,7 @@ CREATE TABLE IF NOT EXISTS asistencias (
 -- Los índices están optimizados para las consultas más frecuentes:
 -- 1. Búsqueda de usuarios por email y documento
 -- 2. Búsqueda de fichas por número
--- 3. Búsqueda de aprendices por documento y código de carnet
+-- 3. Búsqueda de aprendices por documento
 -- 4. Consultas de asistencia por fecha, aprendiz y ficha
 -- 5. La clave única en asistencias previene duplicados por día
 

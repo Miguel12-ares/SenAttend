@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Repositories\AprendizRepository;
+use App\Services\QRService;
 use App\Support\Response;
 use Exception;
 
@@ -13,10 +14,14 @@ use Exception;
 class HomeController
 {
     private AprendizRepository $aprendizRepository;
+    private QRService $qrService;
 
-    public function __construct(AprendizRepository $aprendizRepository)
-    {
+    public function __construct(
+        AprendizRepository $aprendizRepository,
+        QRService $qrService
+    ) {
         $this->aprendizRepository = $aprendizRepository;
+        $this->qrService = $qrService;
     }
 
     /**
@@ -98,9 +103,13 @@ class HomeController
                 return;
             }
 
-            // Preparar datos simplificados para el QR
-            // Solo ID y fecha para hacer el código más pequeño y fácil de escanear
-            $qrData = $aprendiz['id'] . '|' . date('Y-m-d');
+            // Generar código QR con expiración de 3 minutos y envío por correo
+            $resultadoQR = $this->qrService->generarCodigoQR($aprendiz['id'], true);
+
+            if (!$resultadoQR['success']) {
+                Response::error($resultadoQR['message'], 400);
+                return;
+            }
 
             // Log de generación pública
             $this->logGeneracionPublica($aprendiz['documento'], $_SERVER['REMOTE_ADDR'] ?? 'unknown');
@@ -114,17 +123,31 @@ class HomeController
                     'aprendiz' => [
                         'nombre_completo' => $aprendiz['nombre'] . ' ' . $aprendiz['apellido'],
                         'documento' => $aprendiz['documento'],
-                        'codigo_carnet' => $aprendiz['codigo_carnet']
+                        'email' => $aprendiz['email'] ?? null
                     ],
-                    'qr_data' => $qrData,  // Formato simple: "ID|FECHA"
+                    'qr_data' => $resultadoQR['data']['qr_data'],  // Formato: "TOKEN|ID_APRENDIZ|FECHA"
+                    'token' => $resultadoQR['data']['token'],
+                    'fecha_generacion' => $resultadoQR['data']['fecha_generacion'] ?? null,
+                    'fecha_expiracion' => $resultadoQR['data']['fecha_expiracion'],
+                    'email_enviado' => $resultadoQR['data']['email_enviado'],
+                    'email_message' => $resultadoQR['data']['email_message'],
                     'fichas' => $fichas
                 ],
-                'message' => 'Código QR generado exitosamente'
+                'message' => 'Código QR generado exitosamente' . 
+                    ($resultadoQR['data']['email_enviado'] ? ' y enviado por correo' : '')
             ]);
 
         } catch (Exception $e) {
             error_log("Error en HomeController::apiValidarAprendiz: " . $e->getMessage());
-            Response::error('Error interno del servidor', 500);
+            error_log("Stack trace: " . $e->getTraceAsString());
+            
+            // Mensaje más específico para errores de base de datos
+            $message = 'Error interno del servidor';
+            if (strpos($e->getMessage(), 'Database connection') !== false) {
+                $message = 'Error de conexión a la base de datos. Verifica que MySQL esté corriendo y que la tabla codigos_qr exista.';
+            }
+            
+            Response::error($message, 500);
         }
     }
 

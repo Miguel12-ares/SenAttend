@@ -67,10 +67,15 @@ class AsistenciaService
                 $data['id_ficha'],
                 $data['fecha']
             )) {
+                // Obtener nombre completo del aprendiz para el mensaje de error
+                $aprendiz = $this->aprendizRepository->findById($data['id_aprendiz']);
+                $nombreCompleto = $aprendiz ? trim($aprendiz['nombre'] . ' ' . $aprendiz['apellido']) : null;
+                
                 throw new DuplicateAsistenciaException(
                     $data['id_aprendiz'],
                     $data['id_ficha'],
-                    $data['fecha']
+                    $data['fecha'],
+                    $nombreCompleto
                 );
             }
 
@@ -158,7 +163,10 @@ class AsistenciaService
             if ($result['success']) {
                 $exitosos++;
             } else {
-                $errores[] = "Aprendiz {$asistencia['id_aprendiz']}: {$result['message']}";
+                // Obtener nombre completo del aprendiz para el mensaje de error
+                $aprendiz = $this->aprendizRepository->findById($asistencia['id_aprendiz']);
+                $nombreCompleto = $aprendiz ? trim($aprendiz['nombre'] . ' ' . $aprendiz['apellido']) : "ID {$asistencia['id_aprendiz']}";
+                $errores[] = "Aprendiz {$nombreCompleto}: {$result['message']}";
             }
         }
 

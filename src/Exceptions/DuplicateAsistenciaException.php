@@ -13,14 +13,18 @@ class DuplicateAsistenciaException extends RuntimeException
     private int $aprendizId;
     private int $fichaId;
     private string $fecha;
+    private ?string $nombreAprendiz;
 
-    public function __construct(int $aprendizId, int $fichaId, string $fecha, string $message = null)
+    public function __construct(int $aprendizId, int $fichaId, string $fecha, ?string $nombreAprendiz = null, string $message = null)
     {
         $this->aprendizId = $aprendizId;
         $this->fichaId = $fichaId;
         $this->fecha = $fecha;
+        $this->nombreAprendiz = $nombreAprendiz;
 
-        $defaultMessage = "Ya existe un registro de asistencia para el aprendiz {$aprendizId} en la ficha {$fichaId} para la fecha {$fecha}";
+        // Usar nombre completo si está disponible, sino usar ID
+        $aprendizLabel = $nombreAprendiz ? $nombreAprendiz : "ID {$aprendizId}";
+        $defaultMessage = "El aprendiz {$aprendizLabel} ya se encuentra registrado para esta fecha";
         parent::__construct($message ?? $defaultMessage);
     }
 
@@ -39,12 +43,18 @@ class DuplicateAsistenciaException extends RuntimeException
         return $this->fecha;
     }
 
+    public function getNombreAprendiz(): ?string
+    {
+        return $this->nombreAprendiz;
+    }
+
     public function toArray(): array
     {
         return [
             'error' => 'DUPLICATE_ASISTENCIA',
             'message' => $this->getMessage(),
             'aprendiz_id' => $this->aprendizId,
+            'aprendiz_nombre' => $this->nombreAprendiz,
             'ficha_id' => $this->fichaId,
             'fecha' => $this->fecha,
         ];

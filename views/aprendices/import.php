@@ -6,11 +6,10 @@
 
 $title = 'Importar Aprendices CSV - SENAttend';
 $showHeader = true;
+$additionalStyles = asset_css('css/components.css');
 
 ob_start();
 ?>
-
-<link rel="stylesheet" href="/css/components.css">
 
 <div class="container">
     <div class="page-header">
@@ -60,10 +59,10 @@ ob_start();
                 <div class="form-group">
                     <label>Archivo CSV *</label>
                     <div class="file-upload-area" onclick="document.getElementById('csv_file').click()">
-                        <div class="file-upload-icon">📄</div>
+                        <div class="file-upload-icon"><i class="fas fa-file"></i></div>
                         <div class="file-upload-text">
                             <strong>Click para seleccionar archivo</strong> o arrastra aquí<br>
-                            <small>Formato: documento, nombres, apellidos, email, numero_ficha, codigo_carnet</small>
+                            <small>Formato: documento, nombres, apellidos, email, numero_ficha</small>
                         </div>
                         <input 
                             type="file" 
@@ -78,13 +77,13 @@ ob_start();
                             <div class="file-selected-name" id="fileName"></div>
                             <div class="file-selected-size" id="fileSize"></div>
                         </div>
-                        <button type="button" class="file-remove" onclick="clearFile()">×</button>
+                        <button type="button" class="file-remove" onclick="clearFile()"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
 
                 <div class="alert alert-info">
                     <strong>Formato del CSV:</strong><br>
-                    • Primera línea: encabezados (documento, nombres, apellidos, email, numero_ficha, codigo_carnet)<br>
+                    • Primera línea: encabezados (documento, nombres, apellidos, email, numero_ficha)<br>
                     • Documento: 6-20 dígitos numéricos únicos<br>
                     • Email: formato válido y único (opcional)<br>
                     • Código carnet: alfanumérico (opcional)<br>
@@ -93,10 +92,10 @@ ob_start();
 
                 <div class="form-actions">
                     <button type="button" onclick="validarArchivo()" class="btn btn-info">
-                        🔍 Validar Archivo
+                        <i class="fas fa-magnifying-glass"></i> Validar Archivo
                     </button>
                     <button type="button" onclick="iniciarImportacion()" class="btn btn-primary">
-                        📂 Importar Aprendices
+                        <i class="fas fa-folder-open"></i> Importar Aprendices
                     </button>
                 </div>
             </form>
@@ -116,15 +115,15 @@ ob_start();
             <div class="import-status" id="importStatus">
                 <div class="status-item">
                     <span class="status-label">Validando archivo:</span>
-                    <span class="status-value" id="statusValidation">⏳ Pendiente</span>
+                    <span class="status-value" id="statusValidation"><i class="fas fa-hourglass"></i> Pendiente</span>
                 </div>
                 <div class="status-item">
                     <span class="status-label">Procesando registros:</span>
-                    <span class="status-value" id="statusProcessing">⏳ Pendiente</span>
+                    <span class="status-value" id="statusProcessing"><i class="fas fa-hourglass"></i> Pendiente</span>
                 </div>
                 <div class="status-item">
                     <span class="status-label">Guardando en base de datos:</span>
-                    <span class="status-value" id="statusSaving">⏳ Pendiente</span>
+                    <span class="status-value" id="statusSaving"><i class="fas fa-hourglass"></i> Pendiente</span>
                 </div>
             </div>
         </div>
@@ -143,10 +142,10 @@ ob_start();
 
             <div class="form-actions">
                 <button type="button" onclick="nuevaImportacion()" class="btn btn-secondary">
-                    🔄 Nueva Importación
+                    <i class="fas fa-rotate"></i> Nueva Importación
                 </button>
                 <a href="/aprendices" class="btn btn-primary">
-                    ✅ Ver Aprendices
+                    <i class="fas fa-check"></i> Ver Aprendices
                 </a>
             </div>
         </div>
@@ -370,7 +369,7 @@ ob_start();
 }
 </style>
 
-<script src="/js/components.js"></script>
+<script src="<?= asset('js/components.js') ?>"></script>
 <script>
 // ==============================================
 // MANEJO DE ARCHIVO
@@ -440,36 +439,54 @@ async function validarArchivo() {
         return;
     }
 
-    updateStatus('statusValidation', '⏳ Validando...', 'info');
+    updateStatus('statusValidation', '<i class="fas fa-hourglass"></i> Validando...', 'info');
     
     try {
         const result = await API.post('/api/aprendices/validar-csv', formData);
         
-        if (result.success && result.data.valid) {
-            if (result.data.tiene_errores) {
-                updateStatus('statusValidation', '⚠️ Con advertencias', 'warning');
+        // Manejar diferentes formatos de respuesta
+        const responseData = result.data || result;
+        
+        if (result.success && responseData.valid) {
+            if (responseData.tiene_errores) {
+                updateStatus('statusValidation', '<i class="fas fa-triangle-exclamation"></i> Con advertencias', 'warning');
                 
-                const errores = result.data.errores.slice(0, 10).join('<br>');
+                const errores = (responseData.errores || []);
+                const totalErrores = errores.length;
+                const aprendicesValidos = responseData.aprendices_validos || 0;
+                
+                let mensajeAdvertencia = `<strong>Archivo válido con advertencias:</strong><br>`;
+                mensajeAdvertencia += `• ${aprendicesValidos} aprendices válidos para importar<br>`;
+                mensajeAdvertencia += `• ${totalErrores} advertencias encontradas<br><br>`;
+                mensajeAdvertencia += `<strong>Detalles:</strong><br>`;
+                mensajeAdvertencia += errores.slice(0, 15).join('<br>');
+                if (totalErrores > 15) {
+                    mensajeAdvertencia += `<br>... y ${totalErrores - 15} advertencias más`;
+                }
+                
                 await Confirm.show(
                     'Advertencias de Validación',
-                    `<div style="text-align: left; max-height: 300px; overflow-y: auto;">${errores}</div>`,
+                    `<div style="text-align: left; max-height: 400px; overflow-y: auto; padding: 10px;">${mensajeAdvertencia}</div>`,
                     {
-                        confirmText: 'Entendido',
-                        confirmClass: 'btn-info'
+                        confirmText: 'Continuar de todas formas',
+                        confirmClass: 'btn-primary',
+                        cancelText: 'Cancelar'
                     }
                 );
             } else {
-                updateStatus('statusValidation', '✅ Válido', 'success');
-                Notification.success(`✓ Archivo válido: ${result.data.aprendices_validos} aprendices listos para importar`);
+                updateStatus('statusValidation', '<i class="fas fa-check"></i> Válido', 'success');
+                Notification.success(`<i class="fas fa-check"></i> Archivo válido: ${responseData.aprendices_validos || 0} aprendices listos para importar`);
             }
         } else {
-            updateStatus('statusValidation', '❌ Error', 'error');
-            const error = result.error || result.data?.errors?.join(', ') || 'Error de validación';
-            Notification.error(error);
+            updateStatus('statusValidation', '<i class="fas fa-xmark"></i> Error', 'error');
+            const errors = responseData.errors || responseData.errores || [];
+            const errorMsg = result.error || (Array.isArray(errors) ? errors.join(', ') : (errors || 'Error de validación'));
+            Notification.error(errorMsg);
         }
     } catch (error) {
-        updateStatus('statusValidation', '❌ Error', 'error');
-        Notification.error('Error al validar el archivo');
+        console.error('Error en validación:', error);
+        updateStatus('statusValidation', '<i class="fas fa-xmark"></i> Error', 'error');
+        Notification.error('Error al validar el archivo: ' + (error.message || 'Error desconocido'));
     }
 }
 
@@ -508,41 +525,80 @@ async function iniciarImportacion() {
 
     // Simular progreso
     updateProgress(10, 'Validando archivo...');
-    updateStatus('statusValidation', '⏳ Validando...', 'info');
+    updateStatus('statusValidation', '<i class="fas fa-hourglass"></i> Validando...', 'info');
 
     try {
         // Paso 1: Validación
         await new Promise(resolve => setTimeout(resolve, 1000));
         updateProgress(30, 'Archivo validado correctamente');
-        updateStatus('statusValidation', '✅ Completado', 'success');
+        updateStatus('statusValidation', '<i class="fas fa-check"></i> Completado', 'success');
 
         // Paso 2: Procesamiento
-        updateStatus('statusProcessing', '⏳ Procesando...', 'info');
+        updateStatus('statusProcessing', '<i class="fas fa-hourglass"></i> Procesando...', 'info');
         updateProgress(50, 'Procesando registros...');
 
         const result = await API.post('/api/aprendices/importar', formData);
         
+        // Manejar diferentes formatos de respuesta
+        const responseData = result.data || result;
+        
+        // Verificar si hubo error en la petición HTTP
+        if (!result.success) {
+            updateStatus('statusProcessing', '<i class="fas fa-xmark"></i> Error', 'error');
+            updateStatus('statusSaving', '<i class="fas fa-xmark"></i> Error', 'error');
+            const errors = responseData.errors || [];
+            const errorMsg = result.error || (Array.isArray(errors) ? errors.join(', ') : (errors || 'Error durante la importación'));
+            Notification.error(errorMsg);
+            
+            // Mostrar resultados parciales si hay datos
+            if (responseData.data || responseData.imported !== undefined) {
+                setTimeout(() => {
+                    mostrarResultados(responseData.data || responseData);
+                }, 1000);
+            }
+            return;
+        }
+
+        // Verificar si la importación fue exitosa en el contenido
+        if (!responseData || (responseData.success === false)) {
+            updateStatus('statusProcessing', '<i class="fas fa-xmark"></i> Error', 'error');
+            updateStatus('statusSaving', '<i class="fas fa-xmark"></i> Error', 'error');
+            const errors = responseData?.errors || ['Error desconocido durante la importación'];
+            const errorMsg = Array.isArray(errors) ? errors.join(', ') : errors;
+            Notification.error(errorMsg);
+            
+            // Mostrar resultados parciales si hay datos
+            if (responseData && (responseData.data || responseData.imported !== undefined)) {
+                setTimeout(() => {
+                    mostrarResultados(responseData.data || responseData);
+                }, 1000);
+            }
+            return;
+        }
+        
         await new Promise(resolve => setTimeout(resolve, 1000));
         updateProgress(80, 'Registros procesados');
-        updateStatus('statusProcessing', '✅ Completado', 'success');
+        updateStatus('statusProcessing', '<i class="fas fa-check"></i> Completado', 'success');
 
         // Paso 3: Guardado
-        updateStatus('statusSaving', '⏳ Guardando...', 'info');
+        updateStatus('statusSaving', '<i class="fas fa-hourglass"></i> Guardando...', 'info');
         updateProgress(90, 'Guardando en base de datos...');
 
         await new Promise(resolve => setTimeout(resolve, 500));
         updateProgress(100, 'Importación completada');
-        updateStatus('statusSaving', '✅ Completado', 'success');
+        updateStatus('statusSaving', '<i class="fas fa-check"></i> Completado', 'success');
 
-        // Mostrar resultados
+        // Mostrar resultados - manejar diferentes formatos
+        const finalData = responseData.data || responseData;
         setTimeout(() => {
-            mostrarResultados(result.data);
+            mostrarResultados(finalData);
         }, 1000);
 
     } catch (error) {
-        updateStatus('statusProcessing', '❌ Error', 'error');
-        updateStatus('statusSaving', '❌ Error', 'error');
-        Notification.error('Error durante la importación');
+        console.error('Error en importación:', error);
+        updateStatus('statusProcessing', '<i class="fas fa-xmark"></i> Error', 'error');
+        updateStatus('statusSaving', '<i class="fas fa-xmark"></i> Error', 'error');
+        Notification.error('Error durante la importación: ' + (error.message || 'Error desconocido'));
     }
 }
 
@@ -566,37 +622,53 @@ function mostrarResultados(data) {
     const summary = document.getElementById('resultsSummary');
     const details = document.getElementById('resultsDetails');
 
+    // Asegurar que data tenga la estructura correcta
+    const imported = data.imported || 0;
+    const skipped = data.skipped || 0;
+    const errors = data.errors || [];
+    const message = data.message || 'Importación completada';
+
     // Resumen
     summary.innerHTML = `
         <div class="result-card success">
-            <div class="result-number">${data.imported || 0}</div>
+            <div class="result-number">${imported}</div>
             <div class="result-label">Aprendices Importados</div>
         </div>
         <div class="result-card warning">
-            <div class="result-number">${data.skipped || 0}</div>
+            <div class="result-number">${skipped}</div>
             <div class="result-label">Registros Omitidos</div>
         </div>
         <div class="result-card error">
-            <div class="result-number">${data.errors?.length || 0}</div>
+            <div class="result-number">${errors.length}</div>
             <div class="result-label">Errores Encontrados</div>
         </div>
     `;
 
     // Detalles de errores
-    if (data.errors && data.errors.length > 0) {
+    if (errors.length > 0) {
         let errorsHtml = '<h3>Errores Detallados</h3>';
         errorsHtml += '<table class="error-table">';
-        errorsHtml += '<thead><tr><th>Línea</th><th>Error</th></tr></thead><tbody>';
+        errorsHtml += '<thead><tr><th>#</th><th>Error</th></tr></thead><tbody>';
         
-        data.errors.forEach((error, index) => {
-            errorsHtml += `<tr><td>${index + 1}</td><td>${error}</td></tr>`;
+        errors.forEach((error, index) => {
+            const errorText = typeof error === 'string' ? error : JSON.stringify(error);
+            errorsHtml += `<tr><td>${index + 1}</td><td>${errorText}</td></tr>`;
         });
         
         errorsHtml += '</tbody></table>';
         details.innerHTML = errorsHtml;
+    } else {
+        details.innerHTML = '';
     }
 
-    Notification.success(data.message || 'Importación completada');
+    // Mostrar notificación según el resultado
+    if (imported > 0) {
+        Notification.success(message);
+    } else if (errors.length > 0) {
+        Notification.warning('No se importaron aprendices. Revise los errores detallados.');
+    } else {
+        Notification.info(message);
+    }
 }
 
 function nuevaImportacion() {
@@ -609,9 +681,9 @@ function nuevaImportacion() {
     
     // Resetear estados
     updateProgress(0, 'Listo para nueva importación');
-    updateStatus('statusValidation', '⏳ Pendiente', '');
-    updateStatus('statusProcessing', '⏳ Pendiente', '');
-    updateStatus('statusSaving', '⏳ Pendiente', '');
+    updateStatus('statusValidation', '<i class="fas fa-hourglass"></i> Pendiente', '');
+    updateStatus('statusProcessing', '<i class="fas fa-hourglass"></i> Pendiente', '');
+    updateStatus('statusSaving', '<i class="fas fa-hourglass"></i> Pendiente', '');
 }
 </script>
 

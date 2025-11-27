@@ -40,7 +40,7 @@ class AsistenciaRepository
                     ap.nombre,
                     ap.apellido,
                     CONCAT(ap.apellido, ", ", ap.nombre) as nombre_completo,
-                    ap.codigo_carnet,
+                    ap.email,
                     ap.estado as estado_aprendiz,
                     ap.created_at as fecha_matricula,
                     fa.fecha_vinculacion,
@@ -106,7 +106,16 @@ class AsistenciaRepository
         try {
             // Validar que no exista registro duplicado (constraint UNIQUE)
             if ($this->existeRegistroAsistencia($data['id_aprendiz'], $data['id_ficha'], $data['fecha'])) {
-                throw new RuntimeException('Ya existe un registro de asistencia para este aprendiz en esta fecha');
+                // Obtener nombre completo del aprendiz para el mensaje de error
+                $stmtAprendiz = Connection::prepare(
+                    'SELECT nombre, apellido FROM aprendices WHERE id = :id LIMIT 1'
+                );
+                $stmtAprendiz->execute(['id' => $data['id_aprendiz']]);
+                $aprendiz = $stmtAprendiz->fetch();
+                $nombreCompleto = $aprendiz ? trim($aprendiz['nombre'] . ' ' . $aprendiz['apellido']) : null;
+                $aprendizLabel = $nombreCompleto ? $nombreCompleto : "ID {$data['id_aprendiz']}";
+                
+                throw new RuntimeException("El aprendiz {$aprendizLabel} ya se encuentra registrado para esta fecha");
             }
 
             // Validar que el aprendiz esté matriculado activamente en la ficha
@@ -146,7 +155,16 @@ class AsistenciaRepository
             
             // Si es error de duplicado (constraint violation)
             if ($e->getCode() == 23000) {
-                throw new RuntimeException('Ya existe un registro de asistencia para este aprendiz en esta fecha');
+                // Obtener nombre completo del aprendiz para el mensaje de error
+                $stmtAprendiz = Connection::prepare(
+                    'SELECT nombre, apellido FROM aprendices WHERE id = :id LIMIT 1'
+                );
+                $stmtAprendiz->execute(['id' => $data['id_aprendiz']]);
+                $aprendiz = $stmtAprendiz->fetch();
+                $nombreCompleto = $aprendiz ? trim($aprendiz['nombre'] . ' ' . $aprendiz['apellido']) : null;
+                $aprendizLabel = $nombreCompleto ? $nombreCompleto : "ID {$data['id_aprendiz']}";
+                
+                throw new RuntimeException("El aprendiz {$aprendizLabel} ya se encuentra registrado para esta fecha");
             }
             
             error_log("Error registrando asistencia: " . $e->getMessage());
@@ -197,7 +215,7 @@ class AsistenciaRepository
                     ap.documento,
                     ap.nombre,
                     ap.apellido,
-                    ap.codigo_carnet,
+                    ap.email,
                     u.nombre as registrado_por_nombre
                  FROM asistencias a
                  INNER JOIN aprendices ap ON a.id_aprendiz = ap.id
@@ -231,7 +249,7 @@ class AsistenciaRepository
                     ap.documento,
                     ap.nombre,
                     ap.apellido,
-                    ap.codigo_carnet,
+                    ap.email,
                     ap.estado as estado_aprendiz,
                     a.id as asistencia_id,
                     a.estado as asistencia_estado,

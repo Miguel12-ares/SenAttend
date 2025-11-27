@@ -9,9 +9,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Asistencia - SENAttend</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/asistencia-registrar.css">
-    <link rel="stylesheet" href="/css/asistencia-registrar-optimizado.css">
+    <link rel="stylesheet" href="<?= asset('assets/vendor/fontawesome/css/all.min.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/asistencia-registrar.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/asistencia-registrar-optimizado.css') ?>">
 </head>
 <body>
     <div class="wrapper">
@@ -23,7 +24,7 @@
                         <p class="subtitle">Registro de Asistencia</p>
                     </div>
                     <nav class="nav">
-                        <a href="/" class="btn btn-secondary btn-sm">Volver al Dashboard</a>
+                        <a href="/dashboard" class="btn btn-secondary btn-sm">Volver al Dashboard</a>
                         <span class="user-info">
                             <strong><?= htmlspecialchars($user['nombre']) ?></strong>
                             <span class="badge badge-<?= $user['rol'] ?>"><?= ucfirst($user['rol']) ?></span>
@@ -94,7 +95,7 @@
 
                             <div class="form-group-inline">
                                 <button type="button" class="btn btn-primary" id="btnCargarAprendices">
-                                    <span class="btn-text">📋 Cargar Aprendices</span>
+                                    <span class="btn-text"><i class="fas fa-clipboard-list"></i> Cargar Aprendices</span>
                                     <span class="btn-loader" style="display: none;">
                                         <div class="spinner-small"></div> Cargando...
                                     </span>
@@ -105,7 +106,7 @@
 
                     <?php if ($ficha && !$validacionFecha['valido']): ?>
                     <div class="alert alert-error" style="margin-top: 1rem;">
-                        ⚠️ <?= htmlspecialchars($validacionFecha['mensaje']) ?>
+                        <i class="fas fa-triangle-exclamation"></i> <?= htmlspecialchars($validacionFecha['mensaje']) ?>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -133,18 +134,19 @@
                 <?php endif; ?>
 
                 <!-- Tabla de Aprendices - Dev 3: Tabla responsive con funcionalidades avanzadas -->
+                <?php if ($ficha && !empty($aprendices) && $validacionFecha['valido']): ?>
                 <div id="contenedorAprendices" style="display: none;">
                     <!-- Controles de tabla -->
                     <div class="tabla-controles">
                         <div class="controles-izquierda">
                             <button type="button" class="btn btn-success btn-sm" id="btnMarcarTodosPresente">
-                                ✅ Marcar Todos Presente
+                                <i class="fas fa-check"></i> Marcar Todos Presente
                             </button>
                             <button type="button" class="btn btn-danger btn-sm" id="btnMarcarTodosAusente">
-                                ❌ Marcar Todos Ausente
+                                <i class="fas fa-xmark"></i> Marcar Todos Ausente
                             </button>
                             <button type="button" class="btn btn-warning btn-sm" id="btnLimpiarSeleccion">
-                                🔄 Limpiar Selección
+                                <i class="fas fa-rotate"></i> Limpiar Selección
                             </button>
                         </div>
                         <div class="controles-derecha">
@@ -170,7 +172,7 @@
                                         <th class="col-foto">Foto</th>
                                         <th class="col-documento">Documento</th>
                                         <th class="col-nombre">Apellidos y Nombres</th>
-                                        <th class="col-carnet">Código Carnet</th>
+                                        <th class="col-email">Correo Electrónico</th>
                                         <th class="col-estado">Estado de Asistencia</th>
                                         <th class="col-hora">Hora</th>
                                         <th class="col-observaciones">Observaciones</th>
@@ -184,7 +186,7 @@
 
                         <div class="botones-accion">
                             <button type="submit" class="btn-guardar" id="btnGuardar" disabled>
-                                <span class="btn-text">💾 Guardar Asistencia</span>
+                                <span class="btn-text"><i class="fas fa-floppy-disk"></i> Guardar Asistencia</span>
                                 <span class="btn-loader" style="display: none;">
                                     <div class="spinner-small"></div> Guardando...
                                 </span>
@@ -198,14 +200,14 @@
 
                 <?php elseif ($ficha && empty($aprendices)): ?>
                 <div class="empty-state">
-                    <h3>📋 No hay aprendices en esta ficha</h3>
+                    <h3><i class="fas fa-clipboard-list"></i> No hay aprendices en esta ficha</h3>
                     <p>La ficha seleccionada no tiene aprendices asignados.</p>
                     <a href="/aprendices" class="btn btn-primary">Gestionar Aprendices</a>
                 </div>
 
                 <?php elseif (!$ficha): ?>
                 <div class="empty-state">
-                    <h3>👆 Seleccione una ficha para comenzar</h3>
+                    <h3><i class="fas fa-hand-point-up"></i> Seleccione una ficha para comenzar</h3>
                     <p>Elija una ficha y fecha para registrar la asistencia.</p>
                 </div>
                 <?php endif; ?>
@@ -335,7 +337,7 @@
                 <td class="col-nombre">
                     <strong>${aprendiz.apellido}, ${aprendiz.nombre}</strong>
                 </td>
-                <td class="col-carnet">${aprendiz.codigo_carnet || 'N/A'}</td>
+                <td class="col-email">${aprendiz.email || 'N/A'}</td>
                 <td class="col-estado">
                     ${renderizarEstadoAsistencia(aprendiz)}
                 </td>
@@ -521,7 +523,7 @@
     }
     </script>
 
-    <script src="/js/app.js"></script>
+    <script src="<?= asset('js/app.js') ?>"></script>
 </body>
 </html>
 

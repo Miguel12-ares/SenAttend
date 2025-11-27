@@ -3,61 +3,112 @@
  */
 
 .login-page {
-    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary-dark) 100%);
+    background: #ffffff;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.login-page > .login-container {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-}
-
-.login-container {
+    padding: 2rem 20px;
+    background: #ffffff;
     width: 100%;
-    max-width: 420px;
+    max-width: 450px;
+    margin: 0 auto;
 }
 
 .login-box {
     background: var(--color-white);
     padding: 2.5rem;
-    border-radius: var(--border-radius);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+    width: 100%;
 }
 
 .login-header {
     text-align: center;
     margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #e9ecef;
 }
 
 .login-header h1 {
     color: var(--color-primary);
     font-size: 2.5rem;
     margin-bottom: 0.5rem;
+    font-weight: 700;
 }
 
 .login-header p {
     color: var(--color-gray-600);
     font-size: 0.95rem;
+    margin: 0;
 }
 
 .login-form {
     margin: 0;
 }
 
-.login-footer {
-    margin-top: 1.5rem;
-    text-align: center;
+.login-form .form-group {
+    margin-bottom: 1.5rem;
 }
 
-.help-text {
-    font-size: 0.85rem;
-    color: var(--color-gray-600);
-    line-height: 1.5;
+.login-form .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.login-form .form-control {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.login-form .form-control:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
+}
+
+.login-form .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.login-form .btn i {
+    font-size: 1rem;
 }
 
 /* Responsive para login */
 @media (max-width: 768px) {
+    .login-page .login-container {
+        padding: 1.5rem 15px;
+    }
+
     .login-box {
-        padding: 1.5rem;
+        padding: 2rem 1.5rem;
+    }
+
+    .login-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
     }
 
     .login-header h1 {
