@@ -518,9 +518,20 @@ class AsistenciaController
      */
     private function obtenerFichasPermitidas(array $user): array
     {
-        // Por ahora retorna todas las fichas activas
-        // En futuras versiones se puede filtrar por instructor asignado
-        return $this->fichaRepository->findActive(100, 0);
+        // Admin y coordinador ven todas las fichas
+        if (in_array($user['rol'], ['admin', 'coordinador'])) {
+            return $this->fichaRepository->findActive(200, 0);
+        }
+        
+        // Instructor solo ve sus fichas asignadas
+        if ($user['rol'] === 'instructor') {
+            // Necesitamos inyectar el InstructorFichaRepository
+            $instructorFichaRepo = new \App\Repositories\InstructorFichaRepository();
+            return $instructorFichaRepo->findFichasByInstructor($user['id'], true);
+        }
+        
+        // Por defecto, sin acceso
+        return [];
     }
 
     /**
@@ -533,9 +544,13 @@ class AsistenciaController
             return true;
         }
 
-        // Para instructores, validar asignación (por implementar)
-        // Por ahora permitir acceso a todas las fichas
-        return true;
+        // Instructor - validar con la tabla de asignaciones
+        if ($user['rol'] === 'instructor') {
+            $instructorFichaRepo = new \App\Repositories\InstructorFichaRepository();
+            return $instructorFichaRepo->isActive($user['id'], $fichaId);
+        }
+        
+        return false;
     }
 
     /**

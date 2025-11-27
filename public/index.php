@@ -146,6 +146,23 @@ $routes = [
             'action' => null,
             'middleware' => []
         ],
+        // Gestión de Asignaciones Instructor-Ficha
+        '/instructor-fichas' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'index',
+            'middleware' => ['auth']
+        ],
+        // API Instructor-Fichas
+        '/api/instructor-fichas/estadisticas' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getEstadisticas',
+            'middleware' => ['auth']
+        ],
+        '/api/instructores' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getAllInstructores',
+            'middleware' => ['auth']
+        ],
         // API Fichas
         '/api/fichas' => [
             'controller' => \App\Controllers\FichaController::class,
@@ -227,6 +244,27 @@ $routes = [
             'action' => 'apiCreate',
             'middleware' => ['auth']
         ],
+        // API Instructor-Fichas POST
+        '/api/instructor-fichas/asignar-fichas' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'asignarFichas',
+            'middleware' => ['auth']
+        ],
+        '/api/instructor-fichas/asignar-instructores' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'asignarInstructores',
+            'middleware' => ['auth']
+        ],
+        '/api/instructor-fichas/sincronizar' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'sincronizarFichas',
+            'middleware' => ['auth']
+        ],
+        '/api/instructor-fichas/eliminar' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'eliminarAsignacion',
+            'middleware' => ['auth']
+        ],
         '/api/fichas/importar' => [
             'controller' => \App\Controllers\FichaController::class,
             'action' => 'apiImportarCSV',
@@ -270,6 +308,18 @@ $routes = [
 // Definición de rutas dinámicas con parámetros
 $dynamicRoutes = [
     'GET' => [
+        '/instructor-fichas/instructor/(\d+)' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'verInstructor',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/instructor-fichas/ficha/(\d+)' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'verFicha',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
         '/fichas/(\d+)' => [
             'controller' => \App\Controllers\FichaController::class,
             'action' => 'show',
@@ -309,6 +359,30 @@ $dynamicRoutes = [
         '/api/aprendices/(\d+)' => [
             'controller' => \App\Controllers\AprendizController::class,
             'action' => 'apiShow',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/api/instructor-fichas/fichas-disponibles/(\d+)' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getFichasDisponibles',
+            'middleware' => ['auth'],
+            'params' => ['instructorId']
+        ],
+        '/api/instructor-fichas/instructores-disponibles/(\d+)' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getInstructoresDisponibles',
+            'middleware' => ['auth'],
+            'params' => ['fichaId']
+        ],
+        '/api/instructor-fichas/instructor/(\d+)/fichas' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getFichasInstructor',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/api/instructor-fichas/ficha/(\d+)/instructores' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getInstructoresFicha',
             'middleware' => ['auth'],
             'params' => ['id']
         ],
@@ -479,6 +553,20 @@ try {
         );
     } elseif ($controllerClass === WelcomeController::class) {
         $controller = new $controllerClass();
+    } elseif ($controllerClass === \App\Controllers\InstructorFichaController::class) {
+        // Inicializar repositorios y servicios necesarios
+        $instructorFichaRepository = new \App\Repositories\InstructorFichaRepository();
+        $instructorFichaService = new \App\Services\InstructorFichaService(
+            $instructorFichaRepository,
+            $userRepository,
+            $fichaRepository
+        );
+        $controller = new $controllerClass(
+            $instructorFichaService,
+            $authService,
+            $userRepository,
+            $fichaRepository
+        );
     } else {
         throw new RuntimeException("Unknown controller: {$controllerClass}");
     }
