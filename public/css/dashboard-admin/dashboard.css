@@ -1,0 +1,245 @@
+/* ============================================================================
+   DASHBOARD ADMIN - ESTILOS
+   Diseño limpio con colores verde SENA y tarjetas neutras
+   ============================================================================ */
+
+/* Variables de color SENA */
+:root {
+    --sena-green: #39A900;
+    --sena-green-dark: #2d8400;
+    --sena-green-light: #4bc211;
+    --neutral-bg: #f8f9fa;
+    --neutral-card: #ffffff;
+    --neutral-border: #e0e0e0;
+    --text-primary: #2c3e50;
+    --text-secondary: #6c757d;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Header del dashboard */
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+}
+
+.dashboard-header h2 {
+    color: var(--sena-green);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.dashboard-header h2 i {
+    font-size: 2.5rem;
+}
+
+.dashboard-header .subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+/* Sección de acciones */
+.actions-section {
+    margin-top: 2rem;
+}
+
+.actions-section h3 {
+    display: none;
+    /* Ocultar título "Acciones Rápidas" */
+}
+
+/* Grid de tarjetas - 3 columnas */
+.actions-grid-sena {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+/* Tarjeta de acción estilo SENA */
+.action-card-sena {
+    background: var(--neutral-card);
+    border: 1px solid var(--neutral-border);
+    border-radius: 12px;
+    padding: 2.5rem 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    min-height: 280px;
+}
+
+.action-card-sena:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--sena-green);
+}
+
+/* Icono de la tarjeta */
+.action-icon-sena {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.action-icon-sena i {
+    font-size: 4rem;
+    color: var(--sena-green);
+}
+
+.action-card-sena:hover .action-icon-sena i {
+    transform: scale(1.1);
+    color: var(--sena-green-dark);
+}
+
+/* Título de la tarjeta */
+.action-card-sena h4 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+}
+
+/* Descripción de la tarjeta */
+.action-card-sena p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem 0;
+    line-height: 1.6;
+    flex-grow: 1;
+}
+
+/* Botones dentro de las tarjetas */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.btn-sena {
+    background: var(--sena-green);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-sena:hover {
+    background: var(--sena-green-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(57, 169, 0, 0.3);
+}
+
+.btn-sena i {
+    font-size: 1rem;
+}
+
+.btn-sena-outline {
+    background: white;
+    color: var(--text-primary);
+    border: 2px solid var(--sena-green);
+    font-weight: 600;
+}
+
+.btn-sena-outline:hover {
+    background: var(--sena-green);
+    color: white;
+    border-color: var(--sena-green);
+}
+
+/* Responsividad */
+@media (max-width: 1200px) {
+    .actions-grid-sena {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .actions-grid-sena {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .dashboard-header h2 {
+        font-size: 2rem;
+    }
+
+    .dashboard-header h2 i {
+        font-size: 2rem;
+    }
+
+    .action-card-sena {
+        min-height: 240px;
+        padding: 2rem 1.5rem;
+    }
+
+    .action-icon-sena {
+        width: 80px;
+        height: 80px;
+    }
+
+    .action-icon-sena i {
+        font-size: 3rem;
+    }
+
+    .action-card-sena h4 {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-header {
+        margin-bottom: 2rem;
+        padding: 1rem 0;
+    }
+
+    .dashboard-header h2 {
+        font-size: 1.75rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .action-card-sena {
+        min-height: 220px;
+        padding: 1.5rem 1rem;
+    }
+
+    .action-icon-sena {
+        width: 70px;
+        height: 70px;
+    }
+
+    .action-icon-sena i {
+        font-size: 2.5rem;
+    }
+}
+
+/* Utilidades */
+.text-muted {
+    color: var(--text-secondary) !important;
+}

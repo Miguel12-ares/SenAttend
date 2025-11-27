@@ -61,10 +61,12 @@ $aprendizRepository = new AprendizRepository();
 $codigoQRRepository = new CodigoQRRepository();
 $instructorFichaRepository = new InstructorFichaRepository();
 $asistenciaRepository = new \App\Repositories\AsistenciaRepository();
+$turnoConfigRepository = new \App\Repositories\TurnoConfigRepository();
 $authService = new AuthService($userRepository, $session);
 $emailService = new EmailService();
 $qrService = new QRService($codigoQRRepository, $aprendizRepository, $emailService);
-$asistenciaService = new \App\Services\AsistenciaService($asistenciaRepository, $aprendizRepository, $fichaRepository);
+$turnoConfigService = new \App\Services\TurnoConfigService($turnoConfigRepository);
+$asistenciaService = new \App\Services\AsistenciaService($asistenciaRepository, $aprendizRepository, $fichaRepository, $turnoConfigService);
 $authMiddleware = new AuthMiddleware($session);
 
 // Definición de rutas estáticas
@@ -198,6 +200,23 @@ $routes = [
             'action' => 'apiBuscarAprendiz',
             'middleware' => ['auth']
         ],
+        // Configuración de Turnos (Solo Admin)
+        '/configuracion/horarios' => [
+            'controller' => \App\Controllers\TurnoConfigController::class,
+            'action' => 'index',
+            'middleware' => ['auth']
+        ],
+        // API Configuración de Turnos
+        '/api/configuracion/turnos' => [
+            'controller' => \App\Controllers\TurnoConfigController::class,
+            'action' => 'apiObtenerTurnos',
+            'middleware' => ['auth']
+        ],
+        '/api/configuracion/turno-actual' => [
+            'controller' => \App\Controllers\TurnoConfigController::class,
+            'action' => 'apiTurnoActual',
+            'middleware' => ['auth']
+        ],
     ],
     'POST' => [
         '/auth/login' => [
@@ -302,6 +321,12 @@ $routes = [
         '/api/qr/procesar' => [
             'controller' => QRController::class,
             'action' => 'apiProcesarQR',
+            'middleware' => ['auth']
+        ],
+        // Configuración de Turnos POST (Solo Admin)
+        '/configuracion/horarios/actualizar' => [
+            'controller' => \App\Controllers\TurnoConfigController::class,
+            'action' => 'actualizar',
             'middleware' => ['auth']
         ],
     ],
@@ -542,7 +567,8 @@ try {
             $qrService,
             $aprendizRepository,
             $fichaRepository,
-            $instructorFichaRepository
+            $instructorFichaRepository,
+            $turnoConfigService
         );
     } elseif ($controllerClass === HomeController::class) {
         $controller = new $controllerClass(
@@ -568,6 +594,11 @@ try {
             $authService,
             $userRepository,
             $fichaRepository
+        );
+    } elseif ($controllerClass === \App\Controllers\TurnoConfigController::class) {
+        $controller = new $controllerClass(
+            $turnoConfigService,
+            $authService
         );
     } else {
         throw new RuntimeException("Unknown controller: {$controllerClass}");

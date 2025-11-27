@@ -25,6 +25,7 @@ class QRController
     private AprendizRepository $aprendizRepository;
     private FichaRepository $fichaRepository;
     private InstructorFichaRepository $instructorFichaRepository;
+    private TurnoConfigService $turnoConfigService;
 
     public function __construct(
         AsistenciaService $asistenciaService,
@@ -32,7 +33,8 @@ class QRController
         QRService $qrService,
         AprendizRepository $aprendizRepository,
         FichaRepository $fichaRepository,
-        InstructorFichaRepository $instructorFichaRepository
+        InstructorFichaRepository $instructorFichaRepository,
+        TurnoConfigService $turnoConfigService
     ) {
         $this->asistenciaService = $asistenciaService;
         $this->authService = $authService;
@@ -40,6 +42,7 @@ class QRController
         $this->aprendizRepository = $aprendizRepository;
         $this->fichaRepository = $fichaRepository;
         $this->instructorFichaRepository = $instructorFichaRepository;
+        $this->turnoConfigService = $turnoConfigService;
     }
 
     /**
@@ -225,10 +228,11 @@ class QRController
                 return;
             }
 
-            // Determinar estado automáticamente (presente o tardanza)
+            // Determinar estado automáticamente usando configuración dinámica
             $estado = 'presente';
-            $horaLimite = '06:20:00'; // Configurable
-            if ($hora > $horaLimite) {
+            $turno = $this->turnoConfigService->obtenerTurnoActual($hora);
+            
+            if ($turno && $this->turnoConfigService->validarTardanza($hora, $turno['nombre_turno'])) {
                 $estado = 'tardanza';
             }
 
