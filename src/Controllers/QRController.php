@@ -7,6 +7,7 @@ use App\Services\AuthService;
 use App\Services\QRService;
 use App\Repositories\AprendizRepository;
 use App\Repositories\FichaRepository;
+use App\Repositories\InstructorFichaRepository;
 use App\Support\Response;
 use Exception;
 
@@ -23,19 +24,22 @@ class QRController
     private QRService $qrService;
     private AprendizRepository $aprendizRepository;
     private FichaRepository $fichaRepository;
+    private InstructorFichaRepository $instructorFichaRepository;
 
     public function __construct(
         AsistenciaService $asistenciaService,
         AuthService $authService,
         QRService $qrService,
         AprendizRepository $aprendizRepository,
-        FichaRepository $fichaRepository
+        FichaRepository $fichaRepository,
+        InstructorFichaRepository $instructorFichaRepository
     ) {
         $this->asistenciaService = $asistenciaService;
         $this->authService = $authService;
         $this->qrService = $qrService;
         $this->aprendizRepository = $aprendizRepository;
         $this->fichaRepository = $fichaRepository;
+        $this->instructorFichaRepository = $instructorFichaRepository;
     }
 
     /**
@@ -74,8 +78,12 @@ class QRController
                 return;
             }
 
-            // Obtener fichas activas para el selector
-            $fichas = $this->fichaRepository->findActive(100, 0);
+            if ($user['rol'] === 'instructor') {
+                $fichas = $this->instructorFichaRepository
+                    ->findFichasByInstructor($user['id'], true);
+            } else {
+                $fichas = $this->fichaRepository->findActive(100, 0);
+            }
             
             // Headers de seguridad
             $this->establecerHeadersSeguridad();
@@ -219,7 +227,7 @@ class QRController
 
             // Determinar estado automáticamente (presente o tardanza)
             $estado = 'presente';
-            $horaLimite = '07:30:00'; // Configurable
+            $horaLimite = '06:20:00'; // Configurable
             if ($hora > $horaLimite) {
                 $estado = 'tardanza';
             }

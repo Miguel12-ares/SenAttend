@@ -42,7 +42,7 @@ ob_start();
         
         <div class="info-banner">
             <i class="fas fa-circle-info"></i>
-            <span>Fecha de registro: <strong><?= date('d/m/Y') ?></strong> | Hora límite tardanza: <strong>07:30 AM</strong></span>
+            <span>Fecha de registro: <strong><?= date('d/m/Y') ?></strong> | Hora límite tardanza: <strong>06:20 AM</strong></span>
         </div>
     </div>
 

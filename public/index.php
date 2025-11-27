@@ -23,6 +23,7 @@ use App\Repositories\UserRepository;
 use App\Repositories\FichaRepository;
 use App\Repositories\AprendizRepository;
 use App\Repositories\CodigoQRRepository;
+use App\Repositories\InstructorFichaRepository;
 use App\Services\AuthService;
 use App\Services\EmailService;
 use App\Services\QRService;
@@ -58,6 +59,7 @@ $userRepository = new UserRepository();
 $fichaRepository = new FichaRepository();
 $aprendizRepository = new AprendizRepository();
 $codigoQRRepository = new CodigoQRRepository();
+$instructorFichaRepository = new InstructorFichaRepository();
 $asistenciaRepository = new \App\Repositories\AsistenciaRepository();
 $authService = new AuthService($userRepository, $session);
 $emailService = new EmailService();
@@ -539,7 +541,8 @@ try {
             $authService,
             $qrService,
             $aprendizRepository,
-            $fichaRepository
+            $fichaRepository,
+            $instructorFichaRepository
         );
     } elseif ($controllerClass === HomeController::class) {
         $controller = new $controllerClass(
@@ -555,7 +558,6 @@ try {
         $controller = new $controllerClass();
     } elseif ($controllerClass === \App\Controllers\InstructorFichaController::class) {
         // Inicializar repositorios y servicios necesarios
-        $instructorFichaRepository = new \App\Repositories\InstructorFichaRepository();
         $instructorFichaService = new \App\Services\InstructorFichaService(
             $instructorFichaRepository,
             $userRepository,

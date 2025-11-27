@@ -523,8 +523,8 @@ class AsistenciaService
             $data['hora'] = date('H:i:s');
         }
 
-        // Lógica de tardanza configurable (7:30 AM por defecto)
-        $horaLimite = '07:30:00';
+        // Lógica de tardanza configurable (06:20 AM por defecto)
+        $horaLimite = '06:20:00';
         if ($data['estado'] === 'presente' && $data['hora'] > $horaLimite) {
             $data['estado'] = 'tardanza';
         }
