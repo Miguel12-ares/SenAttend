@@ -56,7 +56,7 @@ ob_start();
                             name="search" 
                             id="searchInput"
                             class="form-control" 
-                            placeholder="Buscar por número o nombre..."
+                            placeholder="Buscar por número de ficha..."
                             value="<?= htmlspecialchars($search ?? '') ?>"
                         >
                         <span class="search-box-icon"><i class="fas fa-search"></i></span>

@@ -217,7 +217,7 @@ class FichaRepository
     }
 
     /**
-     * Busca fichas por número o nombre
+     * Busca fichas por número de ficha únicamente
      */
     public function search(string $search, int $limit = 50, int $offset = 0): array
     {
@@ -225,7 +225,7 @@ class FichaRepository
             $stmt = Connection::prepare(
                 'SELECT id, numero_ficha, nombre, estado 
                  FROM fichas 
-                 WHERE numero_ficha LIKE :search OR nombre LIKE :search
+                 WHERE numero_ficha LIKE :search
                  ORDER BY numero_ficha ASC 
                  LIMIT :limit OFFSET :offset'
             );
@@ -244,14 +244,14 @@ class FichaRepository
     }
 
     /**
-     * Cuenta fichas que coinciden con búsqueda
+     * Cuenta fichas que coinciden con búsqueda por número de ficha
      */
     public function countSearch(string $search): int
     {
         try {
             $stmt = Connection::prepare(
                 'SELECT COUNT(*) as total FROM fichas 
-                 WHERE numero_ficha LIKE :search OR nombre LIKE :search'
+                 WHERE numero_ficha LIKE :search'
             );
             $searchTerm = "%{$search}%";
             $stmt->execute(['search' => $searchTerm]);

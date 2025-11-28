@@ -63,14 +63,16 @@ ob_start();
         <form method="GET" action="/aprendices" id="filterForm">
             <div class="filter-panel-body">
                 <div class="form-group">
-                    <label for="search"><i class="fas fa-search"></i> Buscar</label>
+                    <label for="search"><i class="fas fa-search"></i> Buscar por Documento</label>
                     <div class="search-box">
                         <input 
                             type="text" 
                             id="search"
                             name="search" 
                             class="form-control" 
-                            placeholder="Documento, nombre, apellido..."
+                            placeholder="Buscar por documento..."
+                            inputmode="numeric"
+                            pattern="[0-9]*"
                             value="<?= htmlspecialchars($search ?? '') ?>"
                         >
                         <span class="search-box-icon"><i class="fas fa-search"></i></span>
@@ -192,10 +194,20 @@ ob_start();
             <form id="importForm" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="import_ficha_id"><i class="fas fa-clipboard-list"></i> Seleccionar Ficha *</label>
+                    <div class="search-box" style="margin-bottom: 0.5rem;">
+                        <input 
+                            type="text" 
+                            id="fichaSearchInput"
+                            class="form-control" 
+                            placeholder="Buscar ficha por número o nombre..."
+                            autocomplete="off"
+                        >
+                        <span class="search-box-icon"><i class="fas fa-search"></i></span>
+                    </div>
                     <select name="ficha_id" id="import_ficha_id" class="form-control" required>
                         <option value="">-- Seleccione una ficha --</option>
                         <?php foreach ($fichas as $f): ?>
-                            <option value="<?= $f['id'] ?>">
+                            <option value="<?= $f['id'] ?>" data-numero="<?= htmlspecialchars($f['numero_ficha']) ?>" data-nombre="<?= htmlspecialchars($f['nombre']) ?>">
                                 <?= htmlspecialchars($f['numero_ficha']) ?> - <?= htmlspecialchars($f['nombre']) ?>
                             </option>
                         <?php endforeach; ?>
