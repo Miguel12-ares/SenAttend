@@ -288,21 +288,14 @@ class QRController
                 return;
             }
 
-            // Determinar estado automáticamente usando configuración dinámica
-            $estado = 'presente';
-            $turno = $this->turnoConfigService->obtenerTurnoActual($hora);
-            
-            if ($turno && $this->turnoConfigService->validarTardanza($hora, $turno['nombre_turno'])) {
-                $estado = 'tardanza';
-            }
-
-            // Registrar asistencia automática
-            $resultado = $this->asistenciaService->registrarAsistencia([
+            // Registrar asistencia automática usando la lógica centralizada de tardanza
+            $resultado = $this->asistenciaService->registrarAsistenciaAutomatica([
                 'id_aprendiz' => $aprendizId,
                 'id_ficha' => $fichaId,
                 'fecha' => $fecha,
                 'hora' => $hora,
-                'estado' => $estado,
+                // Estado base: el servicio ajustará a 'tardanza' si corresponde
+                'estado' => 'presente',
                 'registrado_por' => $user['id'],
                 'observaciones' => 'Registro automático vía QR'
             ], $user['id']);
@@ -317,7 +310,7 @@ class QRController
                     'aprendiz_documento' => $aprendiz['documento'],
                     'aprendiz_nombre' => $aprendiz['nombre'] . ' ' . $aprendiz['apellido'],
                     'ficha_id' => $fichaId,
-                    'estado' => $estado,
+                    'estado' => $resultado['data']['estado'] ?? 'presente',
                     'registrado_por' => $user['id']
                 ]);
 
@@ -328,7 +321,7 @@ class QRController
                         'documento' => $aprendiz['documento'],
                         'nombre' => $aprendiz['nombre'] . ' ' . $aprendiz['apellido']
                     ],
-                    'estado' => $estado,
+                    'estado' => $resultado['data']['estado'] ?? 'presente',
                     'fecha' => $fecha,
                     'hora' => $hora
                 ], 'Asistencia registrada exitosamente');
