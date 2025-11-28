@@ -132,24 +132,21 @@ class QRController
     /**
      * Vista para escanear QR (Instructores)
      * GET /qr/escanear
+     * NOTA: Acceso exclusivo de instructor y coordinador (admin bloqueado por RBAC)
      */
     public function escanear(): void
     {
         try {
             $user = $this->authService->getCurrentUser();
             
-            // Validar que es instructor, coordinador o admin
-            if (!in_array($user['rol'], ['instructor', 'coordinador', 'admin'])) {
+            // Validar que es instructor (coordinador/admin bloqueados por middleware RBAC)
+            if ($user['rol'] !== 'instructor') {
                 $this->redirectConError('No tiene permisos para escanear códigos QR');
                 return;
             }
 
-            if ($user['rol'] === 'instructor') {
-                $fichas = $this->instructorFichaRepository
-                    ->findFichasByInstructor($user['id'], true);
-            } else {
-                $fichas = $this->fichaRepository->findActive(100, 0);
-            }
+            $fichas = $this->instructorFichaRepository
+                ->findFichasByInstructor($user['id'], true);
             
             // Headers de seguridad
             $this->establecerHeadersSeguridad();

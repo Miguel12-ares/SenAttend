@@ -19,6 +19,7 @@ use App\Controllers\ProfileController;
 use App\Controllers\QRController;
 use App\Controllers\WelcomeController;
 use App\Middleware\AuthMiddleware;
+use App\Middleware\PermissionMiddleware;
 use App\Repositories\UserRepository;
 use App\Repositories\FichaRepository;
 use App\Repositories\AprendizRepository;
@@ -68,6 +69,9 @@ $qrService = new QRService($codigoQRRepository, $aprendizRepository, $emailServi
 $turnoConfigService = new \App\Services\TurnoConfigService($turnoConfigRepository);
 $asistenciaService = new \App\Services\AsistenciaService($asistenciaRepository, $aprendizRepository, $fichaRepository, $turnoConfigService);
 $authMiddleware = new AuthMiddleware($session);
+// Cargar configuración de permisos (RBAC)
+$permissionsConfig = require __DIR__ . '/../config/permissions_config.php';
+$permissionMiddleware = new PermissionMiddleware($session, $permissionsConfig);
 
 // Definición de rutas estáticas
 $routes = [
@@ -525,6 +529,10 @@ if (!$route) {
 if (in_array('auth', $route['middleware'])) {
     $authMiddleware->handle();
 }
+
+// Aplicar validación de permisos basada en rol (RBAC) para todas las rutas resueltas
+// Incluye rutas estáticas y dinámicas, con matriz centralizada en config/permissions_config.php
+$permissionMiddleware->authorize($requestMethod, $uri);
 
 // Instanciar controlador y ejecutar acción
 try {
