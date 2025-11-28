@@ -26,15 +26,18 @@ class AsistenciaService
     private AsistenciaRepository $asistenciaRepository;
     private AprendizRepository $aprendizRepository;
     private FichaRepository $fichaRepository;
+    private TurnoConfigService $turnoConfigService;
 
     public function __construct(
         AsistenciaRepository $asistenciaRepository,
         AprendizRepository $aprendizRepository,
-        FichaRepository $fichaRepository
+        FichaRepository $fichaRepository,
+        TurnoConfigService $turnoConfigService
     ) {
         $this->asistenciaRepository = $asistenciaRepository;
         $this->aprendizRepository = $aprendizRepository;
         $this->fichaRepository = $fichaRepository;
+        $this->turnoConfigService = $turnoConfigService;
     }
 
     /**
@@ -330,6 +333,15 @@ class AsistenciaService
     }
 
     /**
+     * Obtiene registros de asistencia de una ficha para una fecha específica
+     * Usado por el historial diario del módulo QR
+     */
+    public function getRegistrosPorFichaYFecha(int $fichaId, string $fecha): array
+    {
+        return $this->asistenciaRepository->findByFichaAndFecha($fichaId, $fecha);
+    }
+
+    /**
      * Valida que se puedan registrar asistencias para una fecha
      * Reglas de negocio:
      * - No permitir registros futuros
@@ -513,7 +525,7 @@ class AsistenciaService
     }
 
     /**
-     * Procesa el estado de tardanza automáticamente
+     * Procesa el estado de tardanza automáticamente usando configuración dinámica
      * SOLO para registro automático (escaneo de carnets, etc.)
      * NO usar en registro manual donde el instructor decide el estado
      */
@@ -523,10 +535,14 @@ class AsistenciaService
             $data['hora'] = date('H:i:s');
         }
 
-        // Lógica de tardanza configurable (7:30 AM por defecto)
-        $horaLimite = '07:30:00';
-        if ($data['estado'] === 'presente' && $data['hora'] > $horaLimite) {
-            $data['estado'] = 'tardanza';
+        // Obtener turno actual dinámicamente desde la configuración
+        $turno = $this->turnoConfigService->obtenerTurnoActual($data['hora']);
+        
+        if ($turno && $data['estado'] === 'presente') {
+            // Validar si es tardanza según la configuración del turno
+            if ($this->turnoConfigService->validarTardanza($data['hora'], $turno['nombre_turno'])) {
+                $data['estado'] = 'tardanza';
+            }
         }
 
         return $data;

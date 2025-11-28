@@ -34,7 +34,7 @@ $currentPage = $currentPage ?? '';
             <?php if ($user): ?>
             <nav class="nav" id="mainNav">
                 <ul class="nav-menu">
-                    <?php if ($user['rol'] === 'admin'): ?>
+                    <?php if (in_array($user['rol'], ['admin', 'administrativo'])): ?>
                         <li><a href="/dashboard" class="<?= $currentPage === 'dashboard' ? 'active' : '' ?>">
                             <i class="fas fa-home"></i> Dashboard
                         </a></li>
@@ -43,6 +43,9 @@ $currentPage = $currentPage ?? '';
                         </a></li>
                         <li><a href="/aprendices" class="<?= $currentPage === 'aprendices' ? 'active' : '' ?>">
                             <i class="fas fa-users"></i> Aprendices
+                        </a></li>
+                        <li><a href="/instructor-fichas" class="<?= $currentPage === 'instructor-fichas' ? 'active' : '' ?>">
+                            <i class="fas fa-link"></i> Asignaciones
                         </a></li>
                     <?php elseif (in_array($user['rol'], ['instructor', 'coordinador'])): ?>
                         <li><a href="/dashboard" class="<?= $currentPage === 'dashboard' ? 'active' : '' ?>">

@@ -5,8 +5,10 @@ namespace App\Controllers;
 use App\Services\AsistenciaService;
 use App\Services\AuthService;
 use App\Services\QRService;
+use App\Services\TurnoConfigService;
 use App\Repositories\AprendizRepository;
 use App\Repositories\FichaRepository;
+use App\Repositories\InstructorFichaRepository;
 use App\Support\Response;
 use Exception;
 
@@ -23,19 +25,87 @@ class QRController
     private QRService $qrService;
     private AprendizRepository $aprendizRepository;
     private FichaRepository $fichaRepository;
+    private InstructorFichaRepository $instructorFichaRepository;
+    private TurnoConfigService $turnoConfigService;
 
     public function __construct(
         AsistenciaService $asistenciaService,
         AuthService $authService,
         QRService $qrService,
         AprendizRepository $aprendizRepository,
-        FichaRepository $fichaRepository
+        FichaRepository $fichaRepository,
+        InstructorFichaRepository $instructorFichaRepository,
+        TurnoConfigService $turnoConfigService
     ) {
         $this->asistenciaService = $asistenciaService;
         $this->authService = $authService;
         $this->qrService = $qrService;
         $this->aprendizRepository = $aprendizRepository;
         $this->fichaRepository = $fichaRepository;
+        $this->instructorFichaRepository = $instructorFichaRepository;
+        $this->turnoConfigService = $turnoConfigService;
+    }
+
+    /**
+     * API: Obtiene historial diario de asistencias por ficha
+     * GET /api/qr/historial-diario?ficha_id=XX&fecha=YYYY-mm-dd
+     */
+    public function apiHistorialDiario(): void
+    {
+        try {
+            if (!$this->esRequestAjax()) {
+                Response::error('Acceso no permitido', 403);
+                return;
+            }
+
+            $user = $this->authService->getCurrentUser();
+
+            if (!in_array($user['rol'], ['instructor', 'coordinador', 'admin'])) {
+                Response::error('No tiene permisos para ver el historial de asistencias', 403);
+                return;
+            }
+
+            $fichaId = filter_input(INPUT_GET, 'ficha_id', FILTER_VALIDATE_INT);
+            $fecha = filter_input(INPUT_GET, 'fecha', FILTER_SANITIZE_STRING);
+
+            if (!$fichaId) {
+                Response::error('ID de ficha es requerido', 400);
+                return;
+            }
+
+            if (!$fecha) {
+                $fecha = date('Y-m-d');
+            }
+
+            $registros = $this->asistenciaService->getRegistrosPorFichaYFecha($fichaId, $fecha);
+
+            $registrosTransformados = array_map(function (array $row) use ($fecha) {
+                $nombreCompleto = trim(($row['nombre'] ?? '') . ' ' . ($row['apellido'] ?? ''));
+
+                return [
+                    'asistencia_id' => (int) $row['id'],
+                    'aprendiz' => [
+                        'id' => (int) $row['id_aprendiz'],
+                        'documento' => $row['documento'],
+                        'nombre' => $nombreCompleto,
+                    ],
+                    'estado' => $row['estado'],
+                    'fecha' => $fecha,
+                    'hora' => $row['hora'],
+                ];
+            }, $registros);
+
+            $this->establecerHeadersAPI();
+
+            Response::success([
+                'registros' => $registrosTransformados,
+                'fecha' => $fecha,
+            ], 'Historial diario obtenido correctamente');
+
+        } catch (Exception $e) {
+            error_log("Error en QRController::apiHistorialDiario: " . $e->getMessage());
+            Response::error('Error interno del servidor', 500);
+        }
     }
 
     /**
@@ -62,20 +132,21 @@ class QRController
     /**
      * Vista para escanear QR (Instructores)
      * GET /qr/escanear
+     * NOTA: Acceso exclusivo de instructor y coordinador (admin bloqueado por RBAC)
      */
     public function escanear(): void
     {
         try {
             $user = $this->authService->getCurrentUser();
             
-            // Validar que es instructor, coordinador o admin
-            if (!in_array($user['rol'], ['instructor', 'coordinador', 'admin'])) {
+            // Validar que es instructor (coordinador/admin bloqueados por middleware RBAC)
+            if ($user['rol'] !== 'instructor') {
                 $this->redirectConError('No tiene permisos para escanear códigos QR');
                 return;
             }
 
-            // Obtener fichas activas para el selector
-            $fichas = $this->fichaRepository->findActive(100, 0);
+            $fichas = $this->instructorFichaRepository
+                ->findFichasByInstructor($user['id'], true);
             
             // Headers de seguridad
             $this->establecerHeadersSeguridad();
@@ -217,10 +288,11 @@ class QRController
                 return;
             }
 
-            // Determinar estado automáticamente (presente o tardanza)
+            // Determinar estado automáticamente usando configuración dinámica
             $estado = 'presente';
-            $horaLimite = '07:30:00'; // Configurable
-            if ($hora > $horaLimite) {
+            $turno = $this->turnoConfigService->obtenerTurnoActual($hora);
+            
+            if ($turno && $this->turnoConfigService->validarTardanza($hora, $turno['nombre_turno'])) {
                 $estado = 'tardanza';
             }
 

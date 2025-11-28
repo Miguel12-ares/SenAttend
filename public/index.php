@@ -19,10 +19,12 @@ use App\Controllers\ProfileController;
 use App\Controllers\QRController;
 use App\Controllers\WelcomeController;
 use App\Middleware\AuthMiddleware;
+use App\Middleware\PermissionMiddleware;
 use App\Repositories\UserRepository;
 use App\Repositories\FichaRepository;
 use App\Repositories\AprendizRepository;
 use App\Repositories\CodigoQRRepository;
+use App\Repositories\InstructorFichaRepository;
 use App\Services\AuthService;
 use App\Services\EmailService;
 use App\Services\QRService;
@@ -58,12 +60,18 @@ $userRepository = new UserRepository();
 $fichaRepository = new FichaRepository();
 $aprendizRepository = new AprendizRepository();
 $codigoQRRepository = new CodigoQRRepository();
+$instructorFichaRepository = new InstructorFichaRepository();
 $asistenciaRepository = new \App\Repositories\AsistenciaRepository();
+$turnoConfigRepository = new \App\Repositories\TurnoConfigRepository();
 $authService = new AuthService($userRepository, $session);
 $emailService = new EmailService();
 $qrService = new QRService($codigoQRRepository, $aprendizRepository, $emailService);
-$asistenciaService = new \App\Services\AsistenciaService($asistenciaRepository, $aprendizRepository, $fichaRepository);
+$turnoConfigService = new \App\Services\TurnoConfigService($turnoConfigRepository);
+$asistenciaService = new \App\Services\AsistenciaService($asistenciaRepository, $aprendizRepository, $fichaRepository, $turnoConfigService);
 $authMiddleware = new AuthMiddleware($session);
+// Cargar configuración de permisos (RBAC)
+$permissionsConfig = require __DIR__ . '/../config/permissions_config.php';
+$permissionMiddleware = new PermissionMiddleware($session, $permissionsConfig);
 
 // Definición de rutas estáticas
 $routes = [
@@ -146,6 +154,23 @@ $routes = [
             'action' => null,
             'middleware' => []
         ],
+        // Gestión de Asignaciones Instructor-Ficha
+        '/instructor-fichas' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'index',
+            'middleware' => ['auth']
+        ],
+        // API Instructor-Fichas
+        '/api/instructor-fichas/estadisticas' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getEstadisticas',
+            'middleware' => ['auth']
+        ],
+        '/api/instructores' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getAllInstructores',
+            'middleware' => ['auth']
+        ],
         // API Fichas
         '/api/fichas' => [
             'controller' => \App\Controllers\FichaController::class,
@@ -177,6 +202,28 @@ $routes = [
         '/api/qr/buscar' => [
             'controller' => QRController::class,
             'action' => 'apiBuscarAprendiz',
+            'middleware' => ['auth']
+        ],
+        '/api/qr/historial-diario' => [
+            'controller' => QRController::class,
+            'action' => 'apiHistorialDiario',
+            'middleware' => ['auth']
+        ],
+        // Configuración de Turnos (Solo Admin)
+        '/configuracion/horarios' => [
+            'controller' => \App\Controllers\TurnoConfigController::class,
+            'action' => 'index',
+            'middleware' => ['auth']
+        ],
+        // API Configuración de Turnos
+        '/api/configuracion/turnos' => [
+            'controller' => \App\Controllers\TurnoConfigController::class,
+            'action' => 'apiObtenerTurnos',
+            'middleware' => ['auth']
+        ],
+        '/api/configuracion/turno-actual' => [
+            'controller' => \App\Controllers\TurnoConfigController::class,
+            'action' => 'apiTurnoActual',
             'middleware' => ['auth']
         ],
     ],
@@ -227,6 +274,27 @@ $routes = [
             'action' => 'apiCreate',
             'middleware' => ['auth']
         ],
+        // API Instructor-Fichas POST
+        '/api/instructor-fichas/asignar-fichas' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'asignarFichas',
+            'middleware' => ['auth']
+        ],
+        '/api/instructor-fichas/asignar-instructores' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'asignarInstructores',
+            'middleware' => ['auth']
+        ],
+        '/api/instructor-fichas/sincronizar' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'sincronizarFichas',
+            'middleware' => ['auth']
+        ],
+        '/api/instructor-fichas/eliminar' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'eliminarAsignacion',
+            'middleware' => ['auth']
+        ],
         '/api/fichas/importar' => [
             'controller' => \App\Controllers\FichaController::class,
             'action' => 'apiImportarCSV',
@@ -264,12 +332,30 @@ $routes = [
             'action' => 'apiProcesarQR',
             'middleware' => ['auth']
         ],
+        // Configuración de Turnos POST (Solo Admin)
+        '/configuracion/horarios/actualizar' => [
+            'controller' => \App\Controllers\TurnoConfigController::class,
+            'action' => 'actualizar',
+            'middleware' => ['auth']
+        ],
     ],
 ];
 
 // Definición de rutas dinámicas con parámetros
 $dynamicRoutes = [
     'GET' => [
+        '/instructor-fichas/instructor/(\d+)' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'verInstructor',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/instructor-fichas/ficha/(\d+)' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'verFicha',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
         '/fichas/(\d+)' => [
             'controller' => \App\Controllers\FichaController::class,
             'action' => 'show',
@@ -309,6 +395,30 @@ $dynamicRoutes = [
         '/api/aprendices/(\d+)' => [
             'controller' => \App\Controllers\AprendizController::class,
             'action' => 'apiShow',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/api/instructor-fichas/fichas-disponibles/(\d+)' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getFichasDisponibles',
+            'middleware' => ['auth'],
+            'params' => ['instructorId']
+        ],
+        '/api/instructor-fichas/instructores-disponibles/(\d+)' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getInstructoresDisponibles',
+            'middleware' => ['auth'],
+            'params' => ['fichaId']
+        ],
+        '/api/instructor-fichas/instructor/(\d+)/fichas' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getFichasInstructor',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/api/instructor-fichas/ficha/(\d+)/instructores' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getInstructoresFicha',
             'middleware' => ['auth'],
             'params' => ['id']
         ],
@@ -420,6 +530,10 @@ if (in_array('auth', $route['middleware'])) {
     $authMiddleware->handle();
 }
 
+// Aplicar validación de permisos basada en rol (RBAC) para todas las rutas resueltas
+// Incluye rutas estáticas y dinámicas, con matriz centralizada en config/permissions_config.php
+$permissionMiddleware->authorize($requestMethod, $uri);
+
 // Instanciar controlador y ejecutar acción
 try {
     $controllerClass = $route['controller'];
@@ -465,7 +579,9 @@ try {
             $authService,
             $qrService,
             $aprendizRepository,
-            $fichaRepository
+            $fichaRepository,
+            $instructorFichaRepository,
+            $turnoConfigService
         );
     } elseif ($controllerClass === HomeController::class) {
         $controller = new $controllerClass(
@@ -479,6 +595,24 @@ try {
         );
     } elseif ($controllerClass === WelcomeController::class) {
         $controller = new $controllerClass();
+    } elseif ($controllerClass === \App\Controllers\InstructorFichaController::class) {
+        // Inicializar repositorios y servicios necesarios
+        $instructorFichaService = new \App\Services\InstructorFichaService(
+            $instructorFichaRepository,
+            $userRepository,
+            $fichaRepository
+        );
+        $controller = new $controllerClass(
+            $instructorFichaService,
+            $authService,
+            $userRepository,
+            $fichaRepository
+        );
+    } elseif ($controllerClass === \App\Controllers\TurnoConfigController::class) {
+        $controller = new $controllerClass(
+            $turnoConfigService,
+            $authService
+        );
     } else {
         throw new RuntimeException("Unknown controller: {$controllerClass}");
     }

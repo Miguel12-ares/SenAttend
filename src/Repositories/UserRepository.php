@@ -203,5 +203,45 @@ class UserRepository
             return false;
         }
     }
+
+    /**
+     * Busca usuarios por rol
+     */
+    public function findByRole(string $rol): array
+    {
+        try {
+            $stmt = Connection::prepare(
+                'SELECT id, documento, nombre, email, rol, created_at, updated_at 
+                 FROM usuarios 
+                 WHERE rol = :rol 
+                 ORDER BY nombre ASC'
+            );
+
+            $stmt->execute(['rol' => $rol]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error finding users by role: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Cuenta usuarios por rol
+     */
+    public function countByRole(string $rol): int
+    {
+        try {
+            $stmt = Connection::prepare(
+                'SELECT COUNT(*) as total FROM usuarios WHERE rol = :rol'
+            );
+
+            $stmt->execute(['rol' => $rol]);
+            $result = $stmt->fetch();
+            return (int) $result['total'];
+        } catch (PDOException $e) {
+            error_log("Error counting users by role: " . $e->getMessage());
+            return 0;
+        }
+    }
 }
 

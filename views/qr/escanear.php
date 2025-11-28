@@ -28,6 +28,17 @@ ob_start();
     <!-- Selector de ficha -->
     <div class="qr-card config-card">
         <h2>1. Selecciona la Ficha</h2>
+        <!-- Buscador en vivo por número de ficha -->
+        <div class="form-group">
+            <label for="fichaSearch">Buscar número de ficha</label>
+            <input
+                type="text"
+                id="fichaSearch"
+                placeholder="Escribe el número de ficha para filtrar..."
+                autocomplete="off"
+            >
+        </div>
+
         <div class="form-group">
             <label for="fichaSelect">Ficha Activa</label>
             <select id="fichaSelect" name="ficha_id" required>
@@ -42,7 +53,7 @@ ob_start();
         
         <div class="info-banner">
             <i class="fas fa-circle-info"></i>
-            <span>Fecha de registro: <strong><?= date('d/m/Y') ?></strong> | Hora límite tardanza: <strong>07:30 AM</strong></span>
+            <span>Fecha de registro: <strong><?= date('d/m/Y') ?></strong> | Hora límite tardanza: <strong>06:20 AM</strong></span>
         </div>
     </div>
 
@@ -88,9 +99,11 @@ let html5QrCode = null;
 let fichaSeleccionada = null;
 let historialRegistros = [];
 let isScanning = false;
+const fechaHoy = '<?= date('Y-m-d') ?>';
 
 // Referencias DOM
 const fichaSelect = document.getElementById('fichaSelect');
+const fichaSearchInput = document.getElementById('fichaSearch');
 const scannerCard = document.getElementById('scannerCard');
 const historialCard = document.getElementById('historialCard');
 const btnIniciarScanner = document.getElementById('btnIniciarScanner');
@@ -99,6 +112,57 @@ const scanResult = document.getElementById('scanResult');
 const historialContainer = document.getElementById('historialContainer');
 const estadisticas = document.getElementById('estadisticas');
 
+// Guardar opciones originales de fichas para el buscador en vivo
+const fichaOptionsOriginal = Array.from(fichaSelect.options)
+    .filter(option => option.value !== '')
+    .map(option => ({
+        value: option.value,
+        text: option.textContent
+    }));
+
+// Filtro en vivo por número de ficha
+if (fichaSearchInput) {
+    fichaSearchInput.addEventListener('input', () => {
+        const termino = fichaSearchInput.value.trim().toLowerCase();
+        const valorSeleccionadoActual = fichaSelect.value;
+
+        fichaSelect.innerHTML = '';
+        const placeholderOption = document.createElement('option');
+        placeholderOption.value = '';
+        placeholderOption.textContent = 'Selecciona una ficha...';
+        fichaSelect.appendChild(placeholderOption);
+
+        fichaOptionsOriginal
+            .filter(opt => {
+                if (!termino) return true;
+                return opt.text.toLowerCase().includes(termino);
+            })
+            .forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.text;
+                fichaSelect.appendChild(option);
+            });
+
+        const opcionExistente = Array.from(fichaSelect.options)
+            .find(option => option.value === valorSeleccionadoActual);
+
+        if (opcionExistente) {
+            fichaSelect.value = valorSeleccionadoActual;
+        } else {
+            fichaSeleccionada = null;
+            scannerCard.style.display = 'none';
+            historialCard.style.display = 'none';
+            if (isScanning) {
+                detenerScanner();
+            }
+            historialRegistros = [];
+            actualizarHistorial();
+            actualizarEstadisticas();
+        }
+    });
+}
+
 // Evento cambio de ficha
 fichaSelect.addEventListener('change', (e) => {
     fichaSeleccionada = e.target.value;
@@ -106,11 +170,7 @@ fichaSelect.addEventListener('change', (e) => {
     if (fichaSeleccionada) {
         scannerCard.style.display = 'block';
         historialCard.style.display = 'block';
-        
-        // Limpiar historial al cambiar de ficha
-        historialRegistros = [];
-        actualizarHistorial();
-        actualizarEstadisticas();
+        cargarHistorialDelDia();
     } else {
         scannerCard.style.display = 'none';
         historialCard.style.display = 'none';
@@ -119,6 +179,42 @@ fichaSelect.addEventListener('change', (e) => {
         }
     }
 });
+
+// Cargar historial diario desde el servidor para la ficha seleccionada
+async function cargarHistorialDelDia() {
+    if (!fichaSeleccionada) return;
+
+    try {
+        const params = new URLSearchParams({
+            ficha_id: fichaSeleccionada,
+            fecha: fechaHoy
+        });
+
+        const response = await fetch(`/api/qr/historial-diario?${params.toString()}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success && result.data && Array.isArray(result.data.registros)) {
+            historialRegistros = result.data.registros;
+            actualizarHistorial();
+            actualizarEstadisticas();
+        } else {
+            console.warn('No se pudo cargar el historial diario:', result.message || 'Respuesta inválida');
+            historialRegistros = [];
+            actualizarHistorial();
+            actualizarEstadisticas();
+        }
+    } catch (error) {
+        console.error('Error cargando historial diario:', error);
+        historialRegistros = [];
+        actualizarHistorial();
+        actualizarEstadisticas();
+    }
+}
 
 // Iniciar escáner
 btnIniciarScanner.addEventListener('click', async () => {
