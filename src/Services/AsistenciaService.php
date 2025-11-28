@@ -333,6 +333,15 @@ class AsistenciaService
     }
 
     /**
+     * Obtiene registros de asistencia de una ficha para una fecha específica
+     * Usado por el historial diario del módulo QR
+     */
+    public function getRegistrosPorFichaYFecha(int $fichaId, string $fecha): array
+    {
+        return $this->asistenciaRepository->findByFichaAndFecha($fichaId, $fecha);
+    }
+
+    /**
      * Valida que se puedan registrar asistencias para una fecha
      * Reglas de negocio:
      * - No permitir registros futuros

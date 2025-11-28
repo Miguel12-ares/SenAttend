@@ -200,6 +200,11 @@ $routes = [
             'action' => 'apiBuscarAprendiz',
             'middleware' => ['auth']
         ],
+        '/api/qr/historial-diario' => [
+            'controller' => QRController::class,
+            'action' => 'apiHistorialDiario',
+            'middleware' => ['auth']
+        ],
         // Configuración de Turnos (Solo Admin)
         '/configuracion/horarios' => [
             'controller' => \App\Controllers\TurnoConfigController::class,
