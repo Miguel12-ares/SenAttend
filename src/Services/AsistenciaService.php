@@ -535,17 +535,14 @@ class AsistenciaService
             $data['hora'] = date('H:i:s');
         }
 
-        // Usar el método directo del servicio de turnos para determinar el estado
-        // Este método ya maneja toda la lógica de detección de turno y tardanza
-        $estadoDeterminado = $this->turnoConfigService->determinarEstadoAsistencia($data['hora']);
+        // Obtener turno actual dinámicamente desde la configuración
+        $turno = $this->turnoConfigService->obtenerTurnoActual($data['hora']);
         
-        // Solo aplicar la lógica automática si el estado inicial es 'presente'
-        // Si ya viene como 'ausente' o 'tardanza', respetar ese estado
-        if ($data['estado'] === 'presente') {
-            $data['estado'] = $estadoDeterminado;
-            
-            // Log para depuración
-            error_log("AsistenciaService::procesarEstadoTardanzaAutomatico - Hora: {$data['hora']}, Estado determinado: {$estadoDeterminado}");
+        if ($turno && $data['estado'] === 'presente') {
+            // Validar si es tardanza según la configuración del turno
+            if ($this->turnoConfigService->validarTardanza($data['hora'], $turno['nombre_turno'])) {
+                $data['estado'] = 'tardanza';
+            }
         }
 
         return $data;

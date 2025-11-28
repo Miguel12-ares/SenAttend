@@ -78,54 +78,8 @@ class TurnoConfigService
             return false;
         }
 
-        // Normalizar formatos de hora para comparación segura
-        // Asegurar formato H:i:s (agregar segundos si faltan)
-        $horaNormalizada = $this->normalizarHora($hora);
-        $horaLimiteNormalizada = $this->normalizarHora($turno['hora_limite_llegada']);
-        
-        // Comparar usando strtotime para mayor precisión
-        $timestampHora = strtotime($horaNormalizada);
-        $timestampLimite = strtotime($horaLimiteNormalizada);
-        
         // Si la hora es mayor que la hora límite de llegada, es tardanza
-        $esTardanza = $timestampHora > $timestampLimite;
-        
-        // Log para depuración
-        error_log("TurnoConfigService::validarTardanza - Hora: {$horaNormalizada}, Límite: {$horaLimiteNormalizada}, Es tardanza: " . ($esTardanza ? 'Sí' : 'No'));
-        
-        return $esTardanza;
-    }
-    
-    /**
-     * Normaliza una hora al formato H:i:s
-     * 
-     * @param string $hora Hora en cualquier formato (H:i o H:i:s)
-     * @return string Hora normalizada en formato H:i:s
-     */
-    private function normalizarHora(string $hora): string
-    {
-        // Eliminar espacios
-        $hora = trim($hora);
-        
-        // Si tiene formato H:i (sin segundos), agregar :00
-        if (preg_match('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/', $hora)) {
-            return $hora . ':00';
-        }
-        
-        // Si ya tiene formato H:i:s, devolver tal cual
-        if (preg_match('/^([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/', $hora)) {
-            return $hora;
-        }
-        
-        // Si no coincide con ningún formato, intentar parsear
-        $timestamp = strtotime($hora);
-        if ($timestamp !== false) {
-            return date('H:i:s', $timestamp);
-        }
-        
-        // Si todo falla, devolver la hora original
-        error_log("TurnoConfigService::normalizarHora - Formato de hora no reconocido: {$hora}");
-        return $hora;
+        return $hora > $turno['hora_limite_llegada'];
     }
 
     /**
