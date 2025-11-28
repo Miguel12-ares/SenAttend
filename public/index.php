@@ -123,6 +123,22 @@ $routes = [
             'action' => 'create',
             'middleware' => ['auth']
         ],
+        // Gestión de Instructores
+        '/gestion-instructores' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
+            'action' => 'index',
+            'middleware' => ['auth']
+        ],
+        '/gestion-instructores/crear' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
+            'action' => 'create',
+            'middleware' => ['auth']
+        ],
+        '/gestion-instructores/importar' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
+            'action' => 'importView',
+            'middleware' => ['auth']
+        ],
         // Asistencia (CRÍTICO)
         '/asistencia/registrar' => [
             'controller' => \App\Controllers\AsistenciaController::class,
@@ -262,6 +278,17 @@ $routes = [
             'action' => 'import',
             'middleware' => ['auth']
         ],
+        // Gestión de Instructores POST
+        '/gestion-instructores' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
+            'action' => 'store',
+            'middleware' => ['auth']
+        ],
+        '/gestion-instructores/importar-csv' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
+            'action' => 'processImport',
+            'middleware' => ['auth']
+        ],
         // Asistencia (CRÍTICO)
         '/asistencia/guardar' => [
             'controller' => \App\Controllers\AsistenciaController::class,
@@ -380,6 +407,12 @@ $dynamicRoutes = [
             'middleware' => ['auth'],
             'params' => ['id']
         ],
+        '/gestion-instructores/(\d+)/editar' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
+            'action' => 'edit',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
         '/api/fichas/(\d+)' => [
             'controller' => \App\Controllers\FichaController::class,
             'action' => 'apiShow',
@@ -444,6 +477,18 @@ $dynamicRoutes = [
         ],
         '/aprendices/(\d+)/eliminar' => [
             'controller' => \App\Controllers\AprendizController::class,
+            'action' => 'delete',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/gestion-instructores/(\d+)' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
+            'action' => 'update',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/gestion-instructores/(\d+)/eliminar' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
             'action' => 'delete',
             'middleware' => ['auth'],
             'params' => ['id']
@@ -611,6 +656,14 @@ try {
     } elseif ($controllerClass === \App\Controllers\TurnoConfigController::class) {
         $controller = new $controllerClass(
             $turnoConfigService,
+            $authService
+        );
+    } elseif ($controllerClass === \App\Controllers\GestionInstructoresController::class) {
+        $instructorRepository = new \App\Repositories\InstructorRepository();
+        $instructorService = new \App\Services\InstructorService($instructorRepository);
+        $controller = new $controllerClass(
+            $instructorService,
+            $instructorRepository,
             $authService
         );
     } else {

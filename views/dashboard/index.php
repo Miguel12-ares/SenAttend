@@ -70,8 +70,10 @@
 
                         <?php endif; ?>
 
-                        <!-- Acciones para Admin -->
-                        <?php if ($user['rol'] === 'admin'): ?>
+
+
+                        <!-- Acciones para Admin y Administrativo -->
+                        <?php if (in_array($user['rol'], ['admin', 'administrativo'])): ?>
                         
                         <!-- Gestión de Fichas -->
                         <div class="action-card-sena">
@@ -107,6 +109,25 @@
                             </div>
                         </div>
 
+                        <!-- Gestión de Instructores -->
+                        <div class="action-card-sena">
+                            <div class="action-icon-sena">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <h4>Gestión de Instructores</h4>
+                            <p>Administrar instructores del sistema.</p>
+                            <div class="action-buttons">
+                                <a href="/gestion-instructores/crear" class="btn-sena">
+                                    <i class="fas fa-plus"></i>
+                                    Crear Instructor
+                                </a>
+                                <a href="/gestion-instructores" class="btn-sena">
+                                    <i class="fas fa-list"></i>
+                                    Administrar Instructores
+                                </a>
+                            </div>
+                        </div>
+
                         <!-- Asignación de Fichas -->
                         <div class="action-card-sena">
                             <div class="action-icon-sena">
@@ -121,6 +142,11 @@
                                 </a>
                             </div>
                         </div>
+
+                        <?php endif; ?>
+
+                        <!-- Acciones solo para Admin -->
+                        <?php if ($user['rol'] === 'admin'): ?>
 
                         <!-- Configurar Horarios -->
                         <div class="action-card-sena">

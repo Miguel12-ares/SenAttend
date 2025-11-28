@@ -64,6 +64,13 @@ class PermissionMiddleware
         // Verificar si el rol del usuario está permitido
         if (!in_array($userRole, $allowedRoles, true)) {
             $this->logDeniedAccess($method, $uri, $userRole, 'ROLE_NOT_ALLOWED');
+            
+            // Si ya estamos en dashboard y no tiene permiso, redirigir a login para evitar bucle
+            if ($uri === '/dashboard') {
+                $this->session->destroy(); // Cerrar sesión si no tiene acceso al dashboard
+                $this->redirectForbidden('/login?error=access_denied');
+            }
+            
             $this->redirectForbidden('/dashboard');
         }
 
