@@ -7,7 +7,7 @@
 $title = 'Importar Instructores - SENAttend';
 $showHeader = true;
 $currentPage = 'gestion-instructores';
-$additionalStyles = asset_css('css/components.css') . asset_css('css/fichas.css');
+$additionalStyles = asset_css('css/common/components.css') . asset_css('css/modules/fichas.css');
 $additionalScripts = '';
 
 ob_start();

@@ -28,7 +28,9 @@ try {
     $asistenciaRepo = new \App\Repositories\AsistenciaRepository();
     $aprendizRepo = new \App\Repositories\AprendizRepository();
     $fichaRepo = new \App\Repositories\FichaRepository();
-    $service = new \App\Services\AsistenciaService($asistenciaRepo, $aprendizRepo, $fichaRepo);
+    $turnoConfigRepo = new \App\Repositories\TurnoConfigRepository();
+    $turnoConfigService = new \App\Services\TurnoConfigService($turnoConfigRepo);
+    $service = new \App\Services\AsistenciaService($asistenciaRepo, $aprendizRepo, $fichaRepo, $turnoConfigService);
     
     $stats = $service->getEstadisticas(1, date('Y-m-d'));
     echo "   ✅ Service funcionando - Estadísticas: {$stats['total']} total\n\n";

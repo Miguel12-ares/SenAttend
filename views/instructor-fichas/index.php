@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Asignaciones - SENAttend</title>
     <link rel="stylesheet" href="<?= asset('assets/vendor/fontawesome/css/all.min.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/instructor-fichas.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/common/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/modules/instructor-fichas.css') ?>">
 </head>
 <body>
     <div class="wrapper">
@@ -313,6 +313,6 @@
     </div>
 
     <!-- Scripts -->
-    <script src="<?= asset('js/instructor-fichas.js') ?>"></script>
+    <script src="<?= asset('js/modules/instructor-fichas.js') ?>"></script>
 </body>
 </html>

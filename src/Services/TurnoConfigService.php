@@ -83,6 +83,17 @@ class TurnoConfigService
     }
 
     /**
+     * Obtiene la configuración de un turno por su nombre
+     * 
+     * @param string $nombreTurno Nombre del turno
+     * @return array|null Configuración del turno
+     */
+    public function obtenerConfiguracionPorNombre(string $nombreTurno): ?array
+    {
+        return $this->turnoConfigRepository->findByNombre($nombreTurno);
+    }
+
+    /**
      * Determina automáticamente el estado de asistencia (presente o tardanza)
      * basado en la hora y el turno correspondiente
      * 

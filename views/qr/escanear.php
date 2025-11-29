@@ -6,9 +6,12 @@
 
 // Variables para el layout
 $title = 'Escanear Código QR - SENAttend';
-$additionalStyles = asset_css('css/qr.css');
+$additionalStyles = asset_css('css/modules/qr.css');
 $showHeader = true;
 $currentPage = 'qr-escanear';
+
+// Configuración de turnos (mapa jornada -> datos de turno) pasada desde el controlador
+$turnosConfig = $turnosConfig ?? [];
 
 // Obtener usuario de sesión (pasado desde el controlador)
 $user = $user ?? null;
@@ -44,7 +47,18 @@ ob_start();
             <select id="fichaSelect" name="ficha_id" required>
                 <option value="">Selecciona una ficha...</option>
                 <?php foreach ($fichas as $ficha): ?>
-                    <option value="<?= htmlspecialchars($ficha['id']) ?>">
+                    <?php
+                        $jornadaFicha = $ficha['jornada'] ?? null;
+                        $horaLimite = null;
+                        if ($jornadaFicha && !empty($turnosConfig[$jornadaFicha]['hora_limite_llegada'])) {
+                            $horaLimite = $turnosConfig[$jornadaFicha]['hora_limite_llegada'];
+                        }
+                    ?>
+                    <option
+                        value="<?= htmlspecialchars($ficha['id']) ?>"
+                        data-jornada="<?= htmlspecialchars($jornadaFicha ?? '') ?>"
+                        data-hora-limite="<?= htmlspecialchars($horaLimite ?? '') ?>"
+                    >
                         <?= htmlspecialchars($ficha['numero_ficha']) ?> - <?= htmlspecialchars($ficha['nombre']) ?>
                     </option>
                 <?php endforeach; ?>
@@ -53,7 +67,10 @@ ob_start();
         
         <div class="info-banner">
             <i class="fas fa-circle-info"></i>
-            <span>Fecha de registro: <strong><?= date('d/m/Y') ?></strong> | Hora límite tardanza: <strong>06:20 AM</strong></span>
+            <span>
+                Fecha de registro: <strong><?= date('d/m/Y') ?></strong>
+                | Hora límite tardanza: <strong id="horaLimiteTardanzaTexto">--</strong>
+            </span>
         </div>
     </div>
 
@@ -106,6 +123,7 @@ const fichaSelect = document.getElementById('fichaSelect');
 const fichaSearchInput = document.getElementById('fichaSearch');
 const scannerCard = document.getElementById('scannerCard');
 const historialCard = document.getElementById('historialCard');
+const horaLimiteSpan = document.getElementById('horaLimiteTardanzaTexto');
 const btnIniciarScanner = document.getElementById('btnIniciarScanner');
 const btnDetenerScanner = document.getElementById('btnDetenerScanner');
 const scanResult = document.getElementById('scanResult');
@@ -168,10 +186,16 @@ fichaSelect.addEventListener('change', (e) => {
     fichaSeleccionada = e.target.value;
     
     if (fichaSeleccionada) {
+        // Actualizar texto de hora límite según la ficha seleccionada
+        const selectedOption = fichaSelect.options[fichaSelect.selectedIndex];
+        const horaLimite = selectedOption ? selectedOption.dataset.horaLimite : '';
+        horaLimiteSpan.textContent = horaLimite ? formatHoraAmPm(horaLimite) : '--';
+
         scannerCard.style.display = 'block';
         historialCard.style.display = 'block';
         cargarHistorialDelDia();
     } else {
+        horaLimiteSpan.textContent = '--';
         scannerCard.style.display = 'none';
         historialCard.style.display = 'none';
         if (isScanning) {
@@ -179,6 +203,23 @@ fichaSelect.addEventListener('change', (e) => {
         }
     }
 });
+
+// Formatea una hora en formato HH:MM:SS a HH:MM AM/PM
+function formatHoraAmPm(hora24) {
+    if (!hora24) return '--';
+    const partes = hora24.split(':');
+    if (partes.length < 2) return hora24;
+    let hora = parseInt(partes[0], 10);
+    const minutos = partes[1];
+    const ampm = hora >= 12 ? 'PM' : 'AM';
+    if (hora === 0) {
+        hora = 12;
+    } else if (hora > 12) {
+        hora -= 12;
+    }
+    const hora12 = hora.toString().padStart(2, '0');
+    return `${hora12}:${minutos} ${ampm}`;
+}
 
 // Cargar historial diario desde el servidor para la ficha seleccionada
 async function cargarHistorialDelDia() {

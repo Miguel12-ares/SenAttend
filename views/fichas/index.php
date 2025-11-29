@@ -7,8 +7,8 @@
 $title = 'Gestión de Fichas - SENAttend';
 $showHeader = true;
 $currentPage = 'fichas';
-$additionalStyles = asset_css('css/components.css') . asset_css('css/fichas.css');
-$additionalScripts = asset_js('js/fichas.js') . asset_js('js/fichas-import.js') . asset_js('js/search-simple.js');
+$additionalStyles = asset_css('css/common/components.css') . asset_css('css/modules/fichas.css');
+$additionalScripts = asset_js('js/modules/fichas.js') . asset_js('js/modules/fichas-import.js') . asset_js('js/common/search-simple.js');
 
 ob_start();
 ?>
