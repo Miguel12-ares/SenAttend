@@ -18,6 +18,7 @@ use App\Controllers\HomeController;
 use App\Controllers\ProfileController;
 use App\Controllers\QRController;
 use App\Controllers\WelcomeController;
+use App\Gestion_reportes\Controllers\ReportesController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\PermissionMiddleware;
 use App\Repositories\UserRepository;
@@ -123,6 +124,22 @@ $routes = [
             'action' => 'create',
             'middleware' => ['auth']
         ],
+        // Gestión de Instructores
+        '/gestion-instructores' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
+            'action' => 'index',
+            'middleware' => ['auth']
+        ],
+        '/gestion-instructores/crear' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
+            'action' => 'create',
+            'middleware' => ['auth']
+        ],
+        '/gestion-instructores/importar' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
+            'action' => 'importView',
+            'middleware' => ['auth']
+        ],
         // Asistencia (CRÍTICO)
         '/asistencia/registrar' => [
             'controller' => \App\Controllers\AsistenciaController::class,
@@ -143,6 +160,12 @@ $routes = [
         // Perfil
         '/perfil' => [
             'controller' => ProfileController::class,
+            'action' => 'index',
+            'middleware' => ['auth']
+        ],
+        // Gestión de Reportes - solo instructores (protegido además por RBAC y verificación en controlador)
+        '/gestion-reportes' => [
+            'controller' => ReportesController::class,
             'action' => 'index',
             'middleware' => ['auth']
         ],
@@ -262,6 +285,17 @@ $routes = [
             'action' => 'import',
             'middleware' => ['auth']
         ],
+        // Gestión de Instructores POST
+        '/gestion-instructores' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
+            'action' => 'store',
+            'middleware' => ['auth']
+        ],
+        '/gestion-instructores/importar-csv' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
+            'action' => 'processImport',
+            'middleware' => ['auth']
+        ],
         // Asistencia (CRÍTICO)
         '/asistencia/guardar' => [
             'controller' => \App\Controllers\AsistenciaController::class,
@@ -338,6 +372,12 @@ $routes = [
             'action' => 'actualizar',
             'middleware' => ['auth']
         ],
+        // Gestión de Reportes - generación (AJAX)
+        '/gestion-reportes/generar' => [
+            'controller' => ReportesController::class,
+            'action' => 'generar',
+            'middleware' => ['auth']
+        ],
     ],
 ];
 
@@ -376,6 +416,12 @@ $dynamicRoutes = [
         ],
         '/aprendices/(\d+)/editar' => [
             'controller' => \App\Controllers\AprendizController::class,
+            'action' => 'edit',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/gestion-instructores/(\d+)/editar' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
             'action' => 'edit',
             'middleware' => ['auth'],
             'params' => ['id']
@@ -444,6 +490,18 @@ $dynamicRoutes = [
         ],
         '/aprendices/(\d+)/eliminar' => [
             'controller' => \App\Controllers\AprendizController::class,
+            'action' => 'delete',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/gestion-instructores/(\d+)' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
+            'action' => 'update',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/gestion-instructores/(\d+)/eliminar' => [
+            'controller' => \App\Controllers\GestionInstructoresController::class,
             'action' => 'delete',
             'middleware' => ['auth'],
             'params' => ['id']
@@ -612,6 +670,32 @@ try {
         $controller = new $controllerClass(
             $turnoConfigService,
             $authService
+        );
+    } elseif ($controllerClass === \App\Controllers\GestionInstructoresController::class) {
+        $instructorRepository = new \App\Repositories\InstructorRepository();
+        $instructorService = new \App\Services\InstructorService($instructorRepository);
+        $controller = new $controllerClass(
+            $instructorService,
+            $instructorRepository,
+            $authService
+        );
+    } elseif ($controllerClass === ReportesController::class) {
+        $asistenciaRepository = new \App\Repositories\AsistenciaRepository();
+        $fichaRepository = new \App\Repositories\FichaRepository();
+        $userRepository = new \App\Repositories\UserRepository();
+        $instructorFichaRepository = new \App\Repositories\InstructorFichaRepository();
+        $reportGenerationService = new \App\Gestion_reportes\Services\ReportGenerationService(
+            $asistenciaRepository,
+            $fichaRepository,
+            $userRepository,
+            $instructorFichaRepository
+        );
+        $excelExportService = new \App\Gestion_reportes\Services\ExcelExportService();
+        $controller = new $controllerClass(
+            $authService,
+            $session,
+            $reportGenerationService,
+            $excelExportService
         );
     } else {
         throw new RuntimeException("Unknown controller: {$controllerClass}");

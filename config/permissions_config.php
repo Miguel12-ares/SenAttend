@@ -19,14 +19,11 @@ if (!defined('ROLE_ADMIN')) {
 if (!defined('ROLE_INSTRUCTOR')) {
     define('ROLE_INSTRUCTOR', 'instructor');
 }
-if (!defined('ROLE_COORDINADOR')) {
-    define('ROLE_COORDINADOR', 'coordinador');
+if (!defined('ROLE_ADMINISTRATIVO')) {
+    define('ROLE_ADMINISTRATIVO', 'administrativo');
 }
 if (!defined('ROLE_ESTUDIANTE')) {
     define('ROLE_ESTUDIANTE', 'estudiante');
-}
-if (!defined('ROLE_ADMINISTRATIVO')) {
-    define('ROLE_ADMINISTRATIVO', 'administrativo');
 }
 
 return [
@@ -48,92 +45,105 @@ return [
                 '/auth/logout' => [], // Logout es público (cualquiera puede cerrar sesión)
 
                 // Dashboard general (usuarios autenticados típicos)
-                '/dashboard' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR, ROLE_ADMINISTRATIVO],
+                '/dashboard' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
 
                 // Fichas
-                '/fichas' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR, ROLE_ADMINISTRATIVO],
-                '/fichas/crear' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                '/fichas' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
+                '/fichas/crear' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
 
                 // Aprendices
-                '/aprendices' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR, ROLE_ADMINISTRATIVO],
-                '/aprendices/crear' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                '/aprendices' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
+                '/aprendices/crear' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
 
                 // Asistencia manual
-                '/asistencia/registrar' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                '/asistencia/registrar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
 
                 // Módulo QR:
                 // - Generar QR: típicamente para aprendices, pero se permite a cualquier autenticado
-                '/qr/generar' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR, ROLE_ESTUDIANTE],
+                '/qr/generar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR, ROLE_ESTUDIANTE],
                 // - Escanear QR: EXCLUSIVO de instructores (coordinador/admin no pueden acceder)
                 '/qr/escanear' => [ROLE_INSTRUCTOR],
 
                 // Perfil
-                '/perfil' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR, ROLE_ESTUDIANTE, ROLE_ADMINISTRATIVO],
+                '/perfil' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR, ROLE_ESTUDIANTE],
+                // Gestión de Reportes - solo instructores
+                '/gestion-reportes' => [ROLE_INSTRUCTOR],
 
                 // Gestión de Asignaciones Instructor-Ficha
                 // Comentario en el controlador indica: solo Admin y Administrativo (y coordinador)
-                '/instructor-fichas' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_COORDINADOR],
+                '/instructor-fichas' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
 
                 // APIs varias (se asume acceso de staff/docente, no aprendices)
-                '/api/instructor-fichas/estadisticas' => [ROLE_ADMIN, ROLE_COORDINADOR],
-                '/api/instructores' => [ROLE_ADMIN, ROLE_COORDINADOR],
+                '/api/instructor-fichas/estadisticas' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/api/instructores' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
 
-                '/api/fichas' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR, ROLE_ADMINISTRATIVO],
-                '/api/fichas/search' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR, ROLE_ADMINISTRATIVO],
-                '/api/fichas/estadisticas' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                '/api/fichas' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
+                '/api/fichas/search' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
+                '/api/fichas/estadisticas' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
 
-                '/api/aprendices' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR, ROLE_ADMINISTRATIVO],
-                '/api/aprendices/estadisticas' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                '/api/aprendices' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
+                '/api/aprendices/estadisticas' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
+
+                // Gestión de Instructores
+                '/gestion-instructores' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/gestion-instructores/crear' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/gestion-instructores/importar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
 
                 // Historial diario de asistencia via QR (ver QRController)
-                '/api/qr/historial-diario' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
-                '/api/qr/buscar' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                '/api/qr/historial-diario' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
+                '/api/qr/buscar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
 
                 // Configuración de turnos (solo admin en UI)
                 '/configuracion/horarios' => [ROLE_ADMIN],
 
                 // APIs de configuración de turnos: lectura para staff (no estudiantes)
-                '/api/configuracion/turnos' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR, ROLE_ADMINISTRATIVO],
-                '/api/configuracion/turno-actual' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR, ROLE_ADMINISTRATIVO],
+                '/api/configuracion/turnos' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR, ROLE_ADMINISTRATIVO],
+                '/api/configuracion/turno-actual' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR, ROLE_ADMINISTRATIVO],
             ],
             'POST' => [
                 // Auth
                 '/auth/login' => [],
 
                 // Perfil
-                '/perfil/cambiar-password' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR, ROLE_ESTUDIANTE, ROLE_ADMINISTRATIVO],
+                '/perfil/cambiar-password' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR, ROLE_ESTUDIANTE, ROLE_ADMINISTRATIVO],
 
                 // API pública de validación de aprendiz (sin login)
                 '/api/public/aprendiz/validar' => [],
 
                 // Fichas
-                '/fichas' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
-                '/api/fichas' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
-                '/api/fichas/importar' => [ROLE_ADMIN, ROLE_COORDINADOR],
-                '/api/fichas/validar-csv' => [ROLE_ADMIN, ROLE_COORDINADOR],
+                '/fichas' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
+                '/api/fichas' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
+                '/api/fichas/importar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/api/fichas/validar-csv' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
 
                 // Aprendices
-                '/aprendices' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
-                '/aprendices/importar' => [ROLE_ADMIN, ROLE_COORDINADOR],
-                '/api/aprendices' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
-                '/api/aprendices/importar' => [ROLE_ADMIN, ROLE_COORDINADOR],
-                '/api/aprendices/validar-csv' => [ROLE_ADMIN, ROLE_COORDINADOR],
-                '/api/aprendices/vincular-multiples' => [ROLE_ADMIN, ROLE_COORDINADOR],
+                '/aprendices' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
+                '/aprendices/importar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/api/aprendices' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
+                '/api/aprendices/importar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/api/aprendices/validar-csv' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/api/aprendices/vincular-multiples' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+
+                // Gestión de Instructores POST
+                '/gestion-instructores' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/gestion-instructores/importar-csv' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
 
                 // Asistencia
-                '/asistencia/guardar' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                '/asistencia/guardar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
 
                 // Asignación Instructor-Ficha
-                '/api/instructor-fichas/asignar-fichas' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_COORDINADOR],
-                '/api/instructor-fichas/asignar-instructores' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_COORDINADOR],
-                '/api/instructor-fichas/sincronizar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_COORDINADOR],
-                '/api/instructor-fichas/eliminar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_COORDINADOR],
+                '/api/instructor-fichas/asignar-fichas' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_ADMINISTRATIVO],
+                '/api/instructor-fichas/asignar-instructores' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_ADMINISTRATIVO],
+                '/api/instructor-fichas/sincronizar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_ADMINISTRATIVO],
+                '/api/instructor-fichas/eliminar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_ADMINISTRATIVO],
 
                 // QR
-                '/api/qr/procesar' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                '/api/qr/procesar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
 
                 // Configuración de turnos (solo admin)
                 '/configuracion/horarios/actualizar' => [ROLE_ADMIN],
+                // Gestión de Reportes - generación de exportes vía AJAX (solo instructores)
+                '/gestion-reportes/generar' => [ROLE_INSTRUCTOR],
             ],
             // PUT y DELETE se manejan en 'patterns' porque tienen parámetros dinámicos
         ],
@@ -143,61 +153,65 @@ return [
             'GET' => [
                 [
                     'pattern' => '#^/instructor-fichas/instructor/(\d+)$#',
-                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_COORDINADOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_ADMINISTRATIVO],
                 ],
                 [
                     'pattern' => '#^/instructor-fichas/ficha/(\d+)$#',
-                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_COORDINADOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_ADMINISTRATIVO],
                 ],
                 [
                     'pattern' => '#^/fichas/(\d+)$#',
-                    'roles' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
                 ],
                 [
                     'pattern' => '#^/fichas/(\d+)/editar$#',
-                    'roles' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
                 ],
                 [
                     'pattern' => '#^/aprendices/(\d+)$#',
-                    'roles' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
                 ],
                 [
                     'pattern' => '#^/aprendices/(\d+)/editar$#',
-                    'roles' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
+                ],
+                [
+                    'pattern' => '#^/gestion-instructores/(\d+)/editar$#',
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 ],
                 [
                     'pattern' => '#^/api/fichas/(\d+)$#',
-                    'roles' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
                 ],
                 [
                     'pattern' => '#^/api/fichas/(\d+)/aprendices$#',
-                    'roles' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
                 ],
                 [
                     'pattern' => '#^/api/aprendices/(\d+)$#',
-                    'roles' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
                 ],
                 [
                     'pattern' => '#^/api/instructor-fichas/fichas-disponibles/(\d+)$#',
-                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_COORDINADOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_ADMINISTRATIVO],
                 ],
                 [
                     'pattern' => '#^/api/instructor-fichas/instructores-disponibles/(\d+)$#',
-                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_COORDINADOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_ADMINISTRATIVO],
                 ],
                 [
                     'pattern' => '#^/api/instructor-fichas/instructor/(\d+)/fichas$#',
-                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
                 ],
                 [
                     'pattern' => '#^/api/instructor-fichas/ficha/(\d+)/instructores$#',
-                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_COORDINADOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_ADMINISTRATIVO],
                 ],
             ],
             'POST' => [
                 [
                     'pattern' => '#^/fichas/(\d+)$#',
-                    'roles' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
                 ],
                 [
                     'pattern' => '#^/fichas/(\d+)/eliminar$#',
@@ -205,37 +219,45 @@ return [
                 ],
                 [
                     'pattern' => '#^/aprendices/(\d+)$#',
-                    'roles' => [ROLE_ADMIN, ROLE_COORDINADOR, ROLE_INSTRUCTOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
                 ],
                 [
                     'pattern' => '#^/aprendices/(\d+)/eliminar$#',
                     'roles' => [ROLE_ADMIN],
                 ],
                 [
+                    'pattern' => '#^/gestion-instructores/(\d+)$#',
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                ],
+                [
+                    'pattern' => '#^/gestion-instructores/(\d+)/eliminar$#',
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                ],
+                [
                     'pattern' => '#^/api/fichas/(\d+)/estado$#',
-                    'roles' => [ROLE_ADMIN, ROLE_COORDINADOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 ],
                 [
                     'pattern' => '#^/api/aprendices/(\d+)/estado$#',
-                    'roles' => [ROLE_ADMIN, ROLE_COORDINADOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 ],
                 [
                     'pattern' => '#^/api/aprendices/(\d+)/vincular$#',
-                    'roles' => [ROLE_ADMIN, ROLE_COORDINADOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 ],
                 [
                     'pattern' => '#^/api/aprendices/(\d+)/desvincular$#',
-                    'roles' => [ROLE_ADMIN, ROLE_COORDINADOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 ],
             ],
             'PUT' => [
                 [
                     'pattern' => '#^/api/fichas/(\d+)$#',
-                    'roles' => [ROLE_ADMIN, ROLE_COORDINADOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 ],
                 [
                     'pattern' => '#^/api/aprendices/(\d+)$#',
-                    'roles' => [ROLE_ADMIN, ROLE_COORDINADOR],
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 ],
             ],
             'DELETE' => [

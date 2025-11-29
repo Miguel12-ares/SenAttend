@@ -6,7 +6,7 @@
 
 $title = 'Importar Aprendices CSV - SENAttend';
 $showHeader = true;
-$additionalStyles = asset_css('css/components.css');
+$additionalStyles = asset_css('css/common/components.css');
 
 ob_start();
 ?>

@@ -251,7 +251,7 @@ class AprendizRepository
     }
 
     /**
-     * Busca aprendices por documento, nombre o apellido
+     * Busca aprendices por documento únicamente
      */
     public function search(string $search, int $limit = 50, int $offset = 0): array
     {
@@ -259,10 +259,7 @@ class AprendizRepository
             $stmt = Connection::prepare(
                 'SELECT id, documento, nombre, apellido, email, estado 
                  FROM aprendices 
-                 WHERE documento LIKE :search 
-                    OR nombre LIKE :search 
-                    OR apellido LIKE :search
-                    OR email LIKE :search
+                 WHERE documento LIKE :search
                  ORDER BY apellido ASC, nombre ASC 
                  LIMIT :limit OFFSET :offset'
             );
@@ -281,17 +278,14 @@ class AprendizRepository
     }
 
     /**
-     * Cuenta aprendices que coinciden con búsqueda
+     * Cuenta aprendices que coinciden con búsqueda por documento
      */
     public function countSearch(string $search): int
     {
         try {
             $stmt = Connection::prepare(
                 'SELECT COUNT(*) as total FROM aprendices 
-                 WHERE documento LIKE :search 
-                    OR nombre LIKE :search 
-                    OR apellido LIKE :search
-                    OR email LIKE :search'
+                 WHERE documento LIKE :search'
             );
             $searchTerm = "%{$search}%";
             $stmt->execute(['search' => $searchTerm]);

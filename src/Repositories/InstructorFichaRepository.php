@@ -26,7 +26,7 @@ class InstructorFichaRepository
     public function findFichasByInstructor(int $instructorId, bool $soloActivas = true): array
     {
         try {
-            $sql = 'SELECT f.id, f.numero_ficha, f.nombre, f.estado,
+            $sql = 'SELECT f.id, f.numero_ficha, f.nombre, f.jornada, f.estado,
                            inf.fecha_asignacion, inf.activo as asignacion_activa,
                            inf.created_at as fecha_asignacion_creada
                     FROM instructor_fichas inf

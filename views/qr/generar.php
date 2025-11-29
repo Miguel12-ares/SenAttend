@@ -6,7 +6,7 @@
 
 // Variables para el layout
 $title = 'Generar Código QR - SENAttend';
-$additionalStyles = asset_css('css/qr.css');
+$additionalStyles = asset_css('css/modules/qr.css');
 $showHeader = true;
 $currentPage = 'qr-generar';
 

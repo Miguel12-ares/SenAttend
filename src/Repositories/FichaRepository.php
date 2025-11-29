@@ -18,7 +18,7 @@ class FichaRepository
     {
         try {
             $stmt = Connection::prepare(
-                'SELECT id, numero_ficha, nombre, estado 
+                'SELECT id, numero_ficha, nombre, jornada, estado 
                  FROM fichas 
                  ORDER BY numero_ficha ASC 
                  LIMIT :limit OFFSET :offset'
@@ -42,7 +42,7 @@ class FichaRepository
     {
         try {
             $stmt = Connection::prepare(
-                'SELECT id, numero_ficha, nombre, estado 
+                'SELECT id, numero_ficha, nombre, jornada, estado 
                  FROM fichas 
                  WHERE numero_ficha = :numero_ficha 
                  LIMIT 1'
@@ -65,7 +65,7 @@ class FichaRepository
     {
         try {
             $stmt = Connection::prepare(
-                'SELECT id, numero_ficha, nombre, estado 
+                'SELECT id, numero_ficha, nombre, jornada, estado 
                  FROM fichas 
                  WHERE id = :id 
                  LIMIT 1'
@@ -88,13 +88,14 @@ class FichaRepository
     {
         try {
             $stmt = Connection::prepare(
-                'INSERT INTO fichas (numero_ficha, nombre, estado) 
-                 VALUES (:numero_ficha, :nombre, :estado)'
+                'INSERT INTO fichas (numero_ficha, nombre, jornada, estado) 
+                 VALUES (:numero_ficha, :nombre, :jornada, :estado)'
             );
 
             $stmt->execute([
                 'numero_ficha' => $data['numero_ficha'],
                 'nombre' => $data['nombre'],
+                'jornada' => $data['jornada'] ?? 'Mañana',
                 'estado' => $data['estado'] ?? 'activa',
             ]);
 
@@ -122,6 +123,10 @@ class FichaRepository
                 $fields[] = 'nombre = :nombre';
                 $params['nombre'] = $data['nombre'];
             }
+            if (isset($data['jornada'])) {
+                $fields[] = 'jornada = :jornada';
+                $params['jornada'] = $data['jornada'];
+            }
             if (isset($data['estado'])) {
                 $fields[] = 'estado = :estado';
                 $params['estado'] = $data['estado'];
@@ -148,7 +153,7 @@ class FichaRepository
     {
         try {
             $stmt = Connection::prepare(
-                'SELECT id, numero_ficha, nombre, estado 
+                'SELECT id, numero_ficha, nombre, jornada, estado 
                  FROM fichas 
                  WHERE estado = "activa" 
                  ORDER BY numero_ficha ASC 
@@ -217,15 +222,15 @@ class FichaRepository
     }
 
     /**
-     * Busca fichas por número o nombre
+     * Busca fichas por número de ficha únicamente
      */
     public function search(string $search, int $limit = 50, int $offset = 0): array
     {
         try {
             $stmt = Connection::prepare(
-                'SELECT id, numero_ficha, nombre, estado 
+                'SELECT id, numero_ficha, nombre, jornada, estado 
                  FROM fichas 
-                 WHERE numero_ficha LIKE :search OR nombre LIKE :search
+                 WHERE numero_ficha LIKE :search
                  ORDER BY numero_ficha ASC 
                  LIMIT :limit OFFSET :offset'
             );
@@ -244,14 +249,14 @@ class FichaRepository
     }
 
     /**
-     * Cuenta fichas que coinciden con búsqueda
+     * Cuenta fichas que coinciden con búsqueda por número de ficha
      */
     public function countSearch(string $search): int
     {
         try {
             $stmt = Connection::prepare(
                 'SELECT COUNT(*) as total FROM fichas 
-                 WHERE numero_ficha LIKE :search OR nombre LIKE :search'
+                 WHERE numero_ficha LIKE :search'
             );
             $searchTerm = "%{$search}%";
             $stmt->execute(['search' => $searchTerm]);
@@ -270,7 +275,7 @@ class FichaRepository
     {
         try {
             $stmt = Connection::prepare(
-                'SELECT id, numero_ficha, nombre, estado 
+                'SELECT id, numero_ficha, nombre, jornada, estado 
                  FROM fichas 
                  WHERE estado = :estado 
                  ORDER BY numero_ficha ASC 
@@ -344,7 +349,7 @@ class FichaRepository
             }
 
             // Construir query
-            $sql = 'SELECT DISTINCT id, numero_ficha, nombre, estado, created_at 
+            $sql = 'SELECT DISTINCT id, numero_ficha, nombre, jornada, estado, created_at 
                     FROM fichas';
             
             if (!empty($conditions)) {
@@ -428,7 +433,7 @@ class FichaRepository
     {
         try {
             $stmt = Connection::prepare(
-                'SELECT f.id, f.numero_ficha, f.nombre, f.estado, f.created_at,
+                'SELECT f.id, f.numero_ficha, f.nombre, f.jornada, f.estado, f.created_at,
                         COUNT(DISTINCT fa.id_aprendiz) as total_aprendices,
                         COUNT(DISTINCT CASE WHEN a.estado = "activo" THEN fa.id_aprendiz END) as aprendices_activos
                  FROM fichas f

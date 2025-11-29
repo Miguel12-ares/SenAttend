@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - SENAttend</title>
     <link rel="stylesheet" href="<?= asset('assets/vendor/fontawesome/css/all.min.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/dashboard.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/common/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/dashboard/dashboard.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/dashboard-admin/dashboard.css') ?>">
 </head>
 <body>
@@ -68,10 +68,29 @@
                             </div>
                         </div>
 
+                        <!-- Exportar Reportes -->
+                        <?php if ($user['rol'] === 'instructor'): ?>
+                        <div class="action-card-sena">
+                            <div class="action-icon-sena">
+                                <i class="fas fa-file-excel"></i>
+                            </div>
+                            <h4>Exportar Reportes</h4>
+                            <p>Generar reportes de asistencia en formato Excel para tus fichas.</p>
+                            <div class="action-buttons">
+                                <a href="/gestion-reportes" class="btn-sena">
+                                    <i class="fas fa-file-export"></i>
+                                    Exportar Reportes
+                                </a>
+                            </div>
+                        </div>
                         <?php endif; ?>
 
-                        <!-- Acciones para Admin -->
-                        <?php if ($user['rol'] === 'admin'): ?>
+                        <?php endif; ?>
+
+
+
+                        <!-- Acciones para Admin y Administrativo -->
+                        <?php if (in_array($user['rol'], ['admin', 'administrativo'])): ?>
                         
                         <!-- Gestión de Fichas -->
                         <div class="action-card-sena">
@@ -107,6 +126,25 @@
                             </div>
                         </div>
 
+                        <!-- Gestión de Instructores -->
+                        <div class="action-card-sena">
+                            <div class="action-icon-sena">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <h4>Gestión de Instructores</h4>
+                            <p>Administrar instructores del sistema.</p>
+                            <div class="action-buttons">
+                                <a href="/gestion-instructores/crear" class="btn-sena">
+                                    <i class="fas fa-plus"></i>
+                                    Crear Instructor
+                                </a>
+                                <a href="/gestion-instructores" class="btn-sena">
+                                    <i class="fas fa-list"></i>
+                                    Administrar Instructores
+                                </a>
+                            </div>
+                        </div>
+
                         <!-- Asignación de Fichas -->
                         <div class="action-card-sena">
                             <div class="action-icon-sena">
@@ -121,6 +159,11 @@
                                 </a>
                             </div>
                         </div>
+
+                        <?php endif; ?>
+
+                        <!-- Acciones solo para Admin -->
+                        <?php if ($user['rol'] === 'admin'): ?>
 
                         <!-- Configurar Horarios -->
                         <div class="action-card-sena">

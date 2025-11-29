@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title><?= $title ?? 'SENAttend - Sistema de Asistencia SENA' ?></title>
     <link rel="stylesheet" href="<?= asset('assets/vendor/fontawesome/css/all.min.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/common/style.css') ?>">
     <?= $additionalStyles ?? '' ?>
 </head>
 <body>
@@ -26,7 +26,7 @@
         </footer>
     </div>
 
-    <script src="<?= asset('js/app.js') ?>"></script>
+    <script src="<?= asset('js/common/app.js') ?>"></script>
     <?= $additionalScripts ?? '' ?>
 </body>
 </html>

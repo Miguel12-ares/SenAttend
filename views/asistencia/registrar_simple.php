@@ -8,8 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Asistencia - SENAttend</title>
     <link rel="stylesheet" href="<?= asset('assets/vendor/fontawesome/css/all.min.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/asistencia-registrar.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/common/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/modules/asistencia-registrar.css') ?>">
 </head>
 <body>
     <div class="wrapper">
