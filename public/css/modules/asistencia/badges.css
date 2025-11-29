@@ -1,0 +1,37 @@
+/**
+ * SENAttend - Badges de Estado para Registro de Asistencia
+ */
+
+.badge-estado {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-presente {
+    background-color: var(--color-presente);
+    color: white;
+}
+
+.badge-ausente {
+    background-color: var(--color-ausente);
+    color: white;
+}
+
+.badge-tardanza {
+    background-color: var(--color-tardanza);
+    color: var(--color-dark);
+}
+
+@media print {
+    .badge-estado {
+        border: 1px solid #000;
+        color: #000 !important;
+        background: transparent !important;
+    }
+}
+

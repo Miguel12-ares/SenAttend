@@ -1,0 +1,28 @@
+/**
+ * SENAttend - Observaciones Input para Registro de Asistencia
+ */
+
+.observaciones-input {
+    width: 100%;
+    min-height: 60px;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    font-size: 0.85rem;
+    font-family: inherit;
+}
+
+.observaciones-input:focus {
+    outline: none;
+    border-color: var(--sena-verde);
+    box-shadow: 0 0 0 2px rgba(57, 169, 0, 0.1);
+}
+
+@media (max-width: 480px) {
+    .observaciones-input {
+        min-height: 40px;
+        font-size: 0.8rem;
+    }
+}
+

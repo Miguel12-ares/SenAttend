@@ -1,0 +1,43 @@
+/**
+ * SENAttend - Badges para Instructor-Fichas
+ */
+
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-info {
+    background: #e7f5ff;
+    color: #0066cc;
+}
+
+.badge-success {
+    background: #d3f9d8;
+    color: #2b8a3e;
+}
+
+.badge-secondary {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.badge-admin {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.badge-instructor {
+    background: linear-gradient(135deg, #39A900, #2d8600);
+    color: white;
+}
+
+.badge-coordinador {
+    background: linear-gradient(135deg, #00324D, #004d73);
+    color: white;
+}
+

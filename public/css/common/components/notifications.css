@@ -1,0 +1,107 @@
+/**
+ * SENAttend - Sistema de Notificaciones
+ * Componente reutilizable para notificaciones toast
+ */
+
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
+}
+
+.notification {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 0;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    overflow: hidden;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+}
+
+.notification-icon {
+    font-size: 1rem;
+    font-weight: normal;
+    flex-shrink: 0;
+    color: inherit;
+}
+
+.notification-message {
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notification-close:hover {
+    color: #000;
+}
+
+/* Tipos de notificaciones */
+.notification-success {
+    border-left: 4px solid #28a745;
+}
+
+.notification-success .notification-icon {
+    color: #212529;
+}
+
+.notification-error {
+    border-left: 4px solid #dc3545;
+}
+
+.notification-error .notification-icon {
+    color: #212529;
+}
+
+.notification-warning {
+    border-left: 4px solid #ffc107;
+}
+
+.notification-warning .notification-icon {
+    color: #212529;
+}
+
+.notification-info {
+    border-left: 4px solid #17a2b8;
+}
+
+.notification-info .notification-icon {
+    color: #212529;
+}
+
+@media (max-width: 768px) {
+    .notification-container {
+        left: 10px;
+        right: 10px;
+        top: 10px;
+        max-width: none;
+    }
+}
+

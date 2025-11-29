@@ -1,0 +1,85 @@
+/**
+ * SENAttend - Asignación Rápida para Instructor-Fichas
+ */
+
+.quick-assign-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.quick-assign-form {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.quick-assign-info {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    height: fit-content;
+}
+
+.quick-assign-info h3 {
+    color: #00324D;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quick-assign-info ul {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.quick-assign-info li {
+    margin-bottom: 0.5rem;
+    color: #666;
+}
+
+.fichas-checkbox-grid {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 1rem;
+    background: #f8f9fa;
+}
+
+.checkbox-item {
+    margin-bottom: 0.75rem;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+.checkbox-item label {
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: #333;
+}
+
+.checkbox-item:hover {
+    background: white;
+    padding: 0.25rem;
+    margin: -0.25rem;
+    border-radius: 4px;
+}
+
+.form-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+    .quick-assign-container {
+        grid-template-columns: 1fr;
+    }
+}
+

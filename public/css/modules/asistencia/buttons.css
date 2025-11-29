@@ -1,0 +1,99 @@
+/**
+ * SENAttend - Botones para Registro de Asistencia
+ */
+
+.botones-accion {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 2rem;
+    background: var(--color-light);
+    border-radius: var(--border-radius);
+}
+
+.btn-guardar {
+    background: var(--sena-verde);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: var(--border-radius);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 200px;
+    justify-content: center;
+}
+
+.btn-guardar:hover:not(:disabled) {
+    background: var(--sena-verde-oscuro);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn-guardar:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.info-guardado {
+    margin-top: 1rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.btn-success {
+    background: var(--color-presente);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #218838;
+}
+
+.btn-danger {
+    background: var(--color-ausente);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+.btn-warning {
+    background: var(--color-tardanza);
+    color: var(--color-dark);
+}
+
+.btn-warning:hover {
+    background: #e0a800;
+}
+
+@media (max-width: 480px) {
+    .btn-guardar {
+        width: 100%;
+        padding: 1rem;
+    }
+}
+
+@media print {
+    .botones-accion,
+    .btn-guardar {
+        display: none !important;
+    }
+}
+

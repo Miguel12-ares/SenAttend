@@ -1,0 +1,35 @@
+/**
+ * SENAttend - Paginación para Instructor-Fichas
+ */
+
+.pagination {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.pagination-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #39A900;
+    color: #39A900;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.pagination-link:hover {
+    background: rgba(57, 169, 0, 0.1);
+}
+
+.pagination-link.active {
+    background: #39A900;
+    color: #fff;
+}
+

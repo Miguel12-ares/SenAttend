@@ -13,7 +13,7 @@ if (!isset($user) || $user['rol'] !== 'admin') {
 $title = 'Gestión de Horarios - SENAttend';
 $showHeader = true;
 $currentPage = 'configuracion';
-$additionalStyles = '';
+$additionalStyles = asset_css('css/configuracion/horarios.css');
 $additionalScripts = '';
 
 ob_start();
@@ -275,66 +275,6 @@ document.getElementById('btnGuardar').addEventListener('click', function(e) {
 });
 </script>
 
-<style>
-.breadcrumb {
-    list-style: none;
-    display: flex;
-    gap: 0.5rem;
-}
-
-.breadcrumb-item + .breadcrumb-item::before {
-    content: "/";
-    padding-right: 0.5rem;
-    color: #6c757d;
-}
-
-.breadcrumb-item.active {
-    color: #6c757d;
-}
-
-.card {
-    background: white;
-    border: 1px solid #dee2e6;
-}
-
-.card-header {
-    border-bottom: 1px solid #dee2e6;
-}
-
-.card-body {
-    background: white;
-}
-
-.text-muted {
-    color: #6c757d;
-}
-
-.invalid-feedback {
-    display: none;
-    color: #dc3545;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-}
-
-.was-validated .form-control:invalid ~ .invalid-feedback {
-    display: block;
-}
-
-.badge-warning {
-    background-color: #ffc107;
-    color: #000;
-}
-
-.badge-info {
-    background-color: #17a2b8;
-    color: #fff;
-}
-
-.badge-dark {
-    background-color: #343a40;
-    color: #fff;
-}
-</style>
 
 <?php
 $content = ob_get_clean();

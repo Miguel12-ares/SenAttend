@@ -1,0 +1,54 @@
+/**
+ * SENAttend - Info Grid para QR
+ */
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.info-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.info-value {
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.info-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    background: #e8f5e9;
+    border-radius: 8px;
+    margin-top: 15px;
+    color: #2d5016;
+}
+
+.info-banner .icon {
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    color: inherit;
+}
+
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

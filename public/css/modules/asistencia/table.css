@@ -1,0 +1,92 @@
+/**
+ * SENAttend - Tabla Responsive para Registro de Asistencia
+ */
+
+.tabla-asistencia-responsive {
+    overflow-x: auto;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.tabla-moderna {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.tabla-moderna th {
+    background: var(--sena-azul);
+    color: white;
+    padding: 1rem 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.tabla-moderna td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.tabla-moderna tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.tabla-moderna tbody tr.ya-registrado {
+    background-color: #e8f5e8;
+}
+
+.tabla-moderna tbody tr.sin-registro {
+    background-color: white;
+}
+
+/* Columnas específicas */
+.col-numero { width: 60px; text-align: center; }
+.col-foto { width: 80px; text-align: center; }
+.col-documento { width: 120px; }
+.col-nombre { min-width: 200px; }
+.col-carnet { width: 120px; }
+.col-estado { min-width: 280px; }
+.col-hora { width: 100px; text-align: center; }
+.col-observaciones { min-width: 200px; }
+
+@media (max-width: 768px) {
+    .tabla-moderna {
+        font-size: 0.8rem;
+    }
+    
+    .tabla-moderna th,
+    .tabla-moderna td {
+        padding: 0.5rem 0.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .tabla-asistencia-responsive {
+        font-size: 0.75rem;
+    }
+    
+    /* Ocultar columnas menos importantes en móvil */
+    .col-carnet,
+    .col-hora {
+        display: none;
+    }
+    
+    .col-observaciones {
+        min-width: 150px;
+    }
+}
+
+@media print {
+    .tabla-moderna {
+        font-size: 0.8rem;
+    }
+}
+

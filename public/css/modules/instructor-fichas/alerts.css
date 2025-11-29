@@ -1,0 +1,35 @@
+/**
+ * SENAttend - Alertas para Instructor-Fichas
+ */
+
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.alert-success {
+    background: #d3f9d8;
+    color: #2b8a3e;
+    border-left: 4px solid #2b8a3e;
+}
+
+.alert-error {
+    background: #ffe0e0;
+    color: #c92a2a;
+    border-left: 4px solid #c92a2a;
+}
+
+.alert-warning {
+    background: #fff3cd;
+    color: #856404;
+    border-left: 4px solid #ffc107;
+}
+
+.alert i {
+    font-size: 1.25rem;
+}
+

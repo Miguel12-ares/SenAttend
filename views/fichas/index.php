@@ -182,39 +182,6 @@ ob_start();
     </div>
 </div>
 
-<style>
-.btn-text {
-    display: inline;
-}
-
-@media (max-width: 768px) {
-    .btn-text {
-        display: none;
-    }
-    
-    .btn i {
-        margin: 0;
-    }
-}
-
-.btn-danger {
-    background-color: var(--color-danger);
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #c82333;
-}
-
-.alert-info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border-left: 4px solid var(--color-info);
-    padding: 1rem;
-    border-radius: 8px;
-    margin-top: 1rem;
-}
-</style>
 
 <!-- Modal de Importación CSV -->
 <div id="importModal" class="modal">

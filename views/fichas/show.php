@@ -193,38 +193,6 @@ ob_start();
     }
 </script>
 
-<style>
-.btn-text {
-    display: inline;
-}
-
-@media (max-width: 768px) {
-    .btn-text {
-        display: none;
-    }
-    
-    .btn i {
-        margin: 0;
-    }
-}
-
-.btn-warning {
-    background-color: var(--color-warning);
-    color: var(--color-dark);
-}
-
-.btn-warning:hover {
-    background-color: #e0a800;
-}
-
-.alert-info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border-left: 4px solid var(--color-info);
-    padding: 1rem;
-    border-radius: 8px;
-}
-</style>
 
 <?php
 $content = ob_get_clean();

@@ -1,0 +1,33 @@
+/**
+ * SENAttend - Badges
+ */
+
+.badge {
+    display: inline-block;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.badge-success {
+    background-color: var(--color-success);
+    color: var(--color-white);
+}
+
+.badge-admin {
+    background-color: var(--color-danger);
+    color: var(--color-white);
+}
+
+.badge-instructor {
+    background-color: var(--color-info);
+    color: var(--color-white);
+}
+
+.badge-coordinador {
+    background-color: var(--color-warning);
+    color: var(--color-gray-900);
+}
+

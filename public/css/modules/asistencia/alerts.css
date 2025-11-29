@@ -1,0 +1,36 @@
+/**
+ * SENAttend - Alertas Temporales para Registro de Asistencia
+ */
+
+.alert-temporal {
+    position: relative;
+    animation: slideInDown 0.3s ease-out;
+    margin-bottom: 1rem;
+}
+
+.alert-temporal::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: currentColor;
+    animation: progressBar 5s linear;
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes progressBar {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+

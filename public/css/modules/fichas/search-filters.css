@@ -1,0 +1,46 @@
+/**
+ * SENAttend - Búsqueda y Filtros para Fichas
+ */
+
+.search-filter-bar {
+    background: var(--color-white);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--ficha-card-shadow);
+}
+
+.search-form {
+    width: 100%;
+}
+
+.form-row-filter {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    padding-left: 2.75rem;
+}
+
+.search-box-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-gray-600);
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .form-row-filter {
+        grid-template-columns: 1fr;
+    }
+}
+

@@ -1,0 +1,21 @@
+/**
+ * SENAttend - Layout
+ */
+
+.wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.main-content {
+    flex: 1;
+    padding: 2rem 0;
+}
+

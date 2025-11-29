@@ -1,0 +1,30 @@
+/**
+ * SENAttend - Badges para Fichas
+ */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.badge-success {
+    background-color: rgba(40, 167, 69, 0.15);
+    color: #155724;
+}
+
+.badge-secondary {
+    background-color: rgba(108, 117, 125, 0.15);
+    color: #495057;
+}
+
+.badge-warning {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #856404;
+}
+

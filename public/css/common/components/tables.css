@@ -1,0 +1,198 @@
+/**
+ * SENAttend - Tablas con Acciones
+ * Componente reutilizable para tablas interactivas
+ */
+
+.table-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Contenedor de acciones en celdas de tabla */
+.actions,
+.actions-cell {
+    white-space: nowrap;
+    min-width: 150px;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Botones de acción en tablas - Estilo estandarizado */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: 1px solid var(--color-gray-300);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-size: 0.9rem;
+    color: var(--color-gray-700);
+    flex-shrink: 0;
+}
+
+.btn-action:hover {
+    background-color: var(--color-gray-100);
+    border-color: var(--color-gray-400);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-action:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Variantes de color para botones de acción */
+.btn-action.btn-view {
+    color: var(--color-info);
+    border-color: rgba(23, 162, 184, 0.3);
+}
+
+.btn-action.btn-view:hover {
+    background-color: rgba(23, 162, 184, 0.1);
+    border-color: var(--color-info);
+    color: var(--color-info);
+}
+
+.btn-action.btn-edit {
+    color: var(--color-primary);
+    border-color: rgba(57, 169, 0, 0.3);
+}
+
+.btn-action.btn-edit:hover {
+    background-color: rgba(57, 169, 0, 0.1);
+    border-color: var(--color-primary);
+    color: var(--color-primary-dark);
+}
+
+.btn-action.btn-delete {
+    color: var(--color-danger);
+    border-color: rgba(220, 53, 69, 0.3);
+}
+
+.btn-action.btn-delete:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+/* Iconos dentro de botones de acción */
+.btn-action i,
+.btn-action .fas,
+.btn-action .far,
+.btn-action .fab {
+    font-size: 0.95rem;
+    color: inherit;
+    margin: 0;
+    line-height: 1;
+}
+
+/* Grupo de botones en tablas (para dashboard) */
+.btn-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-group .btn {
+    margin: 0;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.btn-group .btn i,
+.btn-group .btn .fas,
+.btn-group .btn .far {
+    font-size: 0.875rem;
+    margin: 0;
+    line-height: 1;
+}
+
+/* Botones pequeños en tablas (btn-sm) */
+.table .btn-sm {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.table .btn-sm i,
+.table .btn-sm .fas,
+.table .btn-sm .far {
+    font-size: 0.875rem;
+    margin: 0;
+    line-height: 1;
+}
+
+.table .btn-info {
+    background-color: var(--color-info);
+    color: var(--color-white);
+    border: 1px solid var(--color-info);
+}
+
+.table .btn-info:hover {
+    background-color: #138496;
+    border-color: #138496;
+    color: var(--color-white);
+}
+
+.table-checkbox {
+    margin: 0;
+    cursor: pointer;
+}
+
+.table-selected-actions {
+    background: #f0f8ff;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.table-selected-actions.active {
+    display: flex;
+}
+
+.table-selected-count {
+    font-weight: 500;
+}
+
+.table-bulk-actions {
+    display: flex;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .table-selected-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .table-bulk-actions {
+        flex-direction: column;
+    }
+}
+

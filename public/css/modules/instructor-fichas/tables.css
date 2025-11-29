@@ -1,0 +1,60 @@
+/**
+ * SENAttend - Tablas para Instructor-Fichas
+ */
+
+.table-responsive {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table thead {
+    background: #f8f9fa;
+}
+
+.table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #00324D;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.fichas-preview {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.ficha-tag {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: #e7f5ff;
+    color: #0066cc;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    border: 1px solid #b3d9ff;
+}
+
+@media (max-width: 768px) {
+    .table-responsive {
+        overflow-x: auto;
+    }
+}
+

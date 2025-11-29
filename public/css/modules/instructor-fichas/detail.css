@@ -1,0 +1,46 @@
+/**
+ * SENAttend - Vistas de Detalle para Instructor-Fichas
+ */
+
+.detail-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.detail-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.detail-card h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #00324D;
+}
+
+.detail-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.detail-card li {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.detail-section {
+    margin-bottom: 2rem;
+}
+

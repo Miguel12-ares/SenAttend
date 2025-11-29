@@ -7,7 +7,7 @@
 $title = 'Crear Instructor - SENAttend';
 $showHeader = true;
 $currentPage = 'gestion-instructores';
-$additionalStyles = asset_css('css/common/components.css') . asset_css('css/modules/fichas.css');
+$additionalStyles = asset_css('css/common/components.css') . asset_css('css/modules/fichas.css') . asset_css('css/modules/gestion-instructores.css');
 $additionalScripts = '';
 
 ob_start();
@@ -102,94 +102,6 @@ ob_start();
     </div>
 </div>
 
-<style>
-.form-container {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.form-card {
-    background: white;
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1.5rem;
-}
-
-.form-card h2 {
-    font-size: 1.25rem;
-    margin-bottom: 1.5rem;
-    color: var(--color-primary);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: #333;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.form-control {
-    width: 100%;
-    padding: 0.75rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
-}
-
-.form-text {
-    display: block;
-    margin-top: 0.25rem;
-    color: #666;
-    font-size: 0.875rem;
-}
-
-.form-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-}
-
-.alert-info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border-left: 4px solid var(--color-info);
-    padding: 1rem;
-    border-radius: 8px;
-    margin-top: 1rem;
-}
-
-@media (max-width: 768px) {
-    .form-card {
-        padding: 1rem;
-    }
-    
-    .form-actions {
-        flex-direction: column;
-    }
-    
-    .form-actions .btn {
-        width: 100%;
-    }
-}
-</style>
 
 <script>
 // Validación en tiempo real

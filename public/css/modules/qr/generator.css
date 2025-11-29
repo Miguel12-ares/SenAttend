@@ -1,0 +1,55 @@
+/**
+ * SENAttend - Generador QR
+ */
+
+.qr-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+}
+
+.qr-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 2px dashed #dce4ec;
+}
+
+.qr-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.qr-instructions {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #39A900;
+}
+
+.qr-instructions h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.qr-instructions ol {
+    margin-left: 20px;
+    line-height: 1.8;
+    color: #34495e;
+}
+
+.qr-instructions .note {
+    margin-top: 15px;
+    padding: 12px;
+    background: white;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+

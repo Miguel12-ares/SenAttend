@@ -1,0 +1,12 @@
+/**
+ * SENAttend - Footer
+ */
+
+.footer {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: var(--color-white);
+    padding: 1.5rem 0;
+    text-align: center;
+    margin-top: auto;
+}
+

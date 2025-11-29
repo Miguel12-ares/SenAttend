@@ -1,0 +1,95 @@
+/**
+ * SENAttend - Tablas
+ */
+
+.table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+}
+
+.table-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: var(--color-gray-200);
+    border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: var(--color-gray-600);
+    border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gray-900);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--color-white);
+    min-width: 600px;
+}
+
+.table thead {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+.table th {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    white-space: nowrap;
+}
+
+.table td {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-gray-200);
+    vertical-align: middle;
+}
+
+.table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: var(--color-gray-100);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-limit-columns {
+    max-width: 100%;
+}
+
+.table-limit-columns .table {
+    table-layout: auto;
+}
+
+.table-wrapper::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8));
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.table-wrapper.scrollable::after {
+    opacity: 1;
+}
+

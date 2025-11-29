@@ -1,0 +1,163 @@
+/**
+ * SENAttend - Modales para QR
+ */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+}
+
+.modal-container {
+    background: white;
+    border-radius: 16px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-container.modal-show {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.modal-error .modal-header {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.modal-error .modal-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+    color: #212529;
+}
+
+.modal-success .modal-header {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.modal-success .modal-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+    color: #212529;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.modal-body {
+    padding: 30px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #2c3e50;
+}
+
+.modal-body p {
+    margin: 0;
+}
+
+.modal-body p + p {
+    margin-top: 15px;
+}
+
+.modal-timer {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+.modal-timer strong {
+    color: #27ae60;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.modal-footer {
+    padding: 20px 30px 30px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.modal-footer .btn {
+    min-width: 120px;
+    justify-content: center;
+}
+
+@keyframes errorPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+@keyframes successPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.15);
+        opacity: 0.9;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-container {
+        max-width: 90%;
+    }
+    
+    .modal-error .modal-header {
+        padding: 20px;
+    }
+    
+    .modal-error .modal-icon {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .modal-header h3 {
+        font-size: 1.2rem;
+    }
+    
+    .modal-body {
+        padding: 20px;
+        font-size: 1rem;
+    }
+    
+    .modal-footer {
+        padding: 15px 20px 20px;
+    }
+}
+

@@ -1,0 +1,56 @@
+/**
+ * SENAttend - Cards para Fichas
+ */
+
+.card {
+    background: var(--color-white);
+    border-radius: 12px;
+    box-shadow: var(--ficha-card-shadow);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: var(--ficha-transition);
+}
+
+.card:hover {
+    box-shadow: var(--ficha-card-hover-shadow);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: var(--color-white);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.card-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-header h2 i {
+    font-size: 1.1rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+}
+

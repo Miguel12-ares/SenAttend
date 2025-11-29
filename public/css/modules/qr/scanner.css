@@ -1,0 +1,41 @@
+/**
+ * SENAttend - Escáner QR
+ */
+
+.scanner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+#reader {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+    min-height: 300px;
+}
+
+.scanner-controls {
+    display: flex;
+    gap: 15px;
+}
+
+.scan-result {
+    margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+    .scanner-controls {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .scanner-controls .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+

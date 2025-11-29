@@ -123,21 +123,6 @@ ob_start();
     });
 </script>
 
-<style>
-.btn-text {
-    display: inline;
-}
-
-@media (max-width: 768px) {
-    .btn-text {
-        display: none;
-    }
-    
-    .btn i {
-        margin: 0;
-    }
-}
-</style>
 
 <?php
 $content = ob_get_clean();

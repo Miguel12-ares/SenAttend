@@ -1,0 +1,77 @@
+/**
+ * SENAttend - Iconos FontAwesome
+ */
+
+/* Estilos globales para iconos: colores neutros y tamaños naturales */
+.fas, .far, .fab, .fa-solid, .fa-regular, .fa-brands {
+    color: inherit;
+    font-size: inherit;
+}
+
+/* Iconos en botones - tamaño pequeño y natural */
+.btn .fas, .btn .far, .btn .fab,
+.btn i[class*="fa-"] {
+    font-size: 0.875rem;
+    color: inherit;
+    margin-right: 0.25rem;
+}
+
+/* Iconos en headers y títulos */
+h1 .fas, h1 .far, h1 .fab,
+h2 .fas, h2 .far, h2 .fab,
+h3 .fas, h3 .far, h3 .fab,
+h4 .fas, h4 .far, h4 .fab {
+    font-size: 1em;
+    color: inherit;
+    margin-right: 0.5rem;
+}
+
+/* Iconos en tablas - tamaño pequeño */
+.table .fas, .table .far, .table .fab,
+.table i[class*="fa-"] {
+    font-size: 0.875rem;
+    color: inherit;
+    margin-right: 0.375rem;
+    vertical-align: middle;
+}
+
+/* Iconos en acciones de tabla */
+.btn-action .fas, .btn-action .far,
+.btn-action i[class*="fa-"] {
+    font-size: 1rem;
+    color: inherit;
+    margin: 0;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Iconos en alertas - heredan color del contexto */
+.alert .fas, .alert .far, .alert .fab {
+    font-size: 1rem;
+    color: inherit;
+}
+
+/* Iconos en badges - tamaño pequeño */
+.badge .fas, .badge .far, .badge .fab {
+    font-size: 0.75rem;
+    margin-right: 0.25rem;
+}
+
+/* Iconos en listas */
+ul .fas, ul .far, ul .fab,
+li .fas, li .far, li .fab {
+    font-size: 0.875rem;
+    color: var(--color-gray-700);
+    margin-right: 0.5rem;
+}
+
+/* Iconos en header - color blanco para contraste */
+.header .fas, .header .far, .header .fab {
+    color: var(--color-white);
+}
+
+/* Iconos en footer - color blanco */
+.footer .fas, .footer .far, .footer .fab {
+    color: var(--color-white);
+}
+

@@ -1,0 +1,93 @@
+/**
+ * SENAttend - Historial QR
+ */
+
+.historial-container {
+    max-height: 500px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.historial-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 4px solid;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.historial-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.historial-item.success {
+    border-left-color: #27ae60;
+}
+
+.historial-item.warning {
+    border-left-color: #f39c12;
+}
+
+.historial-item.danger {
+    border-left-color: #e74c3c;
+}
+
+.historial-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.historial-numero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #ecf0f1;
+    font-weight: 700;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.historial-datos {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.historial-doc {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+}
+
+.historial-estado {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.historial-hora {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+@media (max-width: 768px) {
+    .historial-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .historial-estado {
+        align-items: flex-start;
+    }
+}
+

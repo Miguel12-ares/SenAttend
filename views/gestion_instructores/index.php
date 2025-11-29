@@ -7,7 +7,7 @@
 $title = 'Gestión de Instructores - SENAttend';
 $showHeader = true;
 $currentPage = 'gestion-instructores';
-$additionalStyles = asset_css('css/common/components.css') . asset_css('css/modules/fichas.css');
+$additionalStyles = asset_css('css/common/components.css') . asset_css('css/modules/fichas.css') . asset_css('css/modules/gestion-instructores.css');
 $additionalScripts = asset_js('js/common/components.js');
 
 ob_start();
@@ -204,30 +204,6 @@ document.getElementById('deleteModal').addEventListener('click', function(e) {
 });
 </script>
 
-<style>
-.btn-text {
-    display: inline;
-}
-
-@media (max-width: 768px) {
-    .btn-text {
-        display: none;
-    }
-    
-    .btn i {
-        margin: 0;
-    }
-}
-
-.btn-danger {
-    background-color: var(--color-danger);
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #c82333;
-}
-</style>
 
 <?php
 $content = ob_get_clean();

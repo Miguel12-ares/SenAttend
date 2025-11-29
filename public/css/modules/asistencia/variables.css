@@ -1,0 +1,21 @@
+/**
+ * SENAttend - Variables para Registro de Asistencia
+ */
+
+:root {
+    --sena-verde: #39A900;
+    --sena-verde-oscuro: #2d8600;
+    --sena-azul: #00324D;
+    --sena-azul-claro: #1a4a6b;
+    --color-presente: #28a745;
+    --color-ausente: #dc3545;
+    --color-tardanza: #ffc107;
+    --color-warning: #fd7e14;
+    --color-info: #17a2b8;
+    --color-light: #f8f9fa;
+    --color-dark: #343a40;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+}
+

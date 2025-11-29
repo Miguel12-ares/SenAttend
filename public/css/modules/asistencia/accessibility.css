@@ -1,0 +1,35 @@
+/**
+ * SENAttend - Accesibilidad para Registro de Asistencia
+ */
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus visible para navegación por teclado */
+.form-control:focus-visible,
+.btn-guardar:focus-visible,
+.radio-label:focus-visible {
+    outline: 2px solid var(--sena-verde);
+    outline-offset: 2px;
+}
+
+/* Alto contraste */
+@media (prefers-contrast: high) {
+    :root {
+        --box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .tabla-moderna th {
+        border: 2px solid white;
+    }
+    
+    .tabla-moderna td {
+        border-bottom: 2px solid #ddd;
+    }
+}
+

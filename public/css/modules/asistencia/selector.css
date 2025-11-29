@@ -1,0 +1,69 @@
+/**
+ * SENAttend - Selector Section para Registro de Asistencia
+ */
+
+.selector-section {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--box-shadow);
+    border-left: 4px solid var(--sena-verde);
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: end;
+}
+
+.form-group-inline {
+    flex: 1;
+    min-width: 200px;
+}
+
+.form-group-inline label {
+    display: block;
+    font-weight: 600;
+    color: var(--sena-azul);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.select-wrapper {
+    position: relative;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+    background: white;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--sena-verde);
+    box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-group-inline {
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .selector-section {
+        padding: 1rem;
+    }
+}
+

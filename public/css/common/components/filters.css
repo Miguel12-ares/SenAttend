@@ -1,0 +1,65 @@
+/**
+ * SENAttend - Filtros Avanzados
+ * Componente reutilizable para paneles de filtrado
+ */
+
+.filter-panel {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.filter-panel-title {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.filter-toggle {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.filter-panel-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.filter-panel-body.collapsed {
+    display: none;
+}
+
+.filter-actions {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+    .filter-panel-body {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-actions {
+        flex-direction: column;
+        padding: 1rem;
+    }
+
+    .filter-actions .btn {
+        width: 100%;
+    }
+}
+

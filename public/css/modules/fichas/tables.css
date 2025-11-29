@@ -1,0 +1,90 @@
+/**
+ * SENAttend - Tablas para Fichas
+ */
+
+.table-container {
+    background: var(--color-white);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--ficha-card-shadow);
+    overflow: hidden;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: -0.5rem;
+    padding: 0.5rem;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.table thead {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+}
+
+.table th {
+    color: var(--color-white);
+    padding: 1rem 1.25rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.table th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.table th:last-child {
+    border-top-right-radius: 8px;
+}
+
+.table td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--color-gray-200);
+    color: var(--color-gray-900);
+}
+
+.table tbody tr {
+    transition: var(--ficha-transition);
+}
+
+.table tbody tr:hover {
+    background-color: rgba(57, 169, 0, 0.05);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+@media (max-width: 768px) {
+    .table-container {
+        padding: 1rem;
+    }
+
+    .table {
+        min-width: 100%;
+        font-size: 0.9rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.75rem 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .table th,
+    .table td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.85rem;
+    }
+}
+

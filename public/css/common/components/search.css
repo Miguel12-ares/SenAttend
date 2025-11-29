@@ -1,0 +1,45 @@
+/**
+ * SENAttend - Búsqueda Dinámica
+ * Componente reutilizable para búsqueda con filtrado
+ */
+
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    padding-right: 40px;
+}
+
+.search-box-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+    font-size: 0.9rem;
+}
+
+.search-box-clear {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px;
+    display: none;
+}
+
+.search-box input:not(:placeholder-shown) ~ .search-box-clear {
+    display: block;
+}
+
+.search-box-clear:hover {
+    color: #333;
+}
+

@@ -1,0 +1,79 @@
+/**
+ * SENAttend - Info Grid para Fichas
+ */
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    justify-content: center;
+    padding: 0.5rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, var(--color-white) 0%, var(--color-gray-100) 100%);
+    border-radius: 10px;
+    border-left: 4px solid var(--color-primary);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: var(--ficha-transition);
+    min-height: 100px;
+    justify-content: center;
+}
+
+.info-item:hover {
+    background: linear-gradient(135deg, rgba(57, 169, 0, 0.03) 0%, rgba(57, 169, 0, 0.08) 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(57, 169, 0, 0.15);
+    border-left-color: var(--color-primary-dark);
+}
+
+.info-item.full-width {
+    grid-column: 1 / -1;
+    max-width: 100%;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--color-gray-600);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-label i {
+    font-size: 0.85rem;
+    color: var(--color-primary);
+}
+
+.info-value {
+    font-size: 1.1rem;
+    color: var(--color-gray-900);
+    font-weight: 500;
+}
+
+.info-value strong {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+        padding: 0;
+    }
+    
+    .info-item {
+        min-height: auto;
+    }
+}
+

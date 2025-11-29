@@ -1,0 +1,18 @@
+/**
+ * SENAttend - Avatar Placeholder para Registro de Asistencia
+ */
+
+.avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--sena-verde);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin: 0 auto;
+}
+

@@ -1,0 +1,40 @@
+/**
+ * SENAttend - Variables y Reset
+ */
+
+:root {
+    --color-primary: #39A900;
+    --color-primary-dark: #2d8600;
+    --color-primary-light: #4bc200;
+    --color-secondary: #00324D;
+    --color-success: #28a745;
+    --color-danger: #dc3545;
+    --color-warning: #ffc107;
+    --color-info: #17a2b8;
+    --color-light: #f8f9fa;
+    --color-dark: #343a40;
+    --color-white: #ffffff;
+    --color-gray-100: #f8f9fa;
+    --color-gray-200: #e9ecef;
+    --color-gray-300: #dee2e6;
+    --color-gray-600: #6c757d;
+    --color-gray-900: #212529;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    line-height: 1.6;
+    color: var(--color-gray-900);
+    background-color: var(--color-gray-100);
+}
+
