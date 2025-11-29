@@ -18,6 +18,7 @@ use App\Controllers\HomeController;
 use App\Controllers\ProfileController;
 use App\Controllers\QRController;
 use App\Controllers\WelcomeController;
+use App\Gestion_reportes\Controllers\ReportesController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\PermissionMiddleware;
 use App\Repositories\UserRepository;
@@ -159,6 +160,12 @@ $routes = [
         // Perfil
         '/perfil' => [
             'controller' => ProfileController::class,
+            'action' => 'index',
+            'middleware' => ['auth']
+        ],
+        // Gestión de Reportes - solo instructores (protegido además por RBAC y verificación en controlador)
+        '/gestion-reportes' => [
+            'controller' => ReportesController::class,
             'action' => 'index',
             'middleware' => ['auth']
         ],
@@ -363,6 +370,12 @@ $routes = [
         '/configuracion/horarios/actualizar' => [
             'controller' => \App\Controllers\TurnoConfigController::class,
             'action' => 'actualizar',
+            'middleware' => ['auth']
+        ],
+        // Gestión de Reportes - generación (AJAX)
+        '/gestion-reportes/generar' => [
+            'controller' => ReportesController::class,
+            'action' => 'generar',
             'middleware' => ['auth']
         ],
     ],
@@ -665,6 +678,24 @@ try {
             $instructorService,
             $instructorRepository,
             $authService
+        );
+    } elseif ($controllerClass === ReportesController::class) {
+        $asistenciaRepository = new \App\Repositories\AsistenciaRepository();
+        $fichaRepository = new \App\Repositories\FichaRepository();
+        $userRepository = new \App\Repositories\UserRepository();
+        $instructorFichaRepository = new \App\Repositories\InstructorFichaRepository();
+        $reportGenerationService = new \App\Gestion_reportes\Services\ReportGenerationService(
+            $asistenciaRepository,
+            $fichaRepository,
+            $userRepository,
+            $instructorFichaRepository
+        );
+        $excelExportService = new \App\Gestion_reportes\Services\ExcelExportService();
+        $controller = new $controllerClass(
+            $authService,
+            $session,
+            $reportGenerationService,
+            $excelExportService
         );
     } else {
         throw new RuntimeException("Unknown controller: {$controllerClass}");

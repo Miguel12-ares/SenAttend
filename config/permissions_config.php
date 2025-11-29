@@ -66,6 +66,8 @@ return [
 
                 // Perfil
                 '/perfil' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR, ROLE_ESTUDIANTE],
+                // Gestión de Reportes - solo instructores
+                '/gestion-reportes' => [ROLE_INSTRUCTOR],
 
                 // Gestión de Asignaciones Instructor-Ficha
                 // Comentario en el controlador indica: solo Admin y Administrativo (y coordinador)
@@ -140,6 +142,8 @@ return [
 
                 // Configuración de turnos (solo admin)
                 '/configuracion/horarios/actualizar' => [ROLE_ADMIN],
+                // Gestión de Reportes - generación de exportes vía AJAX (solo instructores)
+                '/gestion-reportes/generar' => [ROLE_INSTRUCTOR],
             ],
             // PUT y DELETE se manejan en 'patterns' porque tienen parámetros dinámicos
         ],

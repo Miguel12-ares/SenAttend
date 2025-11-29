@@ -68,6 +68,23 @@
                             </div>
                         </div>
 
+                        <!-- Exportar Reportes -->
+                        <?php if ($user['rol'] === 'instructor'): ?>
+                        <div class="action-card-sena">
+                            <div class="action-icon-sena">
+                                <i class="fas fa-file-excel"></i>
+                            </div>
+                            <h4>Exportar Reportes</h4>
+                            <p>Generar reportes de asistencia en formato Excel para tus fichas.</p>
+                            <div class="action-buttons">
+                                <a href="/gestion-reportes" class="btn-sena">
+                                    <i class="fas fa-file-export"></i>
+                                    Exportar Reportes
+                                </a>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+
                         <?php endif; ?>
 
 
