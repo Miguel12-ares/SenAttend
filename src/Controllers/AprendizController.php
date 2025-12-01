@@ -141,12 +141,16 @@ class AprendizController
 
         // Crear aprendiz
         try {
+            // Generar contraseña por defecto (hash de primeros 5 dígitos del documento)
+            $passwordHash = password_hash(substr(trim($documento), 0, 5), PASSWORD_DEFAULT);
+
             $aprendizId = $this->aprendizRepository->create([
                 'documento' => $documento,
                 'nombre' => $nombre,
                 'apellido' => $apellido,
                 'email' => $email,
                 'estado' => $estado,
+                'password_hash' => $passwordHash,
             ]);
 
             // Vincular con ficha si se seleccionó
@@ -319,6 +323,7 @@ class AprendizController
                     'apellido' => trim($apellido),
                     'email' => !empty($email) ? trim($email) : null,
                     'estado' => 'activo',
+                    'password_hash' => password_hash(substr(trim($documento), 0, 5), PASSWORD_DEFAULT),
                 ]);
                 
                 // Vincular con ficha

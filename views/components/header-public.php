@@ -31,9 +31,16 @@ $currentPath = rtrim($currentPath, '/') ?: '/';
                     <li><a href="/home" class="nav-link-public <?= $currentPath === '/home' ? 'active' : '' ?>">
                         <i class="fas fa-qrcode"></i> Generar QR
                     </a></li>
-                    <li><a href="/login" class="btn-login-public">
-                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-                    </a></li>
+                    <li>
+                        <a href="/login" class="btn-login-public <?= $currentPath === '/login' ? 'active' : '' ?>">
+                            <i class="fas fa-user-shield"></i> Ingreso Instructores/Admin
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/aprendiz/login" class="btn-login-public btn-login-secondary <?= $currentPath === '/aprendiz/login' ? 'active' : '' ?>">
+                            <i class="fas fa-user-graduate"></i> Ingreso Aprendices
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </div>

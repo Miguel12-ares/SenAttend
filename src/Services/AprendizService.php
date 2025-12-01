@@ -23,6 +23,16 @@ class AprendizService
     }
 
     /**
+     * Genera el hash de contraseña del aprendiz a partir de su documento
+     * Regla: hash de los primeros 5 dígitos del documento.
+     */
+    private function generarPasswordHashDesdeDocumento(string $documento): string
+    {
+        $base = substr(trim($documento), 0, 5);
+        return password_hash($base, PASSWORD_DEFAULT);
+    }
+
+    /**
      * Valida los datos de un aprendiz antes de crear/actualizar
      * @return array Array de errores (vacío si no hay errores)
      */
@@ -97,12 +107,15 @@ class AprendizService
             // Iniciar transacción
             \App\Database\Connection::beginTransaction();
 
+            $passwordHash = $this->generarPasswordHashDesdeDocumento($data['documento']);
+
             $aprendizId = $this->aprendizRepository->create([
                 'documento' => trim($data['documento']),
                 'nombre' => ucwords(strtolower(trim($data['nombre']))),
                 'apellido' => ucwords(strtolower(trim($data['apellido']))),
                 'email' => !empty($data['email']) ? trim($data['email']) : null,
                 'estado' => $data['estado'] ?? 'activo',
+                'password_hash' => $passwordHash,
             ]);
 
             // Vincular con ficha si se proporcionó

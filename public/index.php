@@ -13,6 +13,8 @@ require_once __DIR__ . '/../config/config.php';
 
 // Importar clases necesarias
 use App\Controllers\AuthController;
+use App\Controllers\AprendizAuthController;
+use App\GestionEquipos\Controllers\AprendizEquipoController;
 use App\Controllers\DashboardController;
 use App\Controllers\HomeController;
 use App\Controllers\ProfileController;
@@ -27,6 +29,13 @@ use App\Repositories\AprendizRepository;
 use App\Repositories\CodigoQRRepository;
 use App\Repositories\InstructorFichaRepository;
 use App\Services\AuthService;
+use App\Services\AprendizAuthService;
+use App\GestionEquipos\Repositories\AprendizEquipoRepository;
+use App\GestionEquipos\Repositories\EquipoRepository;
+use App\GestionEquipos\Repositories\QrEquipoRepository;
+use App\GestionEquipos\Services\AprendizEquipoService;
+use App\GestionEquipos\Services\EquipoRegistroService;
+use App\GestionEquipos\Services\EquipoQRService;
 use App\Services\EmailService;
 use App\Services\QRService;
 use App\Session\SessionManager;
@@ -65,6 +74,13 @@ $instructorFichaRepository = new InstructorFichaRepository();
 $asistenciaRepository = new \App\Repositories\AsistenciaRepository();
 $turnoConfigRepository = new \App\Repositories\TurnoConfigRepository();
 $authService = new AuthService($userRepository, $session);
+$aprendizAuthService = new AprendizAuthService($aprendizRepository, $session);
+$aprendizEquipoRepository = new AprendizEquipoRepository();
+$equipoRepository = new EquipoRepository();
+$qrEquipoRepository = new QrEquipoRepository();
+$aprendizEquipoService = new AprendizEquipoService($aprendizEquipoRepository);
+$equipoRegistroService = new EquipoRegistroService($equipoRepository, $aprendizEquipoRepository, $qrEquipoRepository);
+$equipoQRService = new EquipoQRService($qrEquipoRepository);
 $emailService = new EmailService();
 $qrService = new QRService($codigoQRRepository, $aprendizRepository, $emailService);
 $turnoConfigService = new \App\Services\TurnoConfigService($turnoConfigRepository);
@@ -95,6 +111,21 @@ $routes = [
         '/login' => [
             'controller' => AuthController::class,
             'action' => 'viewLogin',
+            'middleware' => []
+        ],
+        '/aprendiz/login' => [
+            'controller' => AprendizAuthController::class,
+            'action' => 'viewLogin',
+            'middleware' => []
+        ],
+        '/aprendiz/panel' => [
+            'controller' => AprendizAuthController::class,
+            'action' => 'panel',
+            'middleware' => []
+        ],
+        '/aprendiz/equipos/crear' => [
+            'controller' => AprendizEquipoController::class,
+            'action' => 'create',
             'middleware' => []
         ],
         '/auth/logout' => [
@@ -254,6 +285,16 @@ $routes = [
         '/auth/login' => [
             'controller' => AuthController::class,
             'action' => 'login',
+            'middleware' => []
+        ],
+        '/aprendiz/auth/login' => [
+            'controller' => AprendizAuthController::class,
+            'action' => 'login',
+            'middleware' => []
+        ],
+        '/aprendiz/equipos' => [
+            'controller' => AprendizEquipoController::class,
+            'action' => 'store',
             'middleware' => []
         ],
         // Perfil
@@ -468,6 +509,12 @@ $dynamicRoutes = [
             'middleware' => ['auth'],
             'params' => ['id']
         ],
+        '/aprendiz/equipos/(\d+)/qr' => [
+            'controller' => AprendizEquipoController::class,
+            'action' => 'showQR',
+            'middleware' => [],
+            'params' => ['equipoId']
+        ],
     ],
     'POST' => [
         '/fichas/(\d+)' => [
@@ -605,6 +652,10 @@ try {
     // Inyectar dependencias según el controlador
     if ($controllerClass === AuthController::class) {
         $controller = new $controllerClass($authService, $session);
+    } elseif ($controllerClass === AprendizAuthController::class) {
+        $controller = new $controllerClass($aprendizAuthService, $session, $aprendizEquipoService);
+    } elseif ($controllerClass === AprendizEquipoController::class) {
+        $controller = new $controllerClass($aprendizAuthService, $equipoRegistroService, $equipoQRService, $session);
     } elseif ($controllerClass === DashboardController::class) {
         $controller = new $controllerClass(
             $authService,
