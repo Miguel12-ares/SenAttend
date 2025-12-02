@@ -25,6 +25,12 @@ if (!defined('ROLE_ADMINISTRATIVO')) {
 if (!defined('ROLE_ESTUDIANTE')) {
     define('ROLE_ESTUDIANTE', 'estudiante');
 }
+if (!defined('ROLE_PORTERO')) {
+    define('ROLE_PORTERO', 'portero');
+}
+if (!defined('ROLE_APRENDIZ')) {
+    define('ROLE_APRENDIZ', 'aprendiz');
+}
 
 return [
     /**
@@ -65,7 +71,7 @@ return [
                 '/qr/escanear' => [ROLE_INSTRUCTOR],
 
                 // Perfil
-                '/perfil' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR, ROLE_ESTUDIANTE],
+                '/perfil' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR, ROLE_ESTUDIANTE, ROLE_PORTERO, ROLE_APRENDIZ],
                 // Gestión de Reportes - solo instructores
                 '/gestion-reportes' => [ROLE_INSTRUCTOR],
 
@@ -99,13 +105,22 @@ return [
                 // APIs de configuración de turnos: lectura para staff (no estudiantes)
                 '/api/configuracion/turnos' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR, ROLE_ADMINISTRATIVO],
                 '/api/configuracion/turno-actual' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR, ROLE_ADMINISTRATIVO],
+
+                // Módulo Portero - Gestión de equipos
+                '/portero/panel' => [ROLE_PORTERO],
+                '/portero/escanear' => [ROLE_PORTERO],
+
+                // Panel de Aprendiz
+                '/aprendiz/panel' => [ROLE_APRENDIZ],
+                '/aprendiz/equipos' => [ROLE_APRENDIZ],
+                '/aprendiz/equipos/crear' => [ROLE_APRENDIZ],
             ],
             'POST' => [
                 // Auth
                 '/auth/login' => [],
 
                 // Perfil
-                '/perfil/cambiar-password' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR, ROLE_ESTUDIANTE, ROLE_ADMINISTRATIVO],
+                '/perfil/cambiar-password' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR, ROLE_ESTUDIANTE, ROLE_PORTERO, ROLE_APRENDIZ],
 
                 // API pública de validación de aprendiz (sin login)
                 '/api/public/aprendiz/validar' => [],
@@ -144,6 +159,13 @@ return [
                 '/configuracion/horarios/actualizar' => [ROLE_ADMIN],
                 // Gestión de Reportes - generación de exportes vía AJAX (solo instructores)
                 '/gestion-reportes/generar' => [ROLE_INSTRUCTOR],
+
+                // API Portero - Gestión de equipos
+                '/api/portero/procesar-qr' => [ROLE_PORTERO],
+                '/api/portero/ingresos-activos' => [ROLE_PORTERO],
+
+                // Aprendiz - Gestión de equipos
+                '/aprendiz/equipos' => [ROLE_APRENDIZ],
             ],
             // PUT y DELETE se manejan en 'patterns' porque tienen parámetros dinámicos
         ],

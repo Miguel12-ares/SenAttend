@@ -57,7 +57,7 @@
                             <div class="profile-info-box">
                                 <div class="info-box-content">
                                     <span class="info-label">Nombre Completo</span>
-                                    <span class="info-value"><?= htmlspecialchars($user['nombre'] ?? 'N/A') ?></span>
+                                    <span class="info-value"><?= htmlspecialchars(($user['nombre'] ?? '') . ' ' . ($user['apellido'] ?? '')) ?></span>
                                 </div>
                             </div>
 

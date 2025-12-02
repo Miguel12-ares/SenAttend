@@ -1,5 +1,6 @@
 <?php
-/** @var array $aprendiz */
+/** @var array $user */
+/** @var array $old */
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -15,8 +16,7 @@
 <body>
     <div class="wrapper">
         <?php 
-        $user = null;
-        $currentPage = 'aprendiz-equipo-create';
+        $currentPage = 'aprendiz-equipos-crear';
         require __DIR__ . '/../../components/header.php'; 
         ?>
 
@@ -29,8 +29,8 @@
                             <p>Vincula tu equipo portátil para gestionar sus ingresos y salidas del CTA.</p>
                         </div>
                         <div class="aprendiz-actions">
-                            <a href="/aprendiz/panel" class="btn btn-outline btn-sm">
-                                <i class="fas fa-arrow-left"></i> Volver al panel
+                            <a href="/aprendiz/equipos" class="btn btn-outline btn-sm">
+                                <i class="fas fa-arrow-left"></i> Volver a Mis Equipos
                             </a>
                         </div>
                     </section>

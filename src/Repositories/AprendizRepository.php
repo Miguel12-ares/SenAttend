@@ -86,15 +86,21 @@ class AprendizRepository
 
     /**
      * Busca un aprendiz por ID
+     * @param bool $includePassword Si es true, incluye password_hash en el resultado
      */
-    public function findById(int $id): ?array
+    public function findById(int $id, bool $includePassword = false): ?array
     {
         try {
+            $fields = 'id, documento, nombre, apellido, email, estado';
+            if ($includePassword) {
+                $fields .= ', password_hash';
+            }
+            
             $stmt = Connection::prepare(
-                'SELECT id, documento, nombre, apellido, email, estado 
+                "SELECT {$fields} 
                  FROM aprendices 
                  WHERE id = :id 
-                 LIMIT 1'
+                 LIMIT 1"
             );
 
             $stmt->execute(['id' => $id]);

@@ -57,6 +57,20 @@ $currentPage = $currentPage ?? '';
                         <li><a href="/qr/escanear" class="<?= $currentPage === 'qr-escanear' ? 'active' : '' ?>">
                             <i class="fas fa-camera"></i> Escanear QR
                         </a></li>
+                    <?php elseif ($user['rol'] === 'portero'): ?>
+                        <li><a href="/portero/panel" class="<?= $currentPage === 'portero-panel' ? 'active' : '' ?>">
+                            <i class="fas fa-home"></i> Panel
+                        </a></li>
+                        <li><a href="/portero/escanear" class="<?= $currentPage === 'portero-escanear' ? 'active' : '' ?>">
+                            <i class="fas fa-qrcode"></i> Escanear QR
+                        </a></li>
+                    <?php elseif ($user['rol'] === 'aprendiz'): ?>
+                        <li><a href="/aprendiz/panel" class="<?= $currentPage === 'aprendiz-panel' ? 'active' : '' ?>">
+                            <i class="fas fa-home"></i> Panel
+                        </a></li>
+                        <li><a href="/aprendiz/equipos" class="<?= in_array($currentPage, ['aprendiz-equipos', 'aprendiz-equipos-crear', 'aprendiz-equipo-qr']) ? 'active' : '' ?>">
+                            <i class="fas fa-laptop"></i> Mis Equipos
+                        </a></li>
                     <?php endif; ?>
                 </ul>
                 

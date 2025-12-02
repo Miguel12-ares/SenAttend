@@ -33,9 +33,13 @@ use App\Services\AprendizAuthService;
 use App\GestionEquipos\Repositories\AprendizEquipoRepository;
 use App\GestionEquipos\Repositories\EquipoRepository;
 use App\GestionEquipos\Repositories\QrEquipoRepository;
+use App\GestionEquipos\Repositories\IngresoEquipoRepository;
+use App\GestionEquipos\Repositories\AnomaliaEquipoRepository;
 use App\GestionEquipos\Services\AprendizEquipoService;
 use App\GestionEquipos\Services\EquipoRegistroService;
 use App\GestionEquipos\Services\EquipoQRService;
+use App\GestionEquipos\Services\PorteroIngresoService;
+use App\GestionEquipos\Controllers\PorteroController;
 use App\Services\EmailService;
 use App\Services\QRService;
 use App\Session\SessionManager;
@@ -73,14 +77,17 @@ $codigoQRRepository = new CodigoQRRepository();
 $instructorFichaRepository = new InstructorFichaRepository();
 $asistenciaRepository = new \App\Repositories\AsistenciaRepository();
 $turnoConfigRepository = new \App\Repositories\TurnoConfigRepository();
-$authService = new AuthService($userRepository, $session);
+$authService = new AuthService($userRepository, $aprendizRepository, $session);
 $aprendizAuthService = new AprendizAuthService($aprendizRepository, $session);
 $aprendizEquipoRepository = new AprendizEquipoRepository();
 $equipoRepository = new EquipoRepository();
 $qrEquipoRepository = new QrEquipoRepository();
+$ingresoEquipoRepository = new IngresoEquipoRepository();
+$anomaliaEquipoRepository = new AnomaliaEquipoRepository();
 $aprendizEquipoService = new AprendizEquipoService($aprendizEquipoRepository);
 $equipoRegistroService = new EquipoRegistroService($equipoRepository, $aprendizEquipoRepository, $qrEquipoRepository);
 $equipoQRService = new EquipoQRService($qrEquipoRepository);
+$porteroIngresoService = new PorteroIngresoService($qrEquipoRepository, $ingresoEquipoRepository, $anomaliaEquipoRepository, $equipoRepository, $aprendizRepository);
 $emailService = new EmailService();
 $qrService = new QRService($codigoQRRepository, $aprendizRepository, $emailService);
 $turnoConfigService = new \App\Services\TurnoConfigService($turnoConfigRepository);
@@ -113,14 +120,19 @@ $routes = [
             'action' => 'viewLogin',
             'middleware' => []
         ],
-        '/aprendiz/login' => [
-            'controller' => AprendizAuthController::class,
-            'action' => 'viewLogin',
-            'middleware' => []
-        ],
         '/aprendiz/panel' => [
             'controller' => AprendizAuthController::class,
             'action' => 'panel',
+            'middleware' => []
+        ],
+        '/aprendiz/logout' => [
+            'controller' => AuthController::class,
+            'action' => 'logout',
+            'middleware' => []
+        ],
+        '/aprendiz/equipos' => [
+            'controller' => AprendizEquipoController::class,
+            'action' => 'index',
             'middleware' => []
         ],
         '/aprendiz/equipos/crear' => [
@@ -269,6 +281,17 @@ $routes = [
             'action' => 'index',
             'middleware' => ['auth']
         ],
+        // Portero - Gestión de equipos
+        '/portero/panel' => [
+            'controller' => PorteroController::class,
+            'action' => 'panel',
+            'middleware' => ['auth']
+        ],
+        '/portero/escanear' => [
+            'controller' => PorteroController::class,
+            'action' => 'escanear',
+            'middleware' => ['auth']
+        ],
         // API Configuración de Turnos
         '/api/configuracion/turnos' => [
             'controller' => \App\Controllers\TurnoConfigController::class,
@@ -280,15 +303,16 @@ $routes = [
             'action' => 'apiTurnoActual',
             'middleware' => ['auth']
         ],
+        // API Portero
+        '/api/portero/ingresos-activos' => [
+            'controller' => PorteroController::class,
+            'action' => 'apiIngresosActivos',
+            'middleware' => ['auth']
+        ],
     ],
     'POST' => [
         '/auth/login' => [
             'controller' => AuthController::class,
-            'action' => 'login',
-            'middleware' => []
-        ],
-        '/aprendiz/auth/login' => [
-            'controller' => AprendizAuthController::class,
             'action' => 'login',
             'middleware' => []
         ],
@@ -417,6 +441,18 @@ $routes = [
         '/gestion-reportes/generar' => [
             'controller' => ReportesController::class,
             'action' => 'generar',
+            'middleware' => ['auth']
+        ],
+        // API Portero - Procesar QR
+        '/api/portero/procesar-qr' => [
+            'controller' => PorteroController::class,
+            'action' => 'apiProcesarQR',
+            'middleware' => ['auth']
+        ],
+        // Portero - Procesar QR (formulario)
+        '/portero/procesar-qr' => [
+            'controller' => PorteroController::class,
+            'action' => 'procesarQR',
             'middleware' => ['auth']
         ],
     ],
@@ -653,9 +689,11 @@ try {
     if ($controllerClass === AuthController::class) {
         $controller = new $controllerClass($authService, $session);
     } elseif ($controllerClass === AprendizAuthController::class) {
-        $controller = new $controllerClass($aprendizAuthService, $session, $aprendizEquipoService);
+        $controller = new $controllerClass($authService, $session, $aprendizEquipoService);
     } elseif ($controllerClass === AprendizEquipoController::class) {
-        $controller = new $controllerClass($aprendizAuthService, $equipoRegistroService, $equipoQRService, $session);
+        $controller = new $controllerClass($authService, $equipoRegistroService, $equipoQRService, $aprendizEquipoService, $session);
+    } elseif ($controllerClass === PorteroController::class) {
+        $controller = new $controllerClass($authService, $porteroIngresoService, $session);
     } elseif ($controllerClass === DashboardController::class) {
         $controller = new $controllerClass(
             $authService,

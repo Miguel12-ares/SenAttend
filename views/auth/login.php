@@ -17,6 +17,7 @@
             <div class="login-header">
                 <h1>SENAttend</h1>
                 <p>Sistema de Asistencia SENA</p>
+                <p class="login-subtitle">Acceso para personal y aprendices</p>
             </div>
 
             <?php if (isset($error) && $error): ?>

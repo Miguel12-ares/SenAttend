@@ -1,5 +1,5 @@
 <?php
-/** @var array $aprendiz */
+/** @var array $user */
 /** @var array $qrInfo */
 ?>
 <!DOCTYPE html>
@@ -16,7 +16,6 @@
 <body>
     <div class="wrapper">
         <?php 
-        $user = null;
         $currentPage = 'aprendiz-equipo-qr';
         require __DIR__ . '/../../components/header.php'; 
         ?>
@@ -30,23 +29,22 @@
                             <p>Puedes descargar o capturar este código para presentarlo en el CTA.</p>
                         </div>
                         <div class="aprendiz-actions">
-                            <a href="/aprendiz/panel" class="btn btn-outline btn-sm">
-                                <i class="fas fa-arrow-left"></i> Volver al panel
+                            <a href="/aprendiz/equipos" class="btn btn-outline btn-sm">
+                                <i class="fas fa-arrow-left"></i> Volver a Mis Equipos
                             </a>
                         </div>
                     </section>
 
                     <section class="aprendiz-equipos-card" style="text-align:center;">
                         <h2>QR del equipo</h2>
-                        <p style="margin-bottom:1rem;">
-                            Token: <code><?= htmlspecialchars($qrInfo['token']) ?></code>
-                        </p>
                         <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
                             <img src="<?= $qrInfo['image_base64'] ?>" alt="QR del equipo" style="max-width:300px;">
                         </div>
                         <p style="font-size:0.9rem;color:#666;">
                             Generado: <?= htmlspecialchars($qrInfo['fecha_generacion']) ?><br>
-                            Expira: <?= htmlspecialchars($qrInfo['fecha_expiracion'] ?? 'Sin expiración definida') ?>
+                            <?php if (!empty($qrInfo['fecha_expiracion'])): ?>
+                                Expira: <?= htmlspecialchars($qrInfo['fecha_expiracion']) ?>
+                            <?php endif; ?>
                         </p>
                     </section>
                 </div>

@@ -4,27 +4,53 @@ namespace App\GestionEquipos\Controllers;
 
 use App\GestionEquipos\Services\EquipoRegistroService;
 use App\GestionEquipos\Services\EquipoQRService;
-use App\Services\AprendizAuthService;
+use App\GestionEquipos\Services\AprendizEquipoService;
+use App\Services\AuthService;
 use App\Session\SessionManager;
 use App\Support\Response;
 
 class AprendizEquipoController
 {
-    private AprendizAuthService $aprendizAuthService;
+    private AuthService $authService;
     private EquipoRegistroService $equipoRegistroService;
     private EquipoQRService $equipoQRService;
+    private AprendizEquipoService $aprendizEquipoService;
     private SessionManager $session;
 
     public function __construct(
-        AprendizAuthService $aprendizAuthService,
+        AuthService $authService,
         EquipoRegistroService $equipoRegistroService,
         EquipoQRService $equipoQRService,
+        AprendizEquipoService $aprendizEquipoService,
         SessionManager $session
     ) {
-        $this->aprendizAuthService = $aprendizAuthService;
+        $this->authService = $authService;
         $this->equipoRegistroService = $equipoRegistroService;
         $this->equipoQRService = $equipoQRService;
+        $this->aprendizEquipoService = $aprendizEquipoService;
         $this->session = $session;
+    }
+
+    /**
+     * Lista todos los equipos del aprendiz
+     * GET /aprendiz/equipos
+     */
+    public function index(): void
+    {
+        $user = $this->authService->getCurrentUser();
+
+        if (!$user || $user['rol'] !== 'aprendiz') {
+            Response::redirect('/login');
+        }
+
+        $this->session->start();
+        $error = $this->session->getFlash('error');
+        $message = $this->session->getFlash('message');
+        $success = $this->session->getFlash('success');
+
+        $equipos = $this->aprendizEquipoService->getEquiposDeAprendiz((int)$user['id']);
+
+        require __DIR__ . '/../../../views/aprendiz/equipos/index.php';
     }
 
     /**
@@ -33,15 +59,15 @@ class AprendizEquipoController
      */
     public function create(): void
     {
-        $aprendiz = $this->aprendizAuthService->getCurrentAprendiz();
+        $user = $this->authService->getCurrentUser();
 
-        if (!$aprendiz) {
-            Response::redirect('/aprendiz/login');
+        if (!$user || $user['rol'] !== 'aprendiz') {
+            Response::redirect('/login');
         }
 
         $this->session->start();
-        $error = $this->session->getFlash('aprendiz_error');
-        $message = $this->session->getFlash('aprendiz_message');
+        $error = $this->session->getFlash('error') ?? $this->session->getFlash('aprendiz_error');
+        $message = $this->session->getFlash('message') ?? $this->session->getFlash('aprendiz_message');
         $old = $this->session->get('aprendiz_old', []);
         $this->session->remove('aprendiz_old');
 
@@ -58,10 +84,11 @@ class AprendizEquipoController
             Response::redirect('/aprendiz/panel');
         }
 
-        $aprendiz = $this->aprendizAuthService->getCurrentAprendiz();
-        if (!$aprendiz) {
-            Response::redirect('/aprendiz/login');
+        $user = $this->authService->getCurrentUser();
+        if (!$user || $user['rol'] !== 'aprendiz') {
+            Response::redirect('/login');
         }
+        $aprendiz = $user;
 
         $numeroSerial = trim(filter_input(INPUT_POST, 'numero_serial', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
         $marca = trim(filter_input(INPUT_POST, 'marca', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
@@ -81,7 +108,7 @@ class AprendizEquipoController
 
             $allowed = ['jpg', 'jpeg', 'png'];
             if (in_array($extension, $allowed, true)) {
-                $safeName = 'equipo_' . $aprendiz['id'] . '_' . time() . '.' . $extension;
+                $safeName = 'equipo_' . $user['id'] . '_' . time() . '.' . $extension;
                 $destPath = $uploadDir . $safeName;
 
                 if (move_uploaded_file($tmpName, $destPath)) {
@@ -96,15 +123,15 @@ class AprendizEquipoController
             'imagen' => $imagenPath,
         ];
 
-        $result = $this->equipoRegistroService->registrarEquipoParaAprendiz((int)$aprendiz['id'], $data);
+        $result = $this->equipoRegistroService->registrarEquipoParaAprendiz((int)$user['id'], $data);
 
         $this->session->start();
 
         if ($result['success']) {
-            $this->session->flash('aprendiz_message', $result['message'] ?? 'Equipo registrado correctamente');
+            $this->session->flash('success', $result['message'] ?? 'Equipo registrado correctamente');
             Response::redirect('/aprendiz/panel');
         } else {
-            $this->session->flash('aprendiz_error', implode('<br>', $result['errors'] ?? []));
+            $this->session->flash('error', implode('<br>', $result['errors'] ?? []));
             $this->session->set('aprendiz_old', $data);
             Response::redirect('/aprendiz/equipos/crear');
         }
@@ -116,16 +143,16 @@ class AprendizEquipoController
      */
     public function showQR(int $equipoId): void
     {
-        $aprendiz = $this->aprendizAuthService->getCurrentAprendiz();
-        if (!$aprendiz) {
-            Response::redirect('/aprendiz/login');
+        $user = $this->authService->getCurrentUser();
+        if (!$user || $user['rol'] !== 'aprendiz') {
+            Response::redirect('/login');
         }
 
-        $result = $this->equipoQRService->obtenerQRBase64ParaEquipo($equipoId, (int)$aprendiz['id']);
+        $result = $this->equipoQRService->obtenerQRBase64ParaEquipo($equipoId, (int)$user['id']);
 
         if (!$result['success']) {
             $this->session->start();
-            $this->session->flash('aprendiz_error', $result['message'] ?? 'No fue posible obtener el QR.');
+            $this->session->flash('error', $result['message'] ?? 'No fue posible obtener el QR.');
             Response::redirect('/aprendiz/panel');
         }
 
