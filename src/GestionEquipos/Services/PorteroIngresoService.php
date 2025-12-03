@@ -19,19 +19,22 @@ class PorteroIngresoService
     private AnomaliaEquipoRepository $anomaliaEquipoRepository;
     private EquipoRepository $equipoRepository;
     private AprendizRepository $aprendizRepository;
+    private QREncryptionService $encryptionService;
 
     public function __construct(
         QrEquipoRepository $qrEquipoRepository,
         IngresoEquipoRepository $ingresoEquipoRepository,
         AnomaliaEquipoRepository $anomaliaEquipoRepository,
         EquipoRepository $equipoRepository,
-        AprendizRepository $aprendizRepository
+        AprendizRepository $aprendizRepository,
+        ?QREncryptionService $encryptionService = null
     ) {
         $this->qrEquipoRepository = $qrEquipoRepository;
         $this->ingresoEquipoRepository = $ingresoEquipoRepository;
         $this->anomaliaEquipoRepository = $anomaliaEquipoRepository;
         $this->equipoRepository = $equipoRepository;
         $this->aprendizRepository = $aprendizRepository;
+        $this->encryptionService = $encryptionService ?? new QREncryptionService();
     }
 
     /**
@@ -45,59 +48,102 @@ class PorteroIngresoService
     public function procesarQR(string $qrData, int $porteroId, ?string $observaciones = null): array
     {
         try {
-            // Intentar parsear como JSON primero
-            $qrInfo = json_decode($qrData, true);
+            $qrInfo = null;
             $qrEquipo = null;
             
-            if (!$qrInfo && is_string($qrData)) {
-                // Si no es JSON, buscar por token directamente
-                $qrEquipo = $this->qrEquipoRepository->findByToken($qrData);
-                if (!$qrEquipo) {
-                    return [
-                        'success' => false,
-                        'message' => 'QR no válido o no encontrado',
-                        'type' => 'error'
-                    ];
-                }
-                $qrInfo = json_decode($qrEquipo['qr_data'], true);
-                if (!$qrInfo) {
-                    return [
-                        'success' => false,
-                        'message' => 'Datos del QR inválidos',
-                        'type' => 'error'
-                    ];
-                }
-            } else {
-                // Si es JSON, verificar si tiene token o datos directos
-                $token = $qrInfo['token'] ?? null;
+            // Intentar descifrar los datos primero (nuevos QRs cifrados)
+            try {
+                $qrInfo = $this->encryptionService->decrypt($qrData);
+                // Si el descifrado fue exitoso, buscar el QR en la BD usando los datos descifrados
+                $equipoId = (int)($qrInfo['equipo_id'] ?? 0);
+                $aprendizId = (int)($qrInfo['aprendiz_id'] ?? 0);
                 
-                if ($token) {
-                    // Si tiene token, buscar el QR por token
-                    $qrEquipo = $this->qrEquipoRepository->findByToken($token);
+                if ($equipoId > 0 && $aprendizId > 0) {
+                    $qrEquipo = $this->qrEquipoRepository->findActiveByEquipoAndAprendiz($equipoId, $aprendizId);
+                }
+            } catch (\Exception $e) {
+                // Si el descifrado falla, intentar métodos antiguos (compatibilidad hacia atrás)
+                // Intentar parsear como JSON (QRs antiguos sin cifrar)
+                $qrInfo = json_decode($qrData, true);
+                
+                if (!$qrInfo && is_string($qrData)) {
+                    // Si no es JSON, buscar por token directamente
+                    $qrEquipo = $this->qrEquipoRepository->findByToken($qrData);
                     if (!$qrEquipo) {
                         return [
                             'success' => false,
-                            'message' => 'QR no válido o inactivo',
+                            'message' => 'QR no válido o no encontrado',
                             'type' => 'error'
                         ];
+                    }
+                    // Intentar descifrar los datos de la BD
+                    try {
+                        $qrInfo = $this->encryptionService->decrypt($qrEquipo['qr_data']);
+                    } catch (\Exception $decryptError) {
+                        // Si falla el descifrado, intentar como JSON antiguo
+                        $qrInfo = json_decode($qrEquipo['qr_data'], true);
+                        if (!$qrInfo) {
+                            return [
+                                'success' => false,
+                                'message' => 'Datos del QR inválidos',
+                                'type' => 'error'
+                            ];
+                        }
                     }
                 } else {
-                    // Si no tiene token pero tiene equipo_id y aprendiz_id, buscar QR activo
-                    $equipoId = (int)($qrInfo['equipo_id'] ?? 0);
-                    $aprendizId = (int)($qrInfo['aprendiz_id'] ?? 0);
+                    // Si es JSON, verificar si tiene token o datos directos
+                    $token = $qrInfo['token'] ?? null;
                     
-                    if ($equipoId > 0 && $aprendizId > 0) {
-                        $qrEquipo = $this->qrEquipoRepository->findActiveByEquipoAndAprendiz($equipoId, $aprendizId);
-                        // Si no se encuentra el QR en la BD, continuar con los datos del JSON
-                        // (permite procesar QRs generados externamente)
+                    if ($token) {
+                        // Si tiene token, buscar el QR por token
+                        $qrEquipo = $this->qrEquipoRepository->findByToken($token);
+                        if (!$qrEquipo) {
+                            return [
+                                'success' => false,
+                                'message' => 'QR no válido o inactivo',
+                                'type' => 'error'
+                            ];
+                        }
+                        // Intentar descifrar los datos de la BD
+                        try {
+                            $qrInfo = $this->encryptionService->decrypt($qrEquipo['qr_data']);
+                        } catch (\Exception $decryptError) {
+                            // Si falla el descifrado, usar el JSON parseado anteriormente
+                            // (compatibilidad con QRs antiguos)
+                        }
                     } else {
-                        return [
-                            'success' => false,
-                            'message' => 'QR inválido: faltan datos de equipo o aprendiz',
-                            'type' => 'error'
-                        ];
+                        // Si no tiene token pero tiene equipo_id y aprendiz_id, buscar QR activo
+                        $equipoId = (int)($qrInfo['equipo_id'] ?? 0);
+                        $aprendizId = (int)($qrInfo['aprendiz_id'] ?? 0);
+                        
+                        if ($equipoId > 0 && $aprendizId > 0) {
+                            $qrEquipo = $this->qrEquipoRepository->findActiveByEquipoAndAprendiz($equipoId, $aprendizId);
+                            // Si se encuentra el QR en la BD, intentar descifrar sus datos
+                            if ($qrEquipo) {
+                                try {
+                                    $qrInfo = $this->encryptionService->decrypt($qrEquipo['qr_data']);
+                                } catch (\Exception $decryptError) {
+                                    // Si falla el descifrado, usar el JSON parseado anteriormente
+                                }
+                            }
+                        } else {
+                            return [
+                                'success' => false,
+                                'message' => 'QR inválido: faltan datos de equipo o aprendiz',
+                                'type' => 'error'
+                            ];
+                        }
                     }
                 }
+            }
+            
+            // Validar que tenemos datos válidos
+            if (!$qrInfo || !is_array($qrInfo)) {
+                return [
+                    'success' => false,
+                    'message' => 'No se pudieron procesar los datos del QR',
+                    'type' => 'error'
+                ];
             }
 
             // Si se encontró un QR en la BD, validar que esté activo

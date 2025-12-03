@@ -12,15 +12,18 @@ class EquipoRegistroService
     private EquipoRepository $equipoRepository;
     private AprendizEquipoRepository $aprendizEquipoRepository;
     private QrEquipoRepository $qrEquipoRepository;
+    private QREncryptionService $encryptionService;
 
     public function __construct(
         EquipoRepository $equipoRepository,
         AprendizEquipoRepository $aprendizEquipoRepository,
-        QrEquipoRepository $qrEquipoRepository
+        QrEquipoRepository $qrEquipoRepository,
+        ?QREncryptionService $encryptionService = null
     ) {
         $this->equipoRepository = $equipoRepository;
         $this->aprendizEquipoRepository = $aprendizEquipoRepository;
         $this->qrEquipoRepository = $qrEquipoRepository;
+        $this->encryptionService = $encryptionService ?? new QREncryptionService();
     }
 
     public function validarDatos(array $data): array
@@ -75,7 +78,7 @@ class EquipoRegistroService
 
             $this->aprendizEquipoRepository->createRelacion($aprendizId, $equipoId, 'activo');
 
-            // Crear QR básico (token + payload, la generación de imagen se hará en otro servicio)
+            // Crear QR básico (token + payload cifrado, la generación de imagen se hará en otro servicio)
             $token = bin2hex(random_bytes(16));
             $payload = [
                 'equipo_id' => $equipoId,
@@ -84,11 +87,14 @@ class EquipoRegistroService
                 'marca' => trim($data['marca']),
             ];
 
+            // Cifrar los datos del payload antes de guardarlos
+            $encryptedData = $this->encryptionService->encrypt($payload);
+
             $this->qrEquipoRepository->create([
                 'id_equipo' => $equipoId,
                 'id_aprendiz' => $aprendizId,
                 'token' => $token,
-                'qr_data' => json_encode($payload, JSON_UNESCAPED_UNICODE),
+                'qr_data' => $encryptedData, // Datos cifrados
                 // Por ahora sin expiración fija (se puede ajustar luego)
                 'fecha_expiracion' => date('Y-m-d H:i:s', strtotime('+1 year')),
                 'activo' => true,
