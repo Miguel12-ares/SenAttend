@@ -90,6 +90,36 @@
                                 </a>
                             </div>
                         </div>
+
+                        <!-- Mis Asistencias -->
+                        <div class="action-card-sena">
+                            <div class="action-icon-sena">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <h4>Mis Asistencias</h4>
+                            <p>Revisa el historial de tus asistencias al CTA con fechas, estados e instructores.</p>
+                            <div class="action-buttons">
+                                <a href="/aprendiz/asistencias" class="btn-sena">
+                                    <i class="fas fa-eye"></i>
+                                    Ver Mis Asistencias
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Generar QR de Asistencia -->
+                        <div class="action-card-sena">
+                            <div class="action-icon-sena">
+                                <i class="fas fa-qrcode"></i>
+                            </div>
+                            <h4>Generar QR de Asistencia</h4>
+                            <p>Genera tu código QR personal para que el instructor registre tu asistencia al CTA.</p>
+                            <div class="action-buttons">
+                                <a href="/aprendiz/generar-qr" class="btn-sena">
+                                    <i class="fas fa-qrcode"></i>
+                                    Generar Mi QR
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -157,7 +187,7 @@
 
         <footer class="footer">
             <div class="container">
-                <p>&copy; <?= date('Y') ?> SENA - Servicio Nacional de Aprendizaje | <strong>SENAttend v1.0 MVP</strong></p>
+                <p>&copy; <?= date('Y') ?> SENA - Servicio Nacional de Aprendizaje</p>
             </div>
         </footer>
     </div>

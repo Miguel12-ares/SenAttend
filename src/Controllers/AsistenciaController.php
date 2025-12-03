@@ -36,64 +36,6 @@ class AsistenciaController
         $this->aprendizRepository = $aprendizRepository;
     }
 
-    /**
-     * Vista principal de registro de asistencia
-     * GET /asistencia/registrar
-     * Dev 4: Método optimizado con validaciones mejoradas
-     */
-    public function registrar(): void
-    {
-        try {
-            $user = $this->authService->getCurrentUser();
-            
-            // Validar permisos del usuario
-            if (!$this->validarPermisosAcceso($user, 'registrar_asistencia')) {
-                $this->redirectConError('No tiene permisos para acceder a esta funcionalidad');
-                return;
-            }
-            
-            // Obtener fichas activas para el selector (filtradas por permisos del usuario)
-            $fichas = $this->obtenerFichasPermitidas($user);
-            
-            // Sanitizar y validar parámetros de entrada
-            $fechaSeleccionada = $this->sanitizarFecha(filter_input(INPUT_GET, 'fecha'));
-            $fichaSeleccionada = filter_input(INPUT_GET, 'ficha', FILTER_VALIDATE_INT);
-
-            $aprendices = [];
-            $ficha = null;
-            $estadisticas = null;
-
-            // Si hay ficha seleccionada, cargar datos
-            if ($fichaSeleccionada && $this->validarAccesoFicha($user, $fichaSeleccionada)) {
-                $ficha = $this->fichaRepository->findById($fichaSeleccionada);
-                
-                if ($ficha) {
-                    $aprendices = $this->asistenciaService->getAprendicesParaRegistro(
-                        $fichaSeleccionada,
-                        $fechaSeleccionada
-                    );
-                    
-                    // Obtener estadísticas si ya hay registros
-                    $estadisticas = $this->asistenciaService->getEstadisticas(
-                        $fichaSeleccionada,
-                        $fechaSeleccionada
-                    );
-                }
-            }
-
-            // Validar fecha
-            $validacionFecha = $this->asistenciaService->validarFechaRegistro($fechaSeleccionada);
-
-            // Headers de seguridad
-            $this->establecerHeadersSeguridad();
-
-            require __DIR__ . '/../../views/asistencia/registrar_simple.php';
-            
-        } catch (Exception $e) {
-            error_log("Error en AsistenciaController::registrar: " . $e->getMessage());
-            $this->redirectConError('Error interno del sistema. Contacte al administrador.');
-        }
-    }
 
     /**
      * Procesa el registro masivo de asistencia
@@ -105,7 +47,7 @@ class AsistenciaController
         try {
             // Validar método HTTP
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                Response::redirect('/asistencia/registrar');
+                Response::redirect('/dashboard');
                 return;
             }
 
@@ -133,7 +75,7 @@ class AsistenciaController
             $erroresValidacion = $this->validarDatosGuardado($fichaId, $fecha, $asistencias, $user);
             if (!empty($erroresValidacion)) {
                 $_SESSION['errors'] = $erroresValidacion;
-                Response::redirect("/asistencia/registrar?ficha={$fichaId}&fecha={$fecha}");
+                Response::redirect('/dashboard');
                 return;
             }
 
@@ -186,7 +128,7 @@ class AsistenciaController
         try {
             // Validar método HTTP
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                Response::redirect('/asistencia/registrar');
+                Response::redirect('/dashboard');
                 return;
             }
 
@@ -213,14 +155,14 @@ class AsistenciaController
             // Validaciones
             if (!$nuevoEstado || !in_array($nuevoEstado, ['presente', 'ausente', 'tardanza'])) {
                 $_SESSION['errors'] = ['Estado inválido'];
-                Response::redirect("/asistencia/registrar?ficha={$fichaId}&fecha={$fecha}");
+                Response::redirect('/dashboard');
                 return;
             }
 
             // Validar que el ID es válido
             if ($id <= 0) {
                 $_SESSION['errors'] = ['ID de asistencia inválido'];
-                Response::redirect("/asistencia/registrar?ficha={$fichaId}&fecha={$fecha}");
+                Response::redirect('/dashboard');
                 return;
             }
 
@@ -696,7 +638,7 @@ class AsistenciaController
     private function redirectConError(string $mensaje): void
     {
         $_SESSION['errors'] = [$mensaje];
-        Response::redirect('/asistencia/registrar');
+        Response::redirect('/dashboard');
     }
 
     /**

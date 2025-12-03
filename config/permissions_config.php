@@ -61,8 +61,6 @@ return [
                 '/aprendices' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
                 '/aprendices/crear' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
 
-                // Asistencia manual
-                '/asistencia/registrar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
 
                 // Módulo QR:
                 // - Generar QR: típicamente para aprendices, pero se permite a cualquier autenticado
@@ -114,6 +112,8 @@ return [
                 '/aprendiz/panel' => [ROLE_APRENDIZ],
                 '/aprendiz/equipos' => [ROLE_APRENDIZ],
                 '/aprendiz/equipos/crear' => [ROLE_APRENDIZ],
+                '/aprendiz/asistencias' => [ROLE_APRENDIZ],
+                '/aprendiz/generar-qr' => [ROLE_APRENDIZ],
             ],
             'POST' => [
                 // Auth

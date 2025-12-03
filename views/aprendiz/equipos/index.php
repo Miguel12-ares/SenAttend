@@ -24,13 +24,21 @@
             <div class="container">
                 <!-- Header -->
                 <div class="dashboard-header">
-                    <h2>
-                        <i class="fas fa-laptop"></i>
-                        Mis Equipos
-                    </h2>
-                    <p class="subtitle">
-                        Gestiona todos tus equipos registrados y accede a sus códigos QR.
-                    </p>
+                    <div>
+                        <h2>
+                            <i class="fas fa-laptop"></i>
+                            Mis Equipos
+                        </h2>
+                        <p class="subtitle">
+                            Gestiona todos tus equipos registrados y accede a sus códigos QR.
+                        </p>
+                    </div>
+                    <div>
+                        <?php 
+                        $url = '/aprendiz/panel';
+                        require __DIR__ . '/../../components/back-button.php'; 
+                        ?>
+                    </div>
                 </div>
 
                 <!-- Mensajes -->
@@ -55,25 +63,7 @@
                     </div>
                 <?php endif; ?>
 
-                <!-- Acciones Rápidas -->
-                <div class="actions-section">
-                    <div class="actions-grid-sena">
-                        <!-- Registrar Equipo -->
-                        <div class="action-card-sena">
-                            <div class="action-icon-sena">
-                                <i class="fas fa-plus-circle"></i>
-                            </div>
-                            <h4>Registrar Nuevo Equipo</h4>
-                            <p>Registra un nuevo equipo para poder ingresarlo al CTA.</p>
-                            <div class="action-buttons">
-                                <a href="/aprendiz/equipos/crear" class="btn-sena">
-                                    <i class="fas fa-plus"></i>
-                                    Registrar Equipo
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
 
                 <!-- Lista de Equipos -->
                 <?php if (!empty($equipos)): ?>
@@ -137,7 +127,7 @@
 
         <footer class="footer">
             <div class="container">
-                <p>&copy; <?= date('Y') ?> SENA - Servicio Nacional de Aprendizaje | <strong>SENAttend v1.0 MVP</strong></p>
+                <p>&copy; <?= date('Y') ?> SENA - Servicio Nacional de Aprendizaje</p>
             </div>
         </footer>
     </div>

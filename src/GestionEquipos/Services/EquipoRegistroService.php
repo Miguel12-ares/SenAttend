@@ -66,6 +66,15 @@ class EquipoRegistroService
             return ['success' => false, 'errors' => $errors];
         }
 
+        // Validar límite de 5 equipos por aprendiz
+        $equiposActuales = $this->aprendizEquipoRepository->countEquiposByAprendiz($aprendizId);
+        if ($equiposActuales >= 5) {
+            return [
+                'success' => false,
+                'errors' => ['Has alcanzado el límite máximo de 5 equipos registrados. Elimina un equipo antes de registrar uno nuevo.']
+            ];
+        }
+
         try {
             Connection::beginTransaction();
 

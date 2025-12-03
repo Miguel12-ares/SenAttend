@@ -143,6 +143,16 @@ $routes = [
             'action' => 'create',
             'middleware' => []
         ],
+        '/aprendiz/asistencias' => [
+            'controller' => AprendizAuthController::class,
+            'action' => 'asistencias',
+            'middleware' => []
+        ],
+        '/aprendiz/generar-qr' => [
+            'controller' => AprendizAuthController::class,
+            'action' => 'generarQR',
+            'middleware' => []
+        ],
         '/auth/logout' => [
             'controller' => AuthController::class,
             'action' => 'logout',
@@ -184,12 +194,6 @@ $routes = [
         '/gestion-instructores/importar' => [
             'controller' => \App\Controllers\GestionInstructoresController::class,
             'action' => 'importView',
-            'middleware' => ['auth']
-        ],
-        // Asistencia (CRÍTICO)
-        '/asistencia/registrar' => [
-            'controller' => \App\Controllers\AsistenciaController::class,
-            'action' => 'registrar',
             'middleware' => ['auth']
         ],
         // QR
@@ -692,7 +696,8 @@ try {
     if ($controllerClass === AuthController::class) {
         $controller = new $controllerClass($authService, $session);
     } elseif ($controllerClass === AprendizAuthController::class) {
-        $controller = new $controllerClass($authService, $session, $aprendizEquipoService);
+        $asistenciaRepositoryForAprendiz = new \App\Repositories\AsistenciaRepository();
+        $controller = new $controllerClass($authService, $session, $aprendizEquipoService, $asistenciaRepositoryForAprendiz);
     } elseif ($controllerClass === AprendizEquipoController::class) {
         $controller = new $controllerClass($authService, $equipoRegistroService, $equipoQRService, $aprendizEquipoService, $session);
     } elseif ($controllerClass === PorteroController::class) {

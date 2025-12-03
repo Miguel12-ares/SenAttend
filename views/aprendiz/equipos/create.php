@@ -29,9 +29,11 @@
                             <p>Vincula tu equipo portátil para gestionar sus ingresos y salidas del CTA.</p>
                         </div>
                         <div class="aprendiz-actions">
-                            <a href="/aprendiz/equipos" class="btn btn-outline btn-sm">
-                                <i class="fas fa-arrow-left"></i> Volver a Mis Equipos
-                            </a>
+                            <?php 
+                            $url = '/aprendiz/equipos';
+                            $text = 'Volver a Mis Equipos';
+                            require __DIR__ . '/../../components/back-button.php'; 
+                            ?>
                         </div>
                     </section>
 

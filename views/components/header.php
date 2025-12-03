@@ -51,9 +51,6 @@ $currentPage = $currentPage ?? '';
                         <li><a href="/dashboard" class="<?= $currentPage === 'dashboard' ? 'active' : '' ?>">
                             <i class="fas fa-home"></i> Dashboard
                         </a></li>
-                        <li><a href="/asistencia/registrar" class="<?= $currentPage === 'asistencia' ? 'active' : '' ?>">
-                            <i class="fas fa-check"></i> Registrar Asistencia
-                        </a></li>
                         <li><a href="/qr/escanear" class="<?= $currentPage === 'qr-escanear' ? 'active' : '' ?>">
                             <i class="fas fa-camera"></i> Escanear QR
                         </a></li>
@@ -70,6 +67,9 @@ $currentPage = $currentPage ?? '';
                         </a></li>
                         <li><a href="/aprendiz/equipos" class="<?= in_array($currentPage, ['aprendiz-equipos', 'aprendiz-equipos-crear', 'aprendiz-equipo-qr']) ? 'active' : '' ?>">
                             <i class="fas fa-laptop"></i> Mis Equipos
+                        </a></li>
+                        <li><a href="/aprendiz/asistencias" class="<?= $currentPage === 'aprendiz-asistencias' ? 'active' : '' ?>">
+                            <i class="fas fa-calendar-check"></i> Mis Asistencias
                         </a></li>
                     <?php endif; ?>
                 </ul>

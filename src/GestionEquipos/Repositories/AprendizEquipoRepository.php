@@ -57,6 +57,29 @@ class AprendizEquipoRepository
             throw $e;
         }
     }
+
+    /**
+     * Cuenta el número total de equipos activos de un aprendiz
+     */
+    public function countEquiposByAprendiz(int $aprendizId): int
+    {
+        try {
+            $stmt = Connection::prepare(
+                'SELECT COUNT(*) as total
+                 FROM aprendiz_equipo
+                 WHERE id_aprendiz = :aprendiz_id
+                 AND estado = "activo"'
+            );
+
+            $stmt->execute(['aprendiz_id' => $aprendizId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return (int)($result['total'] ?? 0);
+        } catch (PDOException $e) {
+            error_log("Error counting equipos by aprendiz: " . $e->getMessage());
+            return 0;
+        }
+    }
 }
 
 
