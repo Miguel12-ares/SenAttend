@@ -202,6 +202,32 @@ $routes = [
             'action' => 'importView',
             'middleware' => ['auth']
         ],
+        // Gestión de Porteros
+        '/gestion-porteros' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'index',
+            'middleware' => ['auth']
+        ],
+        '/gestion-porteros/crear' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'create',
+            'middleware' => ['auth']
+        ],
+        '/gestion-porteros/importar' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'importView',
+            'middleware' => ['auth']
+        ],
+        '/gestion-porteros/plantilla-csv' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'downloadTemplate',
+            'middleware' => ['auth']
+        ],
+        '/gestion-porteros/exportar-csv' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'exportCsv',
+            'middleware' => ['auth']
+        ],
         // QR
         '/qr/generar' => [
             'controller' => QRController::class,
@@ -385,6 +411,17 @@ $routes = [
             'action' => 'processImport',
             'middleware' => ['auth']
         ],
+        // Gestión de Porteros POST
+        '/gestion-porteros' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'store',
+            'middleware' => ['auth']
+        ],
+        '/gestion-porteros/importar-csv' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'processImport',
+            'middleware' => ['auth']
+        ],
         // Asistencia (CRÍTICO)
         '/asistencia/guardar' => [
             'controller' => \App\Controllers\AsistenciaController::class,
@@ -538,6 +575,12 @@ $dynamicRoutes = [
             'middleware' => ['auth'],
             'params' => ['id']
         ],
+        '/gestion-porteros/(\d+)/editar' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'edit',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
         '/api/fichas/(\d+)' => [
             'controller' => \App\Controllers\FichaController::class,
             'action' => 'apiShow',
@@ -626,6 +669,18 @@ $dynamicRoutes = [
         ],
         '/gestion-instructores/(\d+)/eliminar' => [
             'controller' => \App\Controllers\GestionInstructoresController::class,
+            'action' => 'delete',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/gestion-porteros/(\d+)' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'update',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/gestion-porteros/(\d+)/eliminar' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
             'action' => 'delete',
             'middleware' => ['auth'],
             'params' => ['id']
@@ -819,6 +874,14 @@ try {
         $controller = new $controllerClass(
             $instructorService,
             $instructorRepository,
+            $authService
+        );
+    } elseif ($controllerClass === \App\Controllers\GestionPorterosController::class) {
+        $porteroRepository = new \App\Repositories\PorteroRepository();
+        $porteroService = new \App\Services\PorteroService($porteroRepository);
+        $controller = new $controllerClass(
+            $porteroService,
+            $porteroRepository,
             $authService
         );
     } elseif ($controllerClass === ReportesController::class) {

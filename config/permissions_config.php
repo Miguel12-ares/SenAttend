@@ -93,6 +93,13 @@ return [
                 '/gestion-instructores/crear' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 '/gestion-instructores/importar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
 
+                // Gestión de Porteros
+                '/gestion-porteros' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/gestion-porteros/crear' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/gestion-porteros/importar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/gestion-porteros/plantilla-csv' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/gestion-porteros/exportar-csv' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+
                 // Historial diario de asistencia via QR (ver QRController)
                 '/api/qr/historial-diario' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
                 '/api/qr/buscar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
@@ -142,6 +149,10 @@ return [
                 // Gestión de Instructores POST
                 '/gestion-instructores' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 '/gestion-instructores/importar-csv' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+
+                // Gestión de Porteros POST
+                '/gestion-porteros' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/gestion-porteros/importar-csv' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
 
                 // Asistencia
                 '/asistencia/guardar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
@@ -202,6 +213,10 @@ return [
                     'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 ],
                 [
+                    'pattern' => '#^/gestion-porteros/(\d+)/editar$#',
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                ],
+                [
                     'pattern' => '#^/api/fichas/(\d+)$#',
                     'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
                 ],
@@ -253,6 +268,14 @@ return [
                 ],
                 [
                     'pattern' => '#^/gestion-instructores/(\d+)/eliminar$#',
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                ],
+                [
+                    'pattern' => '#^/gestion-porteros/(\d+)$#',
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                ],
+                [
+                    'pattern' => '#^/gestion-porteros/(\d+)/eliminar$#',
                     'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 ],
                 [

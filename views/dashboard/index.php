@@ -177,6 +177,25 @@
                             </div>
                         </div>
 
+                        <!-- Gestión de Porteros (Admin y Administrativo) -->
+                        <div class="action-card-sena">
+                            <div class="action-icon-sena">
+                                <i class="fas fa-user-shield"></i>
+                            </div>
+                            <h4>Gestión de Porteros</h4>
+                            <p>Administrar porteros del sistema.</p>
+                            <div class="action-buttons">
+                                <a href="/gestion-porteros" class="btn-sena">
+                                    <i class="fas fa-list"></i>
+                                    Administrar Porteros
+                                </a>
+                                <a href="/gestion-porteros/exportar-csv" class="btn-sena">
+                                    <i class="fas fa-file-export"></i>
+                                    Exportar CSV
+                                </a>
+                            </div>
+                        </div>
+
                         <?php endif; ?>
 
                         <!-- Acciones solo para Admin -->
