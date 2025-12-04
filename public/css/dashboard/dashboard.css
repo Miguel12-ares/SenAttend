@@ -4,11 +4,7 @@
 
 .dashboard-header {
     margin-bottom: 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-    flex-wrap: wrap;
+    text-align: center;
 }
 
 .dashboard-header > div:first-child {
@@ -20,11 +16,16 @@
     font-size: 2rem;
     color: var(--color-primary);
     margin-bottom: 0.5rem;
+    display: block;
+    width: 100%;
 }
 
 .dashboard-header .subtitle {
     color: var(--color-gray-600);
     font-size: 0.95rem;
+    display: block;
+    width: 100%;
+    margin-top: 0.5rem;
 }
 
 .dashboard-header > div:last-child {

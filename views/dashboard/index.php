@@ -21,11 +21,27 @@
                 <!-- Header del Dashboard -->
                 <div class="dashboard-header">
                     <h2>
-                        <i class="fas fa-cogs"></i>
-                        Panel Administrativo
+                        <i class="fas fa-<?= in_array($user['rol'], ['admin', 'administrativo']) ? 'cogs' : 'home' ?>"></i>
+                        <?php
+                        $titulos = [
+                            'instructor' => 'Panel Principal',
+                            'coordinador' => 'Panel Principal',
+                            'admin' => 'Panel Administrativo',
+                            'administrativo' => 'Panel Administrativo'
+                        ];
+                        echo $titulos[$user['rol']] ?? 'Panel Principal';
+                        ?>
                     </h2>
                     <p class="subtitle">
-                        Accede a las funciones administrativas principales del sistema.
+                        <?php
+                        $descripciones = [
+                            'instructor' => 'Accede a las funciones principales para gestionar asistencias y fichas.',
+                            'coordinador' => 'Accede a las funciones principales para gestionar asistencias y fichas.',
+                            'admin' => 'Accede a las funciones administrativas principales del sistema.',
+                            'administrativo' => 'Accede a las funciones administrativas principales del sistema.'
+                        ];
+                        echo $descripciones[$user['rol']] ?? 'Accede a las funciones principales del sistema.';
+                        ?>
                     </p>
                 </div>
 
@@ -50,6 +66,21 @@
                                 <a href="/qr/escanear" class="btn-sena">
                                     <i class="fas fa-camera"></i>
                                     Escanear QR
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Registro de Anomalías -->
+                        <div class="action-card-sena">
+                            <div class="action-icon-sena">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h4>Registro de Anomalías</h4>
+                            <p>Registrar anomalías de asistencia por aprendiz o para la ficha en general.</p>
+                            <div class="action-buttons">
+                                <a href="/anomalias/registrar" class="btn-sena">
+                                    <i class="fas fa-clipboard-list"></i>
+                                    Registrar Anomalías
                                 </a>
                             </div>
                         </div>
