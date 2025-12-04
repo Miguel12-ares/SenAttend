@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Repositories\InstructorFichaRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\FichaRepository;
+use App\Database\Connection;
+use PDO;
+use PDOException;
 use Exception;
 
 /**
@@ -139,7 +142,7 @@ class InstructorFichaService
      * @param int|null $asignadoPor ID del usuario que realiza la asignación
      * @return array Resultado de la operación
      */
-    public function asignarInstructoresAFicha(int $fichaId, array $instructorIds, ?int $asignadoPor = null): array
+    public function asignarInstructoresAFicha(int $fichaId, array $instructorIds, ?int $asignadoPor = null, ?int $liderInstructorId = null): array
     {
         try {
             // Validar que la ficha existe
@@ -151,10 +154,26 @@ class InstructorFichaService
             $resultado = [
                 'exitosos' => 0,
                 'errores' => 0,
-                'duplicados' => 0
+                'duplicados' => 0,
+                'eliminados' => 0,
             ];
-            
-            // Asignar cada instructor a la ficha
+
+            // Normalizar lista de instructores nuevos (evitar duplicados en el array)
+            $instructorIds = array_values(array_unique(array_map('intval', $instructorIds)));
+
+            // Obtener instructores actualmente asignados a la ficha (activos)
+            $asignadosActuales = $this->instructorFichaRepository->findInstructoresByFicha($fichaId, false);
+            $idsActuales = array_column($asignadosActuales, 'id');
+
+            // Primero: eliminar asignaciones que ya no estén en la nueva lista
+            $idsAEliminar = array_diff($idsActuales, $instructorIds);
+            foreach ($idsAEliminar as $instructorIdEliminar) {
+                if ($this->instructorFichaRepository->delete((int)$instructorIdEliminar, $fichaId)) {
+                    $resultado['eliminados']++;
+                }
+            }
+
+            // Segundo: asegurar asignación de los instructores enviados
             foreach ($instructorIds as $instructorId) {
                 $instructor = $this->userRepository->findById($instructorId);
                 if (!$instructor || $instructor['rol'] !== 'instructor') {
@@ -177,6 +196,9 @@ class InstructorFichaService
             $resultado['ficha'] = $ficha['numero_ficha'] . ' - ' . $ficha['nombre'];
             $resultado['instructores_solicitados'] = count($instructorIds);
             
+            // Actualizar instructor líder de la ficha (si corresponde)
+            $this->actualizarInstructorLiderDeFicha($fichaId, $liderInstructorId, $instructorIds);
+
             return $resultado;
         } catch (Exception $e) {
             error_log("Error en asignarInstructoresAFicha: " . $e->getMessage());
@@ -184,6 +206,290 @@ class InstructorFichaService
                 'error' => true,
                 'mensaje' => $e->getMessage()
             ];
+        }
+    }
+
+    /**
+     * Obtiene el instructor líder (si existe) de una ficha
+     *
+     * @param int $fichaId
+     * @return int|null ID del instructor líder o null si no hay
+     */
+    public function getInstructorLiderDeFicha(int $fichaId): ?int
+    {
+        try {
+            $sql = 'SELECT id_instructor 
+                    FROM instructor_lider_ficha 
+                    WHERE id_ficha = :ficha_id 
+                    LIMIT 1';
+
+            $stmt = Connection::prepare($sql);
+            $stmt->execute(['ficha_id' => $fichaId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return $row ? (int) $row['id_instructor'] : null;
+        } catch (PDOException $e) {
+            error_log("Error en getInstructorLiderDeFicha: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Obtiene todos los instructores que actualmente son líderes de al menos una ficha
+     *
+     * @return array Lista de instructores líderes con cantidad de fichas lideradas
+     */
+    public function getInstructoresLideres(): array
+    {
+        try {
+            $sql = 'SELECT 
+                        u.id,
+                        u.documento,
+                        u.nombre,
+                        u.email,
+                        COUNT(ilf.id_ficha) AS total_fichas_lider
+                    FROM instructor_lider_ficha ilf
+                    INNER JOIN usuarios u ON ilf.id_instructor = u.id
+                    GROUP BY u.id, u.documento, u.nombre, u.email
+                    ORDER BY u.nombre ASC';
+
+            $stmt = Connection::query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        } catch (PDOException $e) {
+            error_log("Error en getInstructoresLideres: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene las fichas donde un instructor es líder
+     *
+     * @param int $instructorId
+     * @return array
+     */
+    public function getFichasLideradasPorInstructor(int $instructorId): array
+    {
+        try {
+            $sql = 'SELECT f.id, f.numero_ficha, f.nombre, f.jornada, f.estado
+                    FROM instructor_lider_ficha ilf
+                    INNER JOIN fichas f ON ilf.id_ficha = f.id
+                    WHERE ilf.id_instructor = :id_instructor
+                    ORDER BY f.numero_ficha ASC';
+
+            $stmt = Connection::prepare($sql);
+            $stmt->execute(['id_instructor' => $instructorId]);
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        } catch (PDOException $e) {
+            error_log("Error en getFichasLideradasPorInstructor: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Elimina la relación de líder para una ficha específica
+     *
+     * @param int $instructorId
+     * @param int $fichaId
+     * @return bool
+     */
+    public function eliminarLiderDeFicha(int $instructorId, int $fichaId): bool
+    {
+        try {
+            $sql = 'DELETE FROM instructor_lider_ficha 
+                    WHERE id_instructor = :id_instructor 
+                    AND id_ficha = :id_ficha';
+
+            $stmt = Connection::prepare($sql);
+            return $stmt->execute([
+                'id_instructor' => $instructorId,
+                'id_ficha' => $fichaId,
+            ]);
+        } catch (PDOException $e) {
+            error_log("Error en eliminarLiderDeFicha: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Procesa importación masiva de líderes desde CSV
+     * Formato esperado: documento_instructor, numero_ficha
+     *
+     * @param string $csvPath
+     * @return array
+     */
+    public function importarLideresDesdeCsv(string $csvPath): array
+    {
+        $resultado = [
+            'success' => false,
+            'imported' => 0,
+            'errors' => [],
+        ];
+
+        if (!is_readable($csvPath)) {
+            $resultado['errors'][] = 'No se pudo leer el archivo CSV';
+            return $resultado;
+        }
+
+        if (($handle = fopen($csvPath, 'r')) === false) {
+            $resultado['errors'][] = 'No se pudo abrir el archivo CSV';
+            return $resultado;
+        }
+
+        $header = fgetcsv($handle, 0, ';');
+        if ($header === false) {
+            fclose($handle);
+            $resultado['errors'][] = 'El archivo CSV está vacío o es inválido';
+            return $resultado;
+        }
+
+        // Intentar detectar separador ; o ,
+        if (count($header) === 1) {
+            // Reintentar con coma
+            rewind($handle);
+            $header = fgetcsv($handle, 0, ',');
+        }
+
+        $header = array_map('trim', $header);
+        $map = array_flip($header);
+
+        if (!isset($map['documento_instructor']) || !isset($map['numero_ficha'])) {
+            fclose($handle);
+            $resultado['errors'][] = 'El CSV debe contener las columnas: documento_instructor, numero_ficha';
+            return $resultado;
+        }
+
+        $linea = 1;
+        while (($row = fgetcsv($handle, 0, ';')) !== false) {
+            $linea++;
+
+            if (count($row) === 1) {
+                $row = str_getcsv($row[0], ',');
+            }
+
+            $row = array_map('trim', $row);
+
+            $documento = $row[$map['documento_instructor']] ?? '';
+            $numeroFicha = $row[$map['numero_ficha']] ?? '';
+
+            if ($documento === '' || $numeroFicha === '') {
+                $resultado['errors'][] = "Línea {$linea}: columnas vacías";
+                continue;
+            }
+
+            try {
+                $instructor = $this->userRepository->findByDocumento($documento);
+                if (!$instructor || $instructor['rol'] !== 'instructor') {
+                    $resultado['errors'][] = "Línea {$linea}: instructor con documento {$documento} no encontrado o no es rol instructor";
+                    continue;
+                }
+
+                $ficha = $this->fichaRepository->findByNumero($numeroFicha);
+                if (!$ficha) {
+                    $resultado['errors'][] = "Línea {$linea}: ficha con número {$numeroFicha} no encontrada";
+                    continue;
+                }
+
+                // Establecer/actualizar líder de esta ficha
+                $ok = $this->actualizarInstructorLiderDeFicha(
+                    (int) $ficha['id'],
+                    (int) $instructor['id'],
+                    [(int) $instructor['id']]
+                );
+
+                if ($ok) {
+                    $resultado['imported']++;
+                } else {
+                    $resultado['errors'][] = "Línea {$linea}: no se pudo actualizar líder para la ficha {$numeroFicha}";
+                }
+            } catch (Exception $e) {
+                $resultado['errors'][] = "Línea {$linea}: " . $e->getMessage();
+            }
+        }
+
+        fclose($handle);
+
+        $resultado['success'] = $resultado['imported'] > 0;
+        return $resultado;
+    }
+
+    /**
+     * Actualiza el instructor líder de una ficha
+     *
+     * - Garantiza máximo un líder por ficha en la tabla instructor_lider_ficha
+     * - Solo permite marcar como líder a instructores efectivamente asignados a la ficha
+     *
+     * @param int $fichaId
+     * @param int|null $liderInstructorId
+     * @param array $instructorIdsAsociados IDs de instructores asociados en esta operación
+     * @return bool
+     */
+    public function actualizarInstructorLiderDeFicha(int $fichaId, ?int $liderInstructorId, array $instructorIdsAsociados = []): bool
+    {
+        try {
+            // Si se pasa un líder pero no está entre los instructores de la ficha, lo ignoramos
+            if ($liderInstructorId !== null && !in_array($liderInstructorId, $instructorIdsAsociados, true)) {
+                $liderInstructorId = null;
+            }
+
+            Connection::beginTransaction();
+
+            // Consultar si ya existe un registro de líder para esta ficha
+            $selectSql = 'SELECT id FROM instructor_lider_ficha WHERE id_ficha = :ficha_id LIMIT 1';
+            $selectStmt = Connection::prepare($selectSql);
+            $selectStmt->execute(['ficha_id' => $fichaId]);
+            $existing = $selectStmt->fetch(PDO::FETCH_ASSOC);
+
+            // Si no se envía nuevo líder
+            if ($liderInstructorId === null) {
+                // Si había un registro previo, lo eliminamos; el ID desaparece pero no se crea uno nuevo
+                if ($existing) {
+                    $deleteSql = 'DELETE FROM instructor_lider_ficha WHERE id = :id';
+                    $deleteStmt = Connection::prepare($deleteSql);
+                    $deleteStmt->execute(['id' => $existing['id']]);
+                }
+
+                Connection::commit();
+                return true;
+            }
+
+            // Validar que el instructor existe y está asignado a la ficha
+            if (!$this->instructorFichaRepository->exists($liderInstructorId, $fichaId)) {
+                Connection::commit();
+                return true;
+            }
+
+            if ($existing) {
+                // Actualizar el registro existente (se mantiene el mismo ID)
+                $updateSql = 'UPDATE instructor_lider_ficha 
+                              SET id_instructor = :id_instructor 
+                              WHERE id = :id';
+                $updateStmt = Connection::prepare($updateSql);
+                $updateStmt->execute([
+                    'id_instructor' => $liderInstructorId,
+                    'id' => $existing['id'],
+                ]);
+            } else {
+                // No existe registro aún: insertar uno nuevo
+                $insertSql = 'INSERT INTO instructor_lider_ficha (id_instructor, id_ficha) 
+                              VALUES (:id_instructor, :ficha_id)';
+                $insertStmt = Connection::prepare($insertSql);
+                $insertStmt->execute([
+                    'id_instructor' => $liderInstructorId,
+                    'ficha_id' => $fichaId,
+                ]);
+            }
+
+            Connection::commit();
+            return true;
+        } catch (PDOException $e) {
+            Connection::rollBack();
+            error_log("Error en actualizarInstructorLiderDeFicha: " . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            Connection::rollBack();
+            error_log("Error en actualizarInstructorLiderDeFicha: " . $e->getMessage());
+            return false;
         }
     }
 

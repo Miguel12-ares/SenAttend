@@ -65,9 +65,10 @@ class InstructorFichaController
                 'totalPages' => max(1, (int) ceil($totalFichas / $perPage)),
             ];
             
-            // Datos para tabs y asignación rápida
+            // Datos para tabs, asignación rápida y gestión de líderes
             $instructores = $this->instructorFichaService->getInstructoresConFichas();
             $fichasParaAsignacionRapida = $this->fichaRepository->findActive(300, 0);
+            $instructoresLideres = $this->instructorFichaService->getInstructoresLideres();
             
             require __DIR__ . '/../../views/instructor-fichas/index.php';
             
@@ -229,11 +230,15 @@ class InstructorFichaController
             
             $fichaId = (int) $data['ficha_id'];
             $instructorIds = array_map('intval', $data['instructor_ids']);
+            $liderInstructorId = isset($data['lider_instructor_id']) && $data['lider_instructor_id'] !== null
+                ? (int) $data['lider_instructor_id']
+                : null;
             
             $resultado = $this->instructorFichaService->asignarInstructoresAFicha(
                 $fichaId,
                 $instructorIds,
-                $user['id']
+                $user['id'],
+                $liderInstructorId
             );
             
             if (isset($resultado['error']) && $resultado['error']) {
@@ -485,6 +490,224 @@ class InstructorFichaController
         } catch (Exception $e) {
             error_log("Error en getInstructoresFicha: " . $e->getMessage());
             Response::json(['error' => 'Error al obtener instructores de la ficha'], 500);
+        }
+    }
+
+    /**
+     * API: Obtener instructor líder de una ficha (si existe)
+     * GET /api/instructor-fichas/ficha/{id}/lider
+     */
+    public function getLiderFicha(int $fichaId): void
+    {
+        try {
+            $user = $this->authService->getCurrentUser();
+
+            if (!$this->tienePermisos($user)) {
+                Response::json(['error' => 'Sin permisos'], 403);
+                return;
+            }
+
+            $liderId = $this->instructorFichaService->getInstructorLiderDeFicha($fichaId);
+
+            Response::json([
+                'success' => true,
+                'instructor_id' => $liderId,
+            ]);
+        } catch (Exception $e) {
+            error_log("Error en getLiderFicha: " . $e->getMessage());
+            Response::json(['error' => 'Error al obtener el instructor líder de la ficha'], 500);
+        }
+    }
+
+    /**
+     * Vista: Importar instructores líderes desde CSV
+     * GET /instructor-fichas/lideres/importar
+     */
+    public function importLideresView(): void
+    {
+        try {
+            $user = $this->authService->getCurrentUser();
+
+            if (!$this->tienePermisos($user)) {
+                $_SESSION['error'] = 'No tiene permisos para acceder a esta sección';
+                Response::redirect('/instructor-fichas');
+                return;
+            }
+
+            require __DIR__ . '/../../views/instructor-fichas/import-lideres.php';
+        } catch (Exception $e) {
+            error_log("Error en importLideresView: " . $e->getMessage());
+            $_SESSION['error'] = 'Error al cargar la vista de importación';
+            Response::redirect('/instructor-fichas');
+        }
+    }
+
+    /**
+     * Procesa importación de instructores líderes desde CSV
+     * POST /instructor-fichas/lideres/importar
+     */
+    public function importLideresProcess(): void
+    {
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                Response::redirect('/instructor-fichas/lideres/importar');
+            }
+
+            $user = $this->authService->getCurrentUser();
+
+            if (!$this->tienePermisos($user)) {
+                $_SESSION['error'] = 'Sin permisos para importar líderes';
+                Response::redirect('/instructor-fichas');
+                return;
+            }
+
+            if (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK) {
+                $_SESSION['error'] = 'Error al subir el archivo CSV';
+                Response::redirect('/instructor-fichas/lideres/importar');
+                return;
+            }
+
+            $extension = strtolower(pathinfo($_FILES['csv_file']['name'], PATHINFO_EXTENSION));
+            if ($extension !== 'csv') {
+                $_SESSION['error'] = 'El archivo debe ser un CSV válido';
+                Response::redirect('/instructor-fichas/lideres/importar');
+                return;
+            }
+
+            $resultado = $this->instructorFichaService->importarLideresDesdeCsv($_FILES['csv_file']['tmp_name']);
+
+            if ($resultado['success']) {
+                $_SESSION['success'] = "Se actualizaron {$resultado['imported']} líderes de ficha correctamente.";
+            }
+
+            if (!empty($resultado['errors'])) {
+                $_SESSION['error'] = implode(' | ', $resultado['errors']);
+            }
+
+            Response::redirect('/instructor-fichas');
+        } catch (Exception $e) {
+            error_log("Error en importLideresProcess: " . $e->getMessage());
+            $_SESSION['error'] = 'Error al procesar la importación de líderes';
+            Response::redirect('/instructor-fichas');
+        }
+    }
+
+    /**
+     * API: Importar instructores líderes desde CSV (JSON)
+     * POST /api/instructor-fichas/lideres/importar
+     */
+    public function importLideresProcessApi(): void
+    {
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                Response::json(['error' => 'Método no permitido'], 405);
+                return;
+            }
+
+            $user = $this->authService->getCurrentUser();
+
+            if (!$this->tienePermisos($user)) {
+                Response::json(['error' => 'Sin permisos'], 403);
+                return;
+            }
+
+            if (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK) {
+                Response::json(['error' => 'Error al subir el archivo CSV'], 400);
+                return;
+            }
+
+            $extension = strtolower(pathinfo($_FILES['csv_file']['name'], PATHINFO_EXTENSION));
+            if ($extension !== 'csv') {
+                Response::json(['error' => 'El archivo debe ser un CSV válido'], 400);
+                return;
+            }
+
+            $resultado = $this->instructorFichaService->importarLideresDesdeCsv($_FILES['csv_file']['tmp_name']);
+
+            if (!$resultado['success'] && empty($resultado['errors'])) {
+                Response::json(['error' => 'No se actualizó ningún líder'], 400);
+                return;
+            }
+
+            Response::json([
+                'success' => $resultado['success'],
+                'imported' => $resultado['imported'],
+                'errors' => $resultado['errors'],
+            ]);
+        } catch (Exception $e) {
+            error_log("Error en importLideresProcessApi: " . $e->getMessage());
+            Response::json(['error' => 'Error al procesar la importación de líderes'], 500);
+        }
+    }
+
+    /**
+     * API: Obtener fichas donde un instructor es líder
+     * GET /api/instructor-fichas/lideres/{id}/fichas
+     */
+    public function getFichasLiderInstructor(int $instructorId): void
+    {
+        try {
+            $user = $this->authService->getCurrentUser();
+
+            if (!$this->tienePermisos($user)) {
+                Response::json(['error' => 'Sin permisos'], 403);
+                return;
+            }
+
+            $fichas = $this->instructorFichaService->getFichasLideradasPorInstructor($instructorId);
+
+            Response::json([
+                'success' => true,
+                'fichas' => $fichas,
+            ]);
+        } catch (Exception $e) {
+            error_log("Error en getFichasLiderInstructor: " . $e->getMessage());
+            Response::json(['error' => 'Error al obtener fichas lideradas'], 500);
+        }
+    }
+
+    /**
+     * API: Eliminar relación de instructor líder con una ficha
+     * POST /api/instructor-fichas/lideres/eliminar
+     */
+    public function eliminarLiderDeFicha(): void
+    {
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                Response::json(['error' => 'Método no permitido'], 405);
+                return;
+            }
+
+            $user = $this->authService->getCurrentUser();
+
+            if (!$this->tienePermisos($user)) {
+                Response::json(['error' => 'Sin permisos'], 403);
+                return;
+            }
+
+            $data = json_decode(file_get_contents('php://input'), true);
+
+            if (!isset($data['instructor_id'], $data['ficha_id'])) {
+                Response::json(['error' => 'Datos incompletos'], 400);
+                return;
+            }
+
+            $instructorId = (int) $data['instructor_id'];
+            $fichaId = (int) $data['ficha_id'];
+
+            $ok = $this->instructorFichaService->eliminarLiderDeFicha($instructorId, $fichaId);
+
+            if ($ok) {
+                Response::json([
+                    'success' => true,
+                    'mensaje' => 'Asignación de líder eliminada correctamente',
+                ]);
+            } else {
+                Response::json(['error' => 'No se pudo eliminar la asignación de líder'], 400);
+            }
+        } catch (Exception $e) {
+            error_log("Error en eliminarLiderDeFicha: " . $e->getMessage());
+            Response::json(['error' => 'Error al eliminar la asignación de líder'], 500);
         }
     }
 

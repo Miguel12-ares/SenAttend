@@ -271,6 +271,11 @@ $routes = [
             'action' => 'index',
             'middleware' => ['auth']
         ],
+        '/instructor-fichas/lideres/importar' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'importLideresView',
+            'middleware' => ['auth']
+        ],
         // API Instructor-Fichas
         '/api/instructor-fichas/estadisticas' => [
             'controller' => \App\Controllers\InstructorFichaController::class,
@@ -521,6 +526,8 @@ $routes = [
             'action' => 'generar',
             'middleware' => ['auth']
         ],
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
         // Analítica - Generación de reportes (AJAX)
         '/analytics/generar-semanal' => [
             'controller' => \App\Controllers\AnalyticsController::class,
@@ -530,12 +537,35 @@ $routes = [
         '/analytics/generar-mensual' => [
             'controller' => \App\Controllers\AnalyticsController::class,
             'action' => 'generateMonthlyReport',
+=======
+=======
+>>>>>>> Stashed changes
+        // API Instructor líder - eliminar asignación de liderazgo
+        '/api/instructor-fichas/lideres/eliminar' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'eliminarLiderDeFicha',
+            'middleware' => ['auth']
+        ],
+        // Importación de líderes de ficha
+        '/instructor-fichas/lideres/importar' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'importLideresProcess',
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
             'middleware' => ['auth']
         ],
         // API Portero - Procesar QR
         '/api/portero/procesar-qr' => [
             'controller' => PorteroController::class,
             'action' => 'apiProcesarQR',
+            'middleware' => ['auth']
+        ],
+        // API Instructor líder - importar líderes desde CSV (POST, usado por JS)
+        '/api/instructor-fichas/lideres/importar' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'importLideresProcessApi',
             'middleware' => ['auth']
         ],
         // Portero - Procesar QR (formulario)
@@ -637,6 +667,18 @@ $dynamicRoutes = [
         '/api/instructor-fichas/ficha/(\d+)/instructores' => [
             'controller' => \App\Controllers\InstructorFichaController::class,
             'action' => 'getInstructoresFicha',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/api/instructor-fichas/ficha/(\d+)/lider' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getLiderFicha',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/api/instructor-fichas/lideres/(\d+)/fichas' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getFichasLiderInstructor',
             'middleware' => ['auth'],
             'params' => ['id']
         ],

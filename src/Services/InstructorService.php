@@ -280,11 +280,13 @@ class InstructorService
     {
         $errors = [];
 
+        // Verificar existencia del archivo
         if (!file_exists($filePath)) {
             return [
                 'valid' => false,
                 'errors' => ['El archivo no existe'],
-                'headers' => []
+                'headers' => [],
+                'delimiter' => ',',
             ];
         }
 
@@ -293,25 +295,64 @@ class InstructorService
             return [
                 'valid' => false,
                 'errors' => ['No se pudo abrir el archivo'],
-                'headers' => []
+                'headers' => [],
+                'delimiter' => ',',
             ];
         }
 
-        // Leer headers
-        $headers = fgetcsv($file);
+        // -----------------------------------------
+        // Detectar delimitador (;) o (,)
+        // -----------------------------------------
+        // Primero intentamos con ';' (muy común en Excel en español)
+        $headers = fgetcsv($file, 0, ';');
+        $delimiter = ';';
+
+        if ($headers === false) {
+            fclose($file);
+            return [
+                'valid' => false,
+                'errors' => ['El archivo está vacío o no tiene el formato correcto'],
+                'headers' => [],
+                'delimiter' => ',',
+            ];
+        }
+
+        // Si solo hay una columna, probablemente el separador real sea coma
+        if (count($headers) === 1) {
+            rewind($file);
+            $headers = fgetcsv($file, 0, ',');
+            $delimiter = ',';
+        }
+
         fclose($file);
 
         if (!$headers) {
             return [
                 'valid' => false,
                 'errors' => ['El archivo está vacío o no tiene el formato correcto'],
-                'headers' => []
+                'headers' => [],
+                'delimiter' => ',',
             ];
         }
 
+        // Normalizar headers: quitar espacios y posible BOM en la primera columna
+        $headers = array_map('trim', $headers);
+        if (isset($headers[0])) {
+            // Eliminar BOM UTF-8 si existe
+            $headers[0] = preg_replace('/^\xEF\xBB\xBF/', '', $headers[0]);
+        }
+
+        // Trabajar en minúsculas para evitar problemas de mayúsculas (ASCII)
+        $normalizedHeaders = array_map('strtolower', $headers);
+
         // Headers esperados (sin password)
         $expectedHeaders = ['documento', 'nombre', 'email'];
-        $missingHeaders = array_diff($expectedHeaders, $headers);
+        $missingHeaders = [];
+        foreach ($expectedHeaders as $expected) {
+            if (!in_array($expected, $normalizedHeaders, true)) {
+                $missingHeaders[] = $expected;
+            }
+        }
 
         if (!empty($missingHeaders)) {
             $errors[] = 'Faltan las siguientes columnas: ' . implode(', ', $missingHeaders);
@@ -320,7 +361,8 @@ class InstructorService
         return [
             'valid' => empty($errors),
             'errors' => $errors,
-            'headers' => $headers
+            'headers' => $headers,
+            'delimiter' => $delimiter,
         ];
     }
 
@@ -343,15 +385,18 @@ class InstructorService
             ];
         }
 
+        $delimiter = $structureValidation['delimiter'] ?? ',';
+
         $file = fopen($filePath, 'r');
-        $headers = fgetcsv($file); // Saltar headers
+        // Saltar headers usando el delimitador detectado
+        $headers = fgetcsv($file, 0, $delimiter);
         
         $errors = [];
         $preview = [];
         $rowNumber = 1;
         $documentos = [];
 
-        while (($row = fgetcsv($file)) !== false && $rowNumber <= 100) { // Validar máximo 100 filas
+        while (($row = fgetcsv($file, 0, $delimiter)) !== false && $rowNumber <= 100) { // Validar máximo 100 filas
             $rowNumber++;
             
             $data = array_combine($headers, $row);
@@ -411,7 +456,7 @@ class InstructorService
      */
     public function processCsvBatch(string $filePath): array
     {
-        // Pre-validar
+        // Pre-validar (estructura y primeras filas)
         $validation = $this->preValidateImport($filePath);
         if (!$validation['valid']) {
             return [
@@ -422,14 +467,19 @@ class InstructorService
             ];
         }
 
+        // Volver a detectar delimitador para lectura completa
+        $structureValidation = $this->validateCsvStructure($filePath);
+        $delimiter = $structureValidation['delimiter'] ?? ',';
+
         $file = fopen($filePath, 'r');
-        $headers = fgetcsv($file); // Saltar headers
+        // Saltar headers usando el delimitador detectado
+        $headers = fgetcsv($file, 0, $delimiter);
         
         $imported = 0;
         $errors = [];
         $details = [];
 
-        while (($row = fgetcsv($file)) !== false) {
+        while (($row = fgetcsv($file, 0, $delimiter)) !== false) {
             $data = array_combine($headers, $row);
             
             try {

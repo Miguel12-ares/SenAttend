@@ -157,6 +157,12 @@
     margin: 0;
 }
 
+.page-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 .search-box {
     position: relative;
     width: 300px;
@@ -370,114 +376,9 @@
 }
 
 /* ========================================
-   MODALES
+   MODAL ASIGNACIÓN FICHA
+   (se apoya en css/common/components.css)
    ======================================== */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    animation: fadeIn 0.3s ease;
-}
-
-.modal.show {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-content {
-    background: white;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 600px;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateY(-50px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-.modal-header {
-    background: linear-gradient(135deg, #39A900, #2d8600);
-    color: white;
-    padding: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h2 {
-    margin: 0;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    transition: background 0.3s ease;
-}
-
-.modal-close:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.modal-body {
-    padding: 2rem;
-}
-
-.modal-body select[multiple] {
-    width: 100%;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 0.5rem;
-}
-
-.modal-body option {
-    padding: 0.5rem;
-}
-
-.modal-body option:hover {
-    background: #e7f5ff;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin: 1rem 0;
-}
-
-.modal-footer {
-    background: #f8f9fa;
-    padding: 1rem 1.5rem;
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    border-top: 1px solid #dee2e6;
-}
 
 .instructores-list {
     max-height: 400px;
@@ -511,6 +412,50 @@
 
 .instructor-info small {
     color: #666;
+}
+
+/* Info de ficha seleccionada dentro del modal */
+.info-box {
+    background-color: #e7f3ff;
+    border-left: 4px solid #39A900;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+}
+
+/* Botón de instructor líder (estrella) */
+.leader-toggle {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    color: #adb5bd; /* gris suave por defecto */
+    transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.leader-toggle i {
+    font-size: 1.1rem;
+}
+
+.leader-toggle:hover {
+    background: rgba(57, 169, 0, 0.08);
+    color: #ffc107; /* dorado en hover */
+}
+
+.leader-toggle.is-leader {
+    color: #ffc107; /* dorado cuando es líder */
+}
+
+.leader-toggle.is-leader:hover {
+    background: rgba(255, 193, 7, 0.12);
+    transform: scale(1.02);
 }
 
 /* ========================================
