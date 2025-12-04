@@ -4,12 +4,44 @@
 
 .dashboard-header {
     margin-bottom: 2rem;
+    text-align: center;
+}
+
+.dashboard-header > div:first-child {
+    flex: 1;
+    min-width: 250px;
 }
 
 .dashboard-header h2 {
     font-size: 2rem;
     color: var(--color-primary);
     margin-bottom: 0.5rem;
+    display: block;
+    width: 100%;
+}
+
+.dashboard-header .subtitle {
+    color: var(--color-gray-600);
+    font-size: 0.95rem;
+    display: block;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.dashboard-header > div:last-child {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+    }
+    
+    .dashboard-header > div:last-child {
+        width: 100%;
+    }
 }
 
 .text-muted {

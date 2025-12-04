@@ -6,8 +6,8 @@
 $title = 'Detalle de Ficha - SENAttend';
 $showHeader = true;
 $currentPage = 'fichas';
-$additionalStyles = asset_css('css/components.css') . asset_css('css/fichas.css');
-$additionalScripts = asset_js('js/components.js');
+$additionalStyles = asset_css('css/common/components.css') . asset_css('css/modules/fichas.css');
+$additionalScripts = asset_js('js/common/components.js');
 
 ob_start();
 ?>

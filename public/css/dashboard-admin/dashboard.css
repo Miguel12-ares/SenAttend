@@ -33,6 +33,7 @@
     align-items: center;
     justify-content: center;
     gap: 1rem;
+    width: 100%;
 }
 
 .dashboard-header h2 i {
@@ -43,6 +44,10 @@
     color: var(--text-secondary);
     font-size: 1.1rem;
     font-weight: 400;
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 0.5rem;
 }
 
 /* Sección de acciones */

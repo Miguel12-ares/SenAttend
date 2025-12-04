@@ -320,6 +320,38 @@ body {
     box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
 }
 
+/* === Botón Volver === */
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background-color: var(--color-gray-200);
+    color: var(--color-gray-900);
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.btn-back:hover {
+    background-color: var(--color-gray-300);
+    border-color: var(--color-gray-400);
+    color: var(--color-primary-dark);
+    transform: translateX(-2px);
+}
+
+.btn-back i {
+    font-size: 0.85rem;
+}
+
+.btn-back:active {
+    transform: translateX(0);
+}
+
 /* === Buttons === */
 .btn {
     display: inline-block;

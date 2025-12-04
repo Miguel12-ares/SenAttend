@@ -4,8 +4,11 @@ namespace App\Controllers;
 
 use App\Services\AsistenciaService;
 use App\Services\AuthService;
+use App\Services\AnomaliaService;
 use App\Repositories\FichaRepository;
 use App\Repositories\AprendizRepository;
+use App\Repositories\AnomaliaRepository;
+use App\Repositories\UserRepository;
 use App\Support\Response;
 use Exception;
 
@@ -23,76 +26,81 @@ class AsistenciaController
     private AuthService $authService;
     private FichaRepository $fichaRepository;
     private AprendizRepository $aprendizRepository;
+    private ?AnomaliaService $anomaliaService = null;
 
     public function __construct(
         AsistenciaService $asistenciaService,
         AuthService $authService,
         FichaRepository $fichaRepository,
-        AprendizRepository $aprendizRepository
+        AprendizRepository $aprendizRepository,
+        ?AnomaliaService $anomaliaService = null
     ) {
         $this->asistenciaService = $asistenciaService;
         $this->authService = $authService;
         $this->fichaRepository = $fichaRepository;
         $this->aprendizRepository = $aprendizRepository;
+        $this->anomaliaService = $anomaliaService;
     }
 
     /**
-     * Vista principal de registro de asistencia
-     * GET /asistencia/registrar
-     * Dev 4: Método optimizado con validaciones mejoradas
+     * Obtiene o inicializa el servicio de anomalías
      */
-    public function registrar(): void
+    private function getAnomaliaService(): AnomaliaService
+    {
+        if ($this->anomaliaService === null) {
+            $anomaliaRepository = new AnomaliaRepository();
+            $asistenciaRepository = new \App\Repositories\AsistenciaRepository();
+            $userRepository = new UserRepository();
+            $this->anomaliaService = new AnomaliaService(
+                $anomaliaRepository,
+                $asistenciaRepository,
+                $this->fichaRepository,
+                $this->aprendizRepository,
+                $userRepository
+            );
+        }
+        return $this->anomaliaService;
+    }
+
+
+    /**
+     * Muestra la vista de registro de anomalías
+     * GET /anomalias/registrar
+     */
+    public function registrarAnomalias(): void
     {
         try {
             $user = $this->authService->getCurrentUser();
             
-            // Validar permisos del usuario
+            // Validar permisos
             if (!$this->validarPermisosAcceso($user, 'registrar_asistencia')) {
-                $this->redirectConError('No tiene permisos para acceder a esta funcionalidad');
+                $this->redirectConError('No tiene permisos para registrar anomalías');
                 return;
             }
-            
-            // Obtener fichas activas para el selector (filtradas por permisos del usuario)
+
+            // Obtener fichas del instructor
             $fichas = $this->obtenerFichasPermitidas($user);
-            
-            // Sanitizar y validar parámetros de entrada
-            $fechaSeleccionada = $this->sanitizarFecha(filter_input(INPUT_GET, 'fecha'));
-            $fichaSeleccionada = filter_input(INPUT_GET, 'ficha', FILTER_VALIDATE_INT);
 
-            $aprendices = [];
-            $ficha = null;
-            $estadisticas = null;
+            // Obtener tipos de anomalías
+            $tiposAnomalias = $this->getAnomaliaService()->getTiposAnomalias();
 
-            // Si hay ficha seleccionada, cargar datos
-            if ($fichaSeleccionada && $this->validarAccesoFicha($user, $fichaSeleccionada)) {
-                $ficha = $this->fichaRepository->findById($fichaSeleccionada);
-                
-                if ($ficha) {
-                    $aprendices = $this->asistenciaService->getAprendicesParaRegistro(
-                        $fichaSeleccionada,
-                        $fechaSeleccionada
-                    );
-                    
-                    // Obtener estadísticas si ya hay registros
-                    $estadisticas = $this->asistenciaService->getEstadisticas(
-                        $fichaSeleccionada,
-                        $fechaSeleccionada
-                    );
-                }
-            }
+            // Renderizar vista
+            $this->renderizarVistaAnomalias($user, $fichas, $tiposAnomalias);
 
-            // Validar fecha
-            $validacionFecha = $this->asistenciaService->validarFechaRegistro($fechaSeleccionada);
-
-            // Headers de seguridad
-            $this->establecerHeadersSeguridad();
-
-            require __DIR__ . '/../../views/asistencia/registrar_simple.php';
-            
         } catch (Exception $e) {
-            error_log("Error en AsistenciaController::registrar: " . $e->getMessage());
-            $this->redirectConError('Error interno del sistema. Contacte al administrador.');
+            error_log("Error en AsistenciaController::registrarAnomalias: " . $e->getMessage());
+            $this->redirectConError('Error al cargar la vista de anomalías');
         }
+    }
+
+    /**
+     * Renderiza la vista de registro de anomalías
+     */
+    private function renderizarVistaAnomalias(array $user, array $fichas, array $tiposAnomalias): void
+    {
+        // La vista ya incluye todo el HTML completo
+        require __DIR__ . '/../../views/anomalias/registrar.php';
+        exit;
     }
 
     /**
@@ -105,7 +113,7 @@ class AsistenciaController
         try {
             // Validar método HTTP
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                Response::redirect('/asistencia/registrar');
+                Response::redirect('/dashboard');
                 return;
             }
 
@@ -133,7 +141,7 @@ class AsistenciaController
             $erroresValidacion = $this->validarDatosGuardado($fichaId, $fecha, $asistencias, $user);
             if (!empty($erroresValidacion)) {
                 $_SESSION['errors'] = $erroresValidacion;
-                Response::redirect("/asistencia/registrar?ficha={$fichaId}&fecha={$fecha}");
+                Response::redirect('/dashboard');
                 return;
             }
 
@@ -186,7 +194,7 @@ class AsistenciaController
         try {
             // Validar método HTTP
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                Response::redirect('/asistencia/registrar');
+                Response::redirect('/dashboard');
                 return;
             }
 
@@ -213,14 +221,14 @@ class AsistenciaController
             // Validaciones
             if (!$nuevoEstado || !in_array($nuevoEstado, ['presente', 'ausente', 'tardanza'])) {
                 $_SESSION['errors'] = ['Estado inválido'];
-                Response::redirect("/asistencia/registrar?ficha={$fichaId}&fecha={$fecha}");
+                Response::redirect('/dashboard');
                 return;
             }
 
             // Validar que el ID es válido
             if ($id <= 0) {
                 $_SESSION['errors'] = ['ID de asistencia inválido'];
-                Response::redirect("/asistencia/registrar?ficha={$fichaId}&fecha={$fecha}");
+                Response::redirect('/dashboard');
                 return;
             }
 
@@ -269,12 +277,6 @@ class AsistenciaController
     public function apiGetAprendices(int $fichaId): void
     {
         try {
-            // Validar que es una petición AJAX
-            if (!$this->esRequestAjax()) {
-                Response::error('Acceso no permitido', 403);
-                return;
-            }
-
             $user = $this->authService->getCurrentUser();
             
             // Validar permisos
@@ -306,8 +308,28 @@ class AsistenciaController
             }
             
             // Obtener datos
-            $aprendices = $this->asistenciaService->getAprendicesParaRegistro($fichaId, $fecha);
-            $estadisticas = $this->asistenciaService->getEstadisticas($fichaId, $fecha);
+            try {
+                $aprendices = $this->asistenciaService->getAprendicesParaRegistro($fichaId, $fecha);
+            } catch (Exception $e) {
+                error_log("Error obteniendo aprendices: " . $e->getMessage());
+                throw $e;
+            }
+            
+            try {
+                $estadisticas = $this->asistenciaService->getEstadisticas($fichaId, $fecha);
+            } catch (Exception $e) {
+                error_log("Error obteniendo estadísticas: " . $e->getMessage());
+                // Si falla estadísticas, usar valores por defecto
+                $estadisticas = [
+                    'total' => 0,
+                    'presentes' => 0,
+                    'ausentes' => 0,
+                    'tardanzas' => 0,
+                    'porcentaje_presentes' => 0,
+                    'porcentaje_ausentes' => 0,
+                    'porcentaje_tardanzas' => 0,
+                ];
+            }
 
             // Headers de seguridad para API
             $this->establecerHeadersAPI();
@@ -326,7 +348,14 @@ class AsistenciaController
 
         } catch (Exception $e) {
             error_log("Error en AsistenciaController::apiGetAprendices: " . $e->getMessage());
-            Response::error('Error interno del servidor', 500);
+            error_log("Stack trace: " . $e->getTraceAsString());
+            
+            // En desarrollo, mostrar el error real
+            $errorMessage = defined('APP_ENV') && APP_ENV === 'local' 
+                ? $e->getMessage() 
+                : 'Error interno del servidor';
+            
+            Response::error($errorMessage, 500);
         }
     }
 
@@ -345,11 +374,6 @@ class AsistenciaController
             }
 
             // Validar que es una petición AJAX
-            if (!$this->esRequestAjax()) {
-                Response::error('Acceso no permitido', 403);
-                return;
-            }
-
             $user = $this->authService->getCurrentUser();
             
             // Validar permisos
@@ -427,11 +451,6 @@ class AsistenciaController
             }
 
             // Validar que es una petición AJAX
-            if (!$this->esRequestAjax()) {
-                Response::error('Acceso no permitido', 403);
-                return;
-            }
-
             $user = $this->authService->getCurrentUser();
             
             // Validar permisos
@@ -696,7 +715,203 @@ class AsistenciaController
     private function redirectConError(string $mensaje): void
     {
         $_SESSION['errors'] = [$mensaje];
-        Response::redirect('/asistencia/registrar');
+        Response::redirect('/dashboard');
+    }
+
+    /**
+     * API: Registra anomalía por aprendiz
+     * POST /api/asistencia/anomalia/aprendiz
+     */
+    public function apiRegistrarAnomaliaAprendiz(): void
+    {
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                Response::error('Método no permitido', 405);
+                return;
+            }
+
+            $user = $this->authService->getCurrentUser();
+            
+            if (!$this->validarPermisosAcceso($user, 'registrar_asistencia')) {
+                Response::error('No tiene permisos para registrar anomalías', 403);
+                return;
+            }
+
+            $json = file_get_contents('php://input');
+            $data = json_decode($json, true);
+
+            if (!$data || json_last_error() !== JSON_ERROR_NONE) {
+                Response::error('Datos JSON inválidos', 400);
+                return;
+            }
+
+            // Validar campos requeridos
+            $camposRequeridos = ['id_aprendiz', 'id_ficha', 'fecha_asistencia', 'tipo_anomalia'];
+            foreach ($camposRequeridos as $campo) {
+                if (!isset($data[$campo])) {
+                    Response::error("Campo requerido: {$campo}", 400);
+                    return;
+                }
+            }
+
+            // Validar acceso a la ficha
+            if (!$this->validarAccesoFicha($user, $data['id_ficha'])) {
+                Response::error('No tiene acceso a esta ficha', 403);
+                return;
+            }
+
+            $this->establecerHeadersAPI();
+
+            $resultado = $this->getAnomaliaService()->registrarAnomaliaAprendiz($data, $user['id']);
+
+            if ($resultado['success']) {
+                Response::success($resultado, $resultado['message']);
+            } else {
+                Response::error($resultado['message'], 400, $resultado);
+            }
+
+        } catch (Exception $e) {
+            error_log("Error en AsistenciaController::apiRegistrarAnomaliaAprendiz: " . $e->getMessage());
+            Response::error('Error interno del servidor', 500);
+        }
+    }
+
+    /**
+     * API: Registra anomalía general de ficha
+     * POST /api/asistencia/anomalia/ficha
+     */
+    public function apiRegistrarAnomaliaFicha(): void
+    {
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                Response::error('Método no permitido', 405);
+                return;
+            }
+
+            $user = $this->authService->getCurrentUser();
+            
+            if (!$this->validarPermisosAcceso($user, 'registrar_asistencia')) {
+                Response::error('No tiene permisos para registrar anomalías', 403);
+                return;
+            }
+
+            $json = file_get_contents('php://input');
+            $data = json_decode($json, true);
+
+            if (!$data || json_last_error() !== JSON_ERROR_NONE) {
+                Response::error('Datos JSON inválidos', 400);
+                return;
+            }
+
+            // Validar campos requeridos
+            $camposRequeridos = ['id_ficha', 'fecha_asistencia', 'tipo_anomalia'];
+            foreach ($camposRequeridos as $campo) {
+                if (!isset($data[$campo])) {
+                    Response::error("Campo requerido: {$campo}", 400);
+                    return;
+                }
+            }
+
+            // Validar acceso a la ficha
+            if (!$this->validarAccesoFicha($user, $data['id_ficha'])) {
+                Response::error('No tiene acceso a esta ficha', 403);
+                return;
+            }
+
+            $this->establecerHeadersAPI();
+
+            $resultado = $this->getAnomaliaService()->registrarAnomaliaFicha($data, $user['id']);
+
+            if ($resultado['success']) {
+                Response::success($resultado, $resultado['message']);
+            } else {
+                Response::error($resultado['message'], 400, $resultado);
+            }
+
+        } catch (Exception $e) {
+            error_log("Error en AsistenciaController::apiRegistrarAnomaliaFicha: " . $e->getMessage());
+            Response::error('Error interno del servidor', 500);
+        }
+    }
+
+    /**
+     * API: Obtiene anomalías de un aprendiz o ficha
+     * GET /api/asistencia/anomalias?ficha_id=X&fecha=YYYY-MM-DD&aprendiz_id=X (opcional)
+     */
+    public function apiGetAnomalias(): void
+    {
+        try {
+            $user = $this->authService->getCurrentUser();
+            
+            if (!$this->validarPermisosAcceso($user, 'registrar_asistencia')) {
+                Response::error('No tiene permisos para acceder a esta información', 403);
+                return;
+            }
+
+            $fichaId = filter_input(INPUT_GET, 'ficha_id', FILTER_VALIDATE_INT);
+            $fecha = $this->sanitizarFecha(filter_input(INPUT_GET, 'fecha'));
+            $aprendizId = filter_input(INPUT_GET, 'aprendiz_id', FILTER_VALIDATE_INT);
+
+            if (!$fichaId || !$fecha) {
+                Response::error('ficha_id y fecha son requeridos', 400);
+                return;
+            }
+
+            // Validar acceso a la ficha
+            if (!$this->validarAccesoFicha($user, $fichaId)) {
+                Response::error('No tiene acceso a esta ficha', 403);
+                return;
+            }
+
+            $this->establecerHeadersAPI();
+
+            $anomalias = [];
+            if ($aprendizId) {
+                // Anomalías de un aprendiz específico
+                $anomalias = $this->getAnomaliaService()->getAnomaliasAprendiz($aprendizId, $fichaId, $fecha);
+            } else {
+                // Anomalías generales de ficha
+                $anomalias = $this->getAnomaliaService()->getAnomaliasFicha($fichaId, $fecha);
+            }
+
+            Response::json([
+                'success' => true,
+                'data' => $anomalias
+            ]);
+
+        } catch (Exception $e) {
+            error_log("Error en AsistenciaController::apiGetAnomalias: " . $e->getMessage());
+            Response::error('Error interno del servidor', 500);
+        }
+    }
+
+    /**
+     * API: Obtiene tipos de anomalías disponibles
+     * GET /api/asistencia/anomalias/tipos
+     */
+    public function apiGetTiposAnomalias(): void
+    {
+        try {
+            $user = $this->authService->getCurrentUser();
+            
+            if (!$this->validarPermisosAcceso($user, 'registrar_asistencia')) {
+                Response::error('No tiene permisos para acceder a esta información', 403);
+                return;
+            }
+
+            $this->establecerHeadersAPI();
+
+            $tipos = $this->getAnomaliaService()->getTiposAnomalias();
+
+            Response::json([
+                'success' => true,
+                'data' => $tipos
+            ]);
+
+        } catch (Exception $e) {
+            error_log("Error en AsistenciaController::apiGetTiposAnomalias: " . $e->getMessage());
+            Response::error('Error interno del servidor', 500);
+        }
     }
 
     /**

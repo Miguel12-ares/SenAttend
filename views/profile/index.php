@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil - SENAttend</title>
     <link rel="stylesheet" href="<?= asset('assets/vendor/fontawesome/css/all.min.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/components.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/common/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/common/components.css') ?>">
 </head>
 <body>
     <div class="wrapper">
@@ -57,7 +57,7 @@
                             <div class="profile-info-box">
                                 <div class="info-box-content">
                                     <span class="info-label">Nombre Completo</span>
-                                    <span class="info-value"><?= htmlspecialchars($user['nombre'] ?? 'N/A') ?></span>
+                                    <span class="info-value"><?= htmlspecialchars(($user['nombre'] ?? '') . ' ' . ($user['apellido'] ?? '')) ?></span>
                                 </div>
                             </div>
 

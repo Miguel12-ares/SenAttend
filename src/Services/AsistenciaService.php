@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Repositories\AsistenciaRepository;
 use App\Repositories\AprendizRepository;
 use App\Repositories\FichaRepository;
+use App\Services\TurnoConfigService;
 use App\Exceptions\DuplicateAsistenciaException;
 use App\Exceptions\ValidationException;
 use App\Database\Connection;
@@ -318,6 +319,22 @@ class AsistenciaService
     {
         $stats = $this->asistenciaRepository->getEstadisticas($fichaId, $fecha);
         
+        // Asegurar que siempre tenemos un array con las claves necesarias
+        if (empty($stats)) {
+            $stats = [
+                'total' => 0,
+                'presentes' => 0,
+                'ausentes' => 0,
+                'tardanzas' => 0,
+            ];
+        }
+        
+        // Asegurar que los valores son numéricos
+        $stats['total'] = (int) ($stats['total'] ?? 0);
+        $stats['presentes'] = (int) ($stats['presentes'] ?? 0);
+        $stats['ausentes'] = (int) ($stats['ausentes'] ?? 0);
+        $stats['tardanzas'] = (int) ($stats['tardanzas'] ?? 0);
+        
         // Calcular porcentajes
         if ($stats['total'] > 0) {
             $stats['porcentaje_presentes'] = round(($stats['presentes'] / $stats['total']) * 100, 2);
@@ -554,11 +571,58 @@ class AsistenciaService
      */
     public function registrarAsistenciaAutomatica(array $data, int $usuarioId = null): array
     {
-        // Aplicar lógica automática de tardanza
-        $data = $this->procesarEstadoTardanzaAutomatico($data);
+        // Asegurar fecha y hora
+        if (!isset($data['fecha'])) {
+            $data['fecha'] = date('Y-m-d');
+        }
+        if (!isset($data['hora'])) {
+            $data['hora'] = date('H:i:s');
+        }
+
+        // Obtener la ficha para saber su jornada
+        $ficha = $this->fichaRepository->findById($data['id_ficha']);
+        
+        if (!$ficha) {
+            throw new ValidationException('ficha', 'Ficha no encontrada');
+        }
+
+        // Determinar estado basado en la jornada y hora
+        $data['estado'] = $this->determinarEstadoPorJornada(
+            $ficha['jornada'] ?? 'Mañana',
+            $data['hora']
+        );
         
         // Usar el método normal de registro
         return $this->registrarAsistencia($data, $usuarioId);
+    }
+
+    /**
+     * Determina el estado de asistencia basado en la jornada de la ficha y la hora actual
+     */
+    private function determinarEstadoPorJornada(string $jornadaFicha, string $hora): string
+    {
+        // Obtener configuración del turno correspondiente a la jornada de la ficha
+        $turno = $this->turnoConfigService->obtenerConfiguracionPorNombre($jornadaFicha);
+        
+        if (!$turno) {
+            // Si no hay configuración para esa jornada, asumir presente (fallback)
+            return 'presente';
+        }
+
+        /**
+         * Reglas de negocio:
+         * - Si la hora es menor o igual a hora_limite_llegada → presente
+         * - Si la hora es mayor a hora_limite_llegada → tardanza (aunque sea muy tarde, sigue siendo tardanza)
+         *   Ejemplos:
+         *   - 6:05 am (antes de límite)  → presente
+         *   - 6:25 am (después límite)   → tardanza
+         *   - 12:05 pm (muy tarde)       → tardanza para jornada de la ficha
+         */
+        if ($hora <= $turno['hora_limite_llegada']) {
+            return 'presente';
+        }
+
+        return 'tardanza';
     }
 
     /**

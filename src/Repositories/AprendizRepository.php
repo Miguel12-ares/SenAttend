@@ -62,16 +62,45 @@ class AprendizRepository
     }
 
     /**
-     * Busca un aprendiz por ID
+     * Busca un aprendiz por email (para autenticación de aprendices)
      */
-    public function findById(int $id): ?array
+    public function findByEmail(string $email): ?array
     {
         try {
             $stmt = Connection::prepare(
-                'SELECT id, documento, nombre, apellido, email, estado 
+                'SELECT id, documento, nombre, apellido, email, estado, password_hash 
+                 FROM aprendices 
+                 WHERE email = :email 
+                 LIMIT 1'
+            );
+
+            $stmt->execute(['email' => $email]);
+            $aprendiz = $stmt->fetch();
+
+            return $aprendiz ?: null;
+        } catch (PDOException $e) {
+            error_log("Error finding aprendiz by email: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Busca un aprendiz por ID
+     * @param bool $includePassword Si es true, incluye password_hash en el resultado
+     */
+    public function findById(int $id, bool $includePassword = false): ?array
+    {
+        try {
+            $fields = 'id, documento, nombre, apellido, email, estado';
+            if ($includePassword) {
+                $fields .= ', password_hash';
+            }
+            
+            $stmt = Connection::prepare(
+                "SELECT {$fields} 
                  FROM aprendices 
                  WHERE id = :id 
-                 LIMIT 1'
+                 LIMIT 1"
             );
 
             $stmt->execute(['id' => $id]);
@@ -92,8 +121,8 @@ class AprendizRepository
     {
         try {
             $stmt = Connection::prepare(
-                'INSERT INTO aprendices (documento, nombre, apellido, email, estado) 
-                 VALUES (:documento, :nombre, :apellido, :email, :estado)'
+                'INSERT INTO aprendices (documento, nombre, apellido, email, estado, password_hash) 
+                 VALUES (:documento, :nombre, :apellido, :email, :estado, :password_hash)'
             );
 
             $stmt->execute([
@@ -102,6 +131,7 @@ class AprendizRepository
                 'apellido' => $data['apellido'],
                 'email' => $data['email'] ?? null,
                 'estado' => $data['estado'] ?? 'activo',
+                'password_hash' => $data['password_hash'] ?? null,
             ]);
 
             return (int) Connection::lastInsertId();
@@ -139,6 +169,10 @@ class AprendizRepository
             if (isset($data['estado'])) {
                 $fields[] = 'estado = :estado';
                 $params['estado'] = $data['estado'];
+            }
+            if (isset($data['password_hash'])) {
+                $fields[] = 'password_hash = :password_hash';
+                $params['password_hash'] = $data['password_hash'];
             }
 
             if (empty($fields)) {

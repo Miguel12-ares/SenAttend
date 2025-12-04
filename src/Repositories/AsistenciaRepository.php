@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Database\Connection;
+use Exception;
 use PDO;
 use PDOException;
 use RuntimeException;
@@ -44,8 +45,6 @@ class AsistenciaRepository
                     ap.estado as estado_aprendiz,
                     ap.created_at as fecha_matricula,
                     fa.fecha_vinculacion,
-                    u.nombre as usuario_registro,
-                    u.rol as rol_usuario,
                     -- Datos de asistencia (NULL si no existe registro)
                     a.id as asistencia_id,
                     a.estado as asistencia_estado,
@@ -53,10 +52,17 @@ class AsistenciaRepository
                     a.observaciones,
                     a.created_at as fecha_registro_asistencia,
                     ur.nombre as registrado_por_nombre,
-                    ur.rol as registrado_por_rol
+                    ur.rol as registrado_por_rol,
+                    -- Campo calculado para ordenar: ausentes (1), tardanzas (2), presentes (3)
+                    -- Si no hay registro (a.estado IS NULL), se trata como ausente
+                    CASE 
+                        WHEN a.estado = "ausente" OR a.estado IS NULL THEN 1
+                        WHEN a.estado = "tardanza" THEN 2
+                        WHEN a.estado = "presente" THEN 3
+                        ELSE 1
+                    END as orden_estado
                  FROM aprendices ap
                  INNER JOIN ficha_aprendiz fa ON ap.id = fa.id_aprendiz
-                 INNER JOIN usuarios u ON u.id = 1 -- Usuario sistema para validación
                  LEFT JOIN asistencias a ON ap.id = a.id_aprendiz 
                      AND a.id_ficha = :id_ficha 
                      AND a.fecha = :fecha
@@ -64,7 +70,7 @@ class AsistenciaRepository
                  WHERE fa.id_ficha = :id_ficha_2
                      AND ap.estado = "activo"
                      AND fa.fecha_vinculacion <= :fecha_limite
-                 ORDER BY ap.apellido ASC, ap.nombre ASC'
+                 ORDER BY orden_estado ASC, ap.apellido ASC, ap.nombre ASC'
             );
 
             $stmt->execute([
@@ -75,6 +81,14 @@ class AsistenciaRepository
             ]);
 
             $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Procesar resultados: si no hay estado (NULL), tratarlo como "ausente"
+            foreach ($resultados as &$resultado) {
+                if ($resultado['asistencia_estado'] === null) {
+                    $resultado['asistencia_estado'] = 'ausente';
+                }
+            }
+            unset($resultado); // Liberar referencia
             
             // Log de performance en desarrollo
             if (defined('APP_ENV') && APP_ENV === 'local') {
@@ -363,7 +377,8 @@ class AsistenciaRepository
                 'fecha' => $fecha,
             ]);
 
-            return $stmt->fetch() ?: [
+            $result = $stmt->fetch();
+            return $result ?: [
                 'total' => 0,
                 'presentes' => 0,
                 'ausentes' => 0,
@@ -371,7 +386,12 @@ class AsistenciaRepository
             ];
         } catch (PDOException $e) {
             error_log("Error getting estadisticas: " . $e->getMessage());
-            return [];
+            return [
+                'total' => 0,
+                'presentes' => 0,
+                'ausentes' => 0,
+                'tardanzas' => 0,
+            ];
         }
     }
 
@@ -386,6 +406,39 @@ class AsistenciaRepository
         } catch (PDOException $e) {
             error_log("Error deleting asistencia: " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Busca una asistencia por aprendiz, ficha y fecha
+     * 
+     * @param int $aprendizId ID del aprendiz
+     * @param int $fichaId ID de la ficha
+     * @param string $fecha Fecha (YYYY-MM-DD)
+     * @return array|null Asistencia encontrada o null
+     */
+    public function findByAprendizFichaFecha(int $aprendizId, int $fichaId, string $fecha): ?array
+    {
+        try {
+            $stmt = Connection::prepare(
+                'SELECT * FROM asistencias 
+                 WHERE id_aprendiz = :id_aprendiz 
+                   AND id_ficha = :id_ficha 
+                   AND fecha = :fecha 
+                 LIMIT 1'
+            );
+
+            $stmt->execute([
+                'id_aprendiz' => $aprendizId,
+                'id_ficha' => $fichaId,
+                'fecha' => $fecha
+            ]);
+
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ?: null;
+        } catch (PDOException $e) {
+            error_log("Error finding asistencia by aprendiz, ficha and fecha: " . $e->getMessage());
+            return null;
         }
     }
 
@@ -519,6 +572,96 @@ class AsistenciaRepository
         } catch (PDOException $e) {
             error_log("Error validando matrícula de aprendiz: " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Obtiene todas las asistencias de un aprendiz específico
+     * Incluye información de la ficha, fecha, estado, hora y nombre del instructor
+     * 
+     * @param int $aprendizId ID del aprendiz
+     * @return array Lista de asistencias con información completa
+     */
+    public function findByAprendiz(int $aprendizId): array
+    {
+        try {
+            // Asegurar que el ID sea un entero
+            $aprendizId = (int)$aprendizId;
+            
+            // Consulta simplificada y directa - primero obtener las asistencias básicas
+            $stmt = Connection::prepare(
+                'SELECT 
+                    a.id,
+                    a.fecha,
+                    a.hora,
+                    a.estado,
+                    a.observaciones,
+                    a.created_at as fecha_registro,
+                    a.id_ficha,
+                    a.registrado_por
+                 FROM asistencias a
+                 WHERE a.id_aprendiz = :aprendiz_id
+                 ORDER BY a.fecha DESC, a.hora DESC'
+            );
+
+            $stmt->bindValue(':aprendiz_id', $aprendizId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $asistenciasBase = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            if (empty($asistenciasBase)) {
+                return [];
+            }
+            
+            // Ahora enriquecer con datos de fichas e instructores
+            $resultados = [];
+            foreach ($asistenciasBase as $asistencia) {
+                $fichaId = (int)$asistencia['id_ficha'];
+                $registradoPor = (int)$asistencia['registrado_por'];
+                
+                // Obtener datos de la ficha
+                $stmtFicha = Connection::prepare('SELECT id, numero_ficha, nombre FROM fichas WHERE id = :id LIMIT 1');
+                $stmtFicha->bindValue(':id', $fichaId, PDO::PARAM_INT);
+                $stmtFicha->execute();
+                $ficha = $stmtFicha->fetch(PDO::FETCH_ASSOC);
+                
+                // Obtener datos del instructor
+                // Nota: La tabla usuarios solo tiene 'nombre', no tiene 'apellido'
+                $stmtInstructor = Connection::prepare('SELECT id, nombre FROM usuarios WHERE id = :id LIMIT 1');
+                $stmtInstructor->bindValue(':id', $registradoPor, PDO::PARAM_INT);
+                $stmtInstructor->execute();
+                $instructor = $stmtInstructor->fetch(PDO::FETCH_ASSOC);
+                
+                // Construir resultado enriquecido
+                $resultado = [
+                    'id' => $asistencia['id'],
+                    'fecha' => $asistencia['fecha'],
+                    'hora' => $asistencia['hora'],
+                    'estado' => $asistencia['estado'],
+                    'observaciones' => $asistencia['observaciones'],
+                    'fecha_registro' => $asistencia['fecha_registro'],
+                    'id_ficha' => $fichaId,
+                    'ficha_id' => $ficha ? (int)$ficha['id'] : $fichaId,
+                    'numero_ficha' => $ficha ? $ficha['numero_ficha'] : "Ficha #{$fichaId}",
+                    'ficha_nombre' => $ficha ? $ficha['nombre'] : 'Ficha no disponible',
+                    'instructor_id' => $instructor ? (int)$instructor['id'] : null,
+                    'instructor_nombre' => $instructor ? $instructor['nombre'] : null,
+                    'instructor_apellido' => null, // La tabla usuarios no tiene apellido
+                    'instructor_nombre_completo' => $instructor 
+                        ? trim($instructor['nombre']) 
+                        : 'No disponible'
+                ];
+                
+                $resultados[] = $resultado;
+            }
+            
+            return $resultados;
+        } catch (PDOException $e) {
+            error_log("Error obteniendo asistencias del aprendiz: " . $e->getMessage());
+            return [];
+        } catch (Exception $e) {
+            error_log("Exception obteniendo asistencias del aprendiz: " . $e->getMessage());
+            return [];
         }
     }
 

@@ -1,0 +1,488 @@
+/**
+ * Estilos para Módulo de Registro de Anomalías
+ * Estandarizado con el diseño del módulo QR
+ * Colores: Rojo (#dc3545) para no justificada, Anaranjado (#fd7e14) para justificada
+ */
+
+.anomalias-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.anomalias-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.anomalias-header h1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.anomalias-header .subtitle {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+}
+
+/* Cards */
+.anomalias-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e1e8ed;
+}
+
+.anomalias-card h2 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #39A900;
+}
+
+.card-header-with-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e1e8ed;
+}
+
+.card-header-with-action h2 {
+    margin: 0;
+    border: none;
+    padding: 0;
+}
+
+/* Formulario */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #34495e;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #dce4ec;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #39A900;
+    box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.required {
+    color: #dc3545;
+}
+
+/* Info Banner - Estandarizado con QR */
+.info-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-top: 15px;
+    background: #e7f3ff;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.info-banner.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.info-banner.alert-warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.info-banner.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.info-banner i {
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+/* Tabla - Estandarizada con QR */
+.table-responsive {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.tabla-anomalias {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-anomalias thead {
+    background: #39A900;
+    color: white;
+}
+
+.tabla-anomalias th {
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.tabla-anomalias td {
+    padding: 15px;
+    border-bottom: 1px solid #e1e8ed;
+    vertical-align: middle;
+}
+
+.tabla-anomalias tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.tabla-anomalias tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 2px;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.anomalia-badge {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+}
+
+.anomalias-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+/* Tipos de Anomalías */
+.tipos-anomalias-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.tipo-anomalia-card {
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.tipo-anomalia-card:hover {
+    border-color: #39A900;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.tipo-anomalia-card input[type="radio"] {
+    display: none;
+}
+
+.tipo-anomalia-card input[type="radio"]:checked + .tipo-anomalia-label {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.tipo-anomalia-card input[type="radio"]:checked ~ .tipo-anomalia-label {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.tipo-anomalia-card:has(input[type="radio"]:checked) {
+    border-width: 3px;
+    background-color: #f8f9fa;
+}
+
+.tipo-anomalia-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    margin: 0;
+    font-size: 1rem;
+}
+
+.tipo-anomalia-label i {
+    font-size: 1.2rem;
+}
+
+/* Colores específicos para tipos */
+.tipo-anomalia-card[data-tipo="inasistencia_no_justificada"] {
+    border-left-color: #dc3545;
+}
+
+.tipo-anomalia-card[data-tipo="inasistencia_no_justificada"]:has(input:checked) {
+    background-color: #fff5f5;
+    border-color: #dc3545;
+}
+
+.tipo-anomalia-card[data-tipo="inasistencia_justificada"] {
+    border-left-color: #fd7e14;
+}
+
+.tipo-anomalia-card[data-tipo="inasistencia_justificada"]:has(input:checked) {
+    background-color: #fff8f0;
+    border-color: #fd7e14;
+}
+
+/* Modal - Usa estilos estándar de components.css */
+/* Los estilos del modal están en public/css/common/components.css */
+
+.info-box {
+    background-color: #e7f3ff;
+    border-left: 4px solid #39A900;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+/* Botones - Usar estilos del módulo QR */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: #39A900;
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #2d8400;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(57, 169, 0, 0.3);
+}
+
+.btn-secondary {
+    background: #95a5a6;
+    color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #7f8c8d;
+}
+
+.btn-warning {
+    background: #f39c12;
+    color: white;
+}
+
+.btn-warning:hover:not(:disabled) {
+    background: #e67e22;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+}
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+}
+
+/* Alertas */
+.alert-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    max-width: 400px;
+}
+
+.alert {
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    animation: alertSlideIn 0.3s ease;
+}
+
+@keyframes alertSlideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #7f8c8d;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    color: #dce4ec;
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+}
+
+/* Lista de Anomalías */
+.anomalias-list {
+    margin-top: 15px;
+}
+
+.anomalia-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #e1e8ed;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background-color: #f8f9fa;
+}
+
+.anomalia-item-info {
+    flex: 1;
+}
+
+.anomalia-item-tipo {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.anomalia-item-descripcion {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.anomalia-item-fecha {
+    color: #7f8c8d;
+    font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tipos-anomalias-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+
+    .card-header-with-action {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .anomalias-container {
+        padding: 10px;
+    }
+}
+
+/* Utilidades */
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    color: #7f8c8d;
+}
+

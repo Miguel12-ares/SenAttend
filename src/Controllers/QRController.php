@@ -147,6 +147,16 @@ class QRController
 
             $fichas = $this->instructorFichaRepository
                 ->findFichasByInstructor($user['id'], true);
+
+            // Obtener configuración de turnos para mapear jornada -> hora límite de tardanza
+            $turnosConfigList = $this->turnoConfigService->obtenerConfiguracionTurnos();
+            $turnosConfig = [];
+            foreach ($turnosConfigList as $turno) {
+                $nombre = $turno['nombre_turno'] ?? null;
+                if ($nombre) {
+                    $turnosConfig[$nombre] = $turno;
+                }
+            }
             
             // Headers de seguridad
             $this->establecerHeadersSeguridad();
@@ -288,21 +298,13 @@ class QRController
                 return;
             }
 
-            // Determinar estado automáticamente usando configuración dinámica
-            $estado = 'presente';
-            $turno = $this->turnoConfigService->obtenerTurnoActual($hora);
-            
-            if ($turno && $this->turnoConfigService->validarTardanza($hora, $turno['nombre_turno'])) {
-                $estado = 'tardanza';
-            }
-
-            // Registrar asistencia automática
-            $resultado = $this->asistenciaService->registrarAsistencia([
+            // Registrar asistencia automática (la lógica de presente/tardanza se resuelve en el servicio
+            // usando la jornada de la ficha y la configuración de turnos)
+            $resultado = $this->asistenciaService->registrarAsistenciaAutomatica([
                 'id_aprendiz' => $aprendizId,
                 'id_ficha' => $fichaId,
                 'fecha' => $fecha,
                 'hora' => $hora,
-                'estado' => $estado,
                 'registrado_por' => $user['id'],
                 'observaciones' => 'Registro automático vía QR'
             ], $user['id']);
@@ -311,13 +313,15 @@ class QRController
             $this->establecerHeadersAPI();
 
             if ($resultado['success']) {
+                $estadoFinal = $resultado['data']['estado'] ?? null;
+
                 // Log de operación
                 $this->logOperacionCritica('REGISTRO_QR', [
                     'aprendiz_id' => $aprendizId,
                     'aprendiz_documento' => $aprendiz['documento'],
                     'aprendiz_nombre' => $aprendiz['nombre'] . ' ' . $aprendiz['apellido'],
                     'ficha_id' => $fichaId,
-                    'estado' => $estado,
+                    'estado' => $estadoFinal,
                     'registrado_por' => $user['id']
                 ]);
 
@@ -328,9 +332,9 @@ class QRController
                         'documento' => $aprendiz['documento'],
                         'nombre' => $aprendiz['nombre'] . ' ' . $aprendiz['apellido']
                     ],
-                    'estado' => $estado,
-                    'fecha' => $fecha,
-                    'hora' => $hora
+                    'estado' => $estadoFinal,
+                    'fecha' => $resultado['data']['fecha'] ?? $fecha,
+                    'hora' => $resultado['data']['hora'] ?? $hora
                 ], 'Asistencia registrada exitosamente');
             } else {
                 Response::error($resultado['message'], 400, $resultado);

@@ -25,9 +25,23 @@ class AuthController
      */
     public function viewLogin(): void
     {
-        // Si ya está autenticado, redirigir al dashboard
+        // Si ya está autenticado, redirigir según el rol
         if ($this->authService->isAuthenticated()) {
-            Response::redirect('/dashboard');
+            $user = $this->authService->getCurrentUser();
+            $userRole = $user['rol'] ?? null;
+            
+            // Redirigir según el rol
+            switch ($userRole) {
+                case 'portero':
+                    Response::redirect('/portero/panel');
+                    break;
+                case 'aprendiz':
+                    Response::redirect('/aprendiz/panel');
+                    break;
+                default:
+                    Response::redirect('/dashboard');
+                    break;
+            }
         }
 
         $this->session->start();
@@ -72,9 +86,31 @@ class AuthController
             Response::redirect('/login');
         }
 
-        // Login exitoso - redirigir a URL original o dashboard
-        $intendedUrl = $this->session->get('intended_url', '/dashboard');
+        // Login exitoso - redirigir según el rol del usuario
+        $intendedUrl = $this->session->get('intended_url');
         $this->session->remove('intended_url');
+
+        // Si no hay URL previa, redirigir según el rol
+        if (!$intendedUrl) {
+            $userRole = $user['rol'] ?? null;
+            
+            // Redirigir al panel específico según el rol
+            switch ($userRole) {
+                case 'portero':
+                    $intendedUrl = '/portero/panel';
+                    break;
+                case 'aprendiz':
+                    // Los aprendices van a su panel específico
+                    $intendedUrl = '/aprendiz/panel';
+                    break;
+                case 'admin':
+                case 'administrativo':
+                case 'instructor':
+                default:
+                    $intendedUrl = '/dashboard';
+                    break;
+            }
+        }
 
         Response::redirect($intendedUrl);
     }

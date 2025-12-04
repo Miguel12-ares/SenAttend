@@ -1,0 +1,149 @@
+/* Estilos específicos para el panel de portero */
+
+.portero-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 0;
+}
+
+.portero-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.portero-dashboard-header h1 {
+    margin: 0 0 0.5rem 0;
+    color: #2c3e50;
+    font-size: 2rem;
+}
+
+.portero-dashboard-header p {
+    margin: 0;
+    color: #666;
+    font-size: 1rem;
+}
+
+.portero-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.portero-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #39A900 0%, #2d8600 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    opacity: 0.9;
+}
+
+.stat-info h3 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.stat-info p {
+    margin: 0.25rem 0 0 0;
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.portero-ingresos-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.portero-ingresos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.portero-ingresos-header h2 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.5rem;
+}
+
+.portero-ingresos-list table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.portero-ingresos-list table thead {
+    background: #f8f9fa;
+}
+
+.portero-ingresos-list table th {
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.portero-ingresos-list table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+    color: #495057;
+}
+
+.portero-ingresos-list table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.portero-ingresos-list table code {
+    background: #e9ecef;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .portero-dashboard-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .portero-ingresos-list {
+        overflow-x: auto;
+    }
+
+    .portero-ingresos-list table {
+        min-width: 800px;
+    }
+}
+

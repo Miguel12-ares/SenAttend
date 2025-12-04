@@ -6,8 +6,8 @@
 $title = 'Editar Aprendiz - SENAttend';
 $showHeader = true;
 $currentPage = 'aprendices';
-$additionalStyles = asset_css('css/components.css') . asset_css('css/fichas.css') . asset_css('css/aprendices.css');
-$additionalScripts = asset_js('js/components.js');
+$additionalStyles = asset_css('css/common/components.css') . asset_css('css/modules/fichas.css') . asset_css('css/modules/aprendices.css');
+$additionalScripts = asset_js('js/common/components.js');
 
 ob_start();
 ?>

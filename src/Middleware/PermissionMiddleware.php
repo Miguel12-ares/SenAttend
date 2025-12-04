@@ -65,13 +65,16 @@ class PermissionMiddleware
         if (!in_array($userRole, $allowedRoles, true)) {
             $this->logDeniedAccess($method, $uri, $userRole, 'ROLE_NOT_ALLOWED');
             
-            // Si ya estamos en dashboard y no tiene permiso, redirigir a login para evitar bucle
-            if ($uri === '/dashboard') {
-                $this->session->destroy(); // Cerrar sesión si no tiene acceso al dashboard
+            // Redirigir al panel correcto según el rol del usuario
+            $redirectTo = $this->getDefaultRouteForRole($userRole);
+            
+            // Si ya estamos en la ruta de destino, evitar bucle infinito
+            if ($uri === $redirectTo) {
+                $this->session->destroy();
                 $this->redirectForbidden('/login?error=access_denied');
             }
             
-            $this->redirectForbidden('/dashboard');
+            $this->redirectForbidden($redirectTo);
         }
 
         return true;
@@ -127,6 +130,24 @@ class PermissionMiddleware
         ];
 
         error_log('RBAC_DENIED: ' . json_encode($entry));
+    }
+
+    /**
+     * Obtiene la ruta por defecto según el rol del usuario
+     */
+    private function getDefaultRouteForRole(?string $role): string
+    {
+        switch ($role) {
+            case 'portero':
+                return '/portero/panel';
+            case 'aprendiz':
+                return '/aprendiz/panel';
+            case 'admin':
+            case 'administrativo':
+            case 'instructor':
+            default:
+                return '/dashboard';
+        }
     }
 
     /**
