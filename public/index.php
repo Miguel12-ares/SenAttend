@@ -251,6 +251,12 @@ $routes = [
             'action' => 'index',
             'middleware' => ['auth']
         ],
+        // Analítica y Reportes - admin y administrativo
+        '/analytics' => [
+            'controller' => \App\Controllers\AnalyticsController::class,
+            'action' => 'index',
+            'middleware' => ['auth']
+        ],
         // Test de rutas (solo en desarrollo)
         '/test-routes' => [
             'controller' => function() {
@@ -513,6 +519,17 @@ $routes = [
         '/gestion-reportes/generar' => [
             'controller' => ReportesController::class,
             'action' => 'generar',
+            'middleware' => ['auth']
+        ],
+        // Analítica - Generación de reportes (AJAX)
+        '/analytics/generar-semanal' => [
+            'controller' => \App\Controllers\AnalyticsController::class,
+            'action' => 'generateWeeklyReport',
+            'middleware' => ['auth']
+        ],
+        '/analytics/generar-mensual' => [
+            'controller' => \App\Controllers\AnalyticsController::class,
+            'action' => 'generateMonthlyReport',
             'middleware' => ['auth']
         ],
         // API Portero - Procesar QR
@@ -900,6 +917,24 @@ try {
             $authService,
             $session,
             $reportGenerationService,
+            $excelExportService
+        );
+    } elseif ($controllerClass === \App\Controllers\AnalyticsController::class) {
+        $analyticsRepository = new \App\Repositories\AnalyticsRepository();
+        $asistenciaRepository = new \App\Repositories\AsistenciaRepository();
+        $anomaliaRepository = new \App\Repositories\AnomaliaRepository();
+        $fichaRepository = new \App\Repositories\FichaRepository();
+        $analyticsService = new \App\Services\AnalyticsService(
+            $analyticsRepository,
+            $asistenciaRepository,
+            $anomaliaRepository,
+            $fichaRepository
+        );
+        $excelExportService = new \App\Gestion_reportes\Services\ExcelExportService();
+        $controller = new $controllerClass(
+            $authService,
+            $session,
+            $analyticsService,
             $excelExportService
         );
     } else {

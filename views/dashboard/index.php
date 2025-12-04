@@ -196,6 +196,21 @@
                             </div>
                         </div>
 
+                        <!-- Analítica y Reportes (Admin y Administrativo) -->
+                        <div class="action-card-sena">
+                            <div class="action-icon-sena">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h4>Analítica y Reportes</h4>
+                            <p>Generar reportes estadísticos de asistencia semanales y mensuales.</p>
+                            <div class="action-buttons">
+                                <a href="/analytics" class="btn-sena">
+                                    <i class="fas fa-file-excel"></i>
+                                    Ver Analítica
+                                </a>
+                            </div>
+                        </div>
+
                         <?php endif; ?>
 
                         <!-- Acciones solo para Admin -->
