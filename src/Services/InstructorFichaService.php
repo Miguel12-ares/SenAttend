@@ -390,11 +390,19 @@ class InstructorFichaService
                     continue;
                 }
 
+                // Validar que el instructor esté asignado a esa ficha
+                $instructorId = (int) $instructor['id'];
+                $fichaId = (int) $ficha['id'];
+                if (!$this->instructorFichaRepository->exists($instructorId, $fichaId)) {
+                    $resultado['errors'][] = "Línea {$linea}: el instructor {$documento} no está asignado a la ficha {$numeroFicha}; debe asignarse primero para poder ser líder";
+                    continue;
+                }
+
                 // Establecer/actualizar líder de esta ficha
                 $ok = $this->actualizarInstructorLiderDeFicha(
-                    (int) $ficha['id'],
-                    (int) $instructor['id'],
-                    [(int) $instructor['id']]
+                    $fichaId,
+                    $instructorId,
+                    [$instructorId]
                 );
 
                 if ($ok) {
