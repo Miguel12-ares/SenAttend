@@ -18,6 +18,7 @@ use App\Controllers\HomeController;
 use App\Controllers\ProfileController;
 use App\Controllers\QRController;
 use App\Controllers\WelcomeController;
+use App\Controllers\EstadisticasController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\PermissionMiddleware;
 use App\Repositories\UserRepository;
@@ -25,9 +26,11 @@ use App\Repositories\FichaRepository;
 use App\Repositories\AprendizRepository;
 use App\Repositories\CodigoQRRepository;
 use App\Repositories\InstructorFichaRepository;
+use App\Repositories\EstadisticasRepository;
 use App\Services\AuthService;
 use App\Services\EmailService;
 use App\Services\QRService;
+use App\Services\EstadisticasService;
 use App\Session\SessionManager;
 use App\Support\Response;
 
@@ -63,11 +66,13 @@ $codigoQRRepository = new CodigoQRRepository();
 $instructorFichaRepository = new InstructorFichaRepository();
 $asistenciaRepository = new \App\Repositories\AsistenciaRepository();
 $turnoConfigRepository = new \App\Repositories\TurnoConfigRepository();
+$estadisticasRepository = new EstadisticasRepository();
 $authService = new AuthService($userRepository, $session);
 $emailService = new EmailService();
 $qrService = new QRService($codigoQRRepository, $aprendizRepository, $emailService);
 $turnoConfigService = new \App\Services\TurnoConfigService($turnoConfigRepository);
 $asistenciaService = new \App\Services\AsistenciaService($asistenciaRepository, $aprendizRepository, $fichaRepository, $turnoConfigService);
+$estadisticasService = new EstadisticasService($estadisticasRepository);
 $authMiddleware = new AuthMiddleware($session);
 // Cargar configuración de permisos (RBAC)
 $permissionsConfig = require __DIR__ . '/../config/permissions_config.php';
@@ -229,6 +234,33 @@ $routes = [
         '/configuracion/horarios' => [
             'controller' => \App\Controllers\TurnoConfigController::class,
             'action' => 'index',
+            'middleware' => ['auth']
+        ],
+        // Estadísticas
+        '/estadisticas' => [
+            'controller' => EstadisticasController::class,
+            'action' => 'index',
+            'middleware' => ['auth']
+        ],
+        // API Estadísticas
+        '/api/estadisticas/aprendiz' => [
+            'controller' => EstadisticasController::class,
+            'action' => 'aprendiz',
+            'middleware' => ['auth']
+        ],
+        '/api/estadisticas/ficha' => [
+            'controller' => EstadisticasController::class,
+            'action' => 'ficha',
+            'middleware' => ['auth']
+        ],
+        '/api/estadisticas/reportes' => [
+            'controller' => EstadisticasController::class,
+            'action' => 'reportes',
+            'middleware' => ['auth']
+        ],
+        '/api/estadisticas/exportar' => [
+            'controller' => EstadisticasController::class,
+            'action' => 'exportar',
             'middleware' => ['auth']
         ],
         // API Configuración de Turnos
@@ -665,6 +697,12 @@ try {
             $instructorService,
             $instructorRepository,
             $authService
+        );
+    } elseif ($controllerClass === EstadisticasController::class) {
+        $controller = new $controllerClass(
+            $estadisticasService,
+            $authService,
+            $fichaRepository
         );
     } else {
         throw new RuntimeException("Unknown controller: {$controllerClass}");

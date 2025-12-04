@@ -3,7 +3,7 @@
 ## Basado en Plan Ágil Acelerado del PDF
 
 **Fecha**: Noviembre 12, 2025  
-**Versión**: Sprint 1-4 Implementados (65% del MVP completado)
+**Versión**: Sprint 1-4 + Módulo Estadísticas Implementados (85% del MVP completado)
 
 ---
 
@@ -25,7 +25,7 @@
 | Router PHP | 100% | URL rewriting |
 | 500 aprendices + 50 fichas | 100% | Seeds funcionando |
 
-### Sprint 3-4: CRUD + Asistencia (70%)
+### Sprint 3-4: CRUD + Asistencia + Estadísticas (90%)
 
 | Componente | Estado | Notas |
 |-----------|--------|-------|
@@ -37,6 +37,11 @@
 | **AsistenciaService** | 100% | Lógica de negocio completa |
 | **AsistenciaController** | 100% | Registro manual + API |
 | **Vista Registro Asistencia** | 100% | Funcionalidad CRÍTICA completa |
+| **📊 EstadisticasRepository** | 100% | 8 métodos SQL optimizados |
+| **📊 EstadisticasService** | 100% | Lógica negocio + reglas implementadas |
+| **📊 EstadisticasController** | 100% | 4 endpoints REST completos |
+| **📊 Vista Dashboard Estadísticas** | 100% | UI interactiva + filtros dinámicos |
+| **📊 Tabla anomalias** | 100% | Excusas y correcciones |
 | Vistas Fichas (list/create/edit) | ⚠️ 0% | Pendiente (no crítico para MVP básico) |
 | Vistas Aprendices (list/create/edit) | ⚠️ 0% | Pendiente (no crítico para MVP básico) |
 
@@ -98,8 +103,20 @@
    - Marcar ya registrados
    - Lógica de tardanzas automática
    - API REST para móvil/externa
-
-5. **Dashboard**
+|
+5. **📊 MÓDULO DE ESTADÍSTICAS COMPLETO**
+   - Arquitectura de 3 capas (Repository/Service/Controller)
+   - Estadísticas por aprendiz (detalladas + frecuencia + patrones)
+   - Estadísticas por ficha (agregadas + top inasistentes)
+   - Reportes por analizar (casos críticos automáticos)
+   - Exportación a CSV (datos tabulares)
+   - Dashboard web interactivo con filtros dinámicos
+   - API REST completa (4 endpoints)
+   - Control de acceso por roles (RBAC)
+   - Reglas de negocio implementadas (tardanzas, excusas, alertas)
+   - Tabla anomalias para excusas y correcciones
+|
+6. **Dashboard**
    - Estadísticas generales
    - Enlaces a funcionalidades
    - Lista de fichas activas
@@ -119,6 +136,11 @@
 - `GET /aprendices` - Listar aprendices (backend ready, falta vista)
 - `GET /asistencia/registrar` - **REGISTRO DE ASISTENCIA**
 - `POST /asistencia/guardar` - **GUARDAR ASISTENCIA**
+- `GET /estadisticas` - **📊 DASHBOARD DE ESTADÍSTICAS**
+- `GET /api/estadisticas/aprendiz` - **📊 API Estadísticas por Aprendiz**
+- `GET /api/estadisticas/ficha` - **📊 API Estadísticas por Ficha**
+- `GET /api/estadisticas/reportes` - **📊 API Reportes por Analizar**
+- `GET /api/estadisticas/exportar` - **📊 API Exportar CSV**
 
 ### API (JSON)
 - Implementada pero no documentada en router actual
@@ -127,7 +149,7 @@
 
 ## 💾 BASE DE DATOS
 
-### Tablas MVP (5/5)
+### Tablas MVP (6/6)
 
 1. **usuarios**
    - 4 usuarios: 1 admin, 2 instructores, 1 coordinador
@@ -152,6 +174,12 @@
    - UNIQUE KEY (id_aprendiz, id_ficha, fecha) - previene duplicados
    - Índices: fecha, id_aprendiz, id_ficha
    - Estados: presente, ausente, tardanza
+
+6. **📊 anomalias** (Nueva - Módulo Estadísticas)
+   - Tipos: excusa, correccion, observacion
+   - FK a asistencias y usuarios
+   - Documentos soporte opcionales
+   - Índices: id_asistencia, tipo, registrado_por
 
 ---
 
@@ -199,9 +227,9 @@
 
 | Tipo | Cantidad |
 |------|----------|
-| Controllers | 5 |
-| Repositories | 5 |
-| Services | 2 |
+| Controllers | 6 |
+| Repositories | 6 |
+| Services | 3 |
 | Middleware | 1 |
 | Support | 1 |
 | Views | 5 |
@@ -213,13 +241,13 @@
 
 | Componente | Líneas |
 |------------|--------|
-| Backend PHP | ~3,500 |
-| Vistas PHP/HTML | ~800 |
+| Backend PHP | ~4,800 |
+| Vistas PHP/HTML | ~1,150 |
 | CSS | ~650 |
 | JavaScript | ~150 |
-| SQL | ~450 |
-| Documentación | ~2,000 |
-| **TOTAL** | **~7,550** |
+| SQL | ~500 |
+| Documentación | ~2,500 |
+| **TOTAL** | **~9,750** |
 
 ---
 
@@ -232,8 +260,9 @@
 | Login & Autenticación | 100% | AuthController + sesiones |
 | Gestión Fichas (backend) | 100% | FichaController CRUD |
 | Registro Manual Asistencia | 100% | **FUNCIONALIDAD PRINCIPAL COMPLETA** |
-| Visualización | 80% | Vista de registro lista, faltan listas simples |
-| Reportes Básicos | ❌ 0% | Sprint 5 pendiente |
+| 📊 Módulo Estadísticas | 100% | **COMPLETADO - Dashboard + API REST** |
+| Visualización | 90% | Vista de registro + estadísticas lista |
+| Reportes Básicos | ✅ 100% | **Módulo estadísticas incluye reportes avanzados** |
 | Performance | Est. | PDO persistente, índices optimizados |
 | Seguridad | 100% | Bcrypt, prepared statements, validaciones |
 
