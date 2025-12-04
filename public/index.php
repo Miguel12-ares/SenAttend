@@ -528,6 +528,8 @@ $routes = [
         ],
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
         // Analítica - Generación de reportes (AJAX)
         '/analytics/generar-semanal' => [
             'controller' => \App\Controllers\AnalyticsController::class,
@@ -538,6 +540,10 @@ $routes = [
             'controller' => \App\Controllers\AnalyticsController::class,
             'action' => 'generateMonthlyReport',
 =======
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
         // API Instructor líder - eliminar asignación de liderazgo
@@ -551,6 +557,12 @@ $routes = [
             'controller' => \App\Controllers\InstructorFichaController::class,
             'action' => 'importLideresProcess',
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
