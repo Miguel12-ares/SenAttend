@@ -148,6 +148,12 @@ $routes = [
             'action' => 'asistencias',
             'middleware' => []
         ],
+        // Registro de Anomalías
+        '/anomalias/registrar' => [
+            'controller' => \App\Controllers\AsistenciaController::class,
+            'action' => 'registrarAnomalias',
+            'middleware' => ['auth']
+        ],
         '/aprendiz/generar-qr' => [
             'controller' => AprendizAuthController::class,
             'action' => 'generarQR',
@@ -280,6 +286,17 @@ $routes = [
         '/api/qr/historial-diario' => [
             'controller' => QRController::class,
             'action' => 'apiHistorialDiario',
+            'middleware' => ['auth']
+        ],
+        // API Anomalías
+        '/api/asistencia/anomalias' => [
+            'controller' => \App\Controllers\AsistenciaController::class,
+            'action' => 'apiGetAnomalias',
+            'middleware' => ['auth']
+        ],
+        '/api/asistencia/anomalias/tipos' => [
+            'controller' => \App\Controllers\AsistenciaController::class,
+            'action' => 'apiGetTiposAnomalias',
             'middleware' => ['auth']
         ],
         // Configuración de Turnos (Solo Admin)
@@ -438,6 +455,17 @@ $routes = [
             'action' => 'apiProcesarQR',
             'middleware' => ['auth']
         ],
+        // API Anomalías POST
+        '/api/asistencia/anomalia/aprendiz' => [
+            'controller' => \App\Controllers\AsistenciaController::class,
+            'action' => 'apiRegistrarAnomaliaAprendiz',
+            'middleware' => ['auth']
+        ],
+        '/api/asistencia/anomalia/ficha' => [
+            'controller' => \App\Controllers\AsistenciaController::class,
+            'action' => 'apiRegistrarAnomaliaFicha',
+            'middleware' => ['auth']
+        ],
         // Configuración de Turnos POST (Solo Admin)
         '/configuracion/horarios/actualizar' => [
             'controller' => \App\Controllers\TurnoConfigController::class,
@@ -551,6 +579,12 @@ $dynamicRoutes = [
             'action' => 'getInstructoresFicha',
             'middleware' => ['auth'],
             'params' => ['id']
+        ],
+        '/api/asistencia/aprendices/(\d+)' => [
+            'controller' => \App\Controllers\AsistenciaController::class,
+            'action' => 'apiGetAprendices',
+            'middleware' => ['auth'],
+            'params' => ['fichaId']
         ],
         '/aprendiz/equipos/(\d+)/qr' => [
             'controller' => AprendizEquipoController::class,
@@ -722,11 +756,22 @@ try {
             $authService
         );
     } elseif ($controllerClass === \App\Controllers\AsistenciaController::class) {
+        // Inicializar servicio de anomalías
+        $anomaliaRepository = new \App\Repositories\AnomaliaRepository();
+        $userRepository = new \App\Repositories\UserRepository();
+        $anomaliaService = new \App\Services\AnomaliaService(
+            $anomaliaRepository,
+            $asistenciaRepository,
+            $fichaRepository,
+            $aprendizRepository,
+            $userRepository
+        );
         $controller = new $controllerClass(
             $asistenciaService,
             $authService,
             $fichaRepository,
-            $aprendizRepository
+            $aprendizRepository,
+            $anomaliaService
         );
     } elseif ($controllerClass === QRController::class) {
         $controller = new $controllerClass(

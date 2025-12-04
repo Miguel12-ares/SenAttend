@@ -319,6 +319,22 @@ class AsistenciaService
     {
         $stats = $this->asistenciaRepository->getEstadisticas($fichaId, $fecha);
         
+        // Asegurar que siempre tenemos un array con las claves necesarias
+        if (empty($stats)) {
+            $stats = [
+                'total' => 0,
+                'presentes' => 0,
+                'ausentes' => 0,
+                'tardanzas' => 0,
+            ];
+        }
+        
+        // Asegurar que los valores son numéricos
+        $stats['total'] = (int) ($stats['total'] ?? 0);
+        $stats['presentes'] = (int) ($stats['presentes'] ?? 0);
+        $stats['ausentes'] = (int) ($stats['ausentes'] ?? 0);
+        $stats['tardanzas'] = (int) ($stats['tardanzas'] ?? 0);
+        
         // Calcular porcentajes
         if ($stats['total'] > 0) {
             $stats['porcentaje_presentes'] = round(($stats['presentes'] / $stats['total']) * 100, 2);
