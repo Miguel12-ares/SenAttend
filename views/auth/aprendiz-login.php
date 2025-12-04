@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SENAttend</title>
+    <title>Login Aprendiz - SENAttend</title>
     <link rel="stylesheet" href="<?= asset('assets/vendor/fontawesome/css/all.min.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/common/style.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/components/header-public.css') ?>">
@@ -16,8 +16,7 @@
         <div class="login-box">
             <div class="login-header">
                 <h1>SENAttend</h1>
-                <p>Sistema de Asistencia SENA</p>
-                <p class="login-subtitle">Acceso para personal y aprendices</p>
+                <p>Acceso para Aprendices</p>
             </div>
 
             <?php if (isset($error) && $error): ?>
@@ -32,7 +31,7 @@
             </div>
             <?php endif; ?>
 
-            <form action="/auth/login" method="POST" id="loginForm" class="login-form">
+            <form action="/aprendiz/auth/login" method="POST" id="aprendizLoginForm" class="login-form">
                 <div class="form-group">
                     <label for="email">Correo Electrónico</label>
                     <input 
@@ -53,14 +52,14 @@
                         id="password" 
                         name="password" 
                         class="form-control" 
-                        placeholder="••••••••"
+                        placeholder="Primeros 5 dígitos de tu documento"
                         required
                     >
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block">
                     <i class="fas fa-sign-in-alt"></i>
-                    Ingresar
+                    Ingresar como Aprendiz
                 </button>
             </form>
         </div>
@@ -68,8 +67,7 @@
 
     <script src="<?= asset('js/app.js') ?>"></script>
     <script>
-        // Validación simple del formulario
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('aprendizLoginForm').addEventListener('submit', function(e) {
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
 
@@ -81,11 +79,12 @@
 
             if (!email.includes('@')) {
                 e.preventDefault();
-                alert('Por favor ingrese un email válido');
+                alert('Por favor ingrese un correo electrónico válido');
                 return false;
             }
         });
     </script>
 </body>
 </html>
+
 

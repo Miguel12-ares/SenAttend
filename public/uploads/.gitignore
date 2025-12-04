@@ -1,0 +1,6 @@
+# Directorio de uploads (equipos, etc.)
+# Mantener vacío en control de versiones, solo estructura.
+*
+!.gitignore
+
+

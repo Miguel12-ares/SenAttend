@@ -32,15 +32,15 @@ class InstructorRepository
             $params = [];
             
             // Filtro de búsqueda (solo documento)
-            if (!empty($filters['search'])) {
+            if (!empty($filters['search']) && trim($filters['search']) !== '') {
                 $sql .= " AND documento LIKE :search";
-                $params[':search'] = '%' . $filters['search'] . '%';
+                $params[':search'] = '%' . trim($filters['search']) . '%';
             }
             
             // Filtro por nombre
-            if (!empty($filters['nombre'])) {
+            if (!empty($filters['nombre']) && trim($filters['nombre']) !== '') {
                 $sql .= " AND nombre LIKE :nombre";
-                $params[':nombre'] = '%' . $filters['nombre'] . '%';
+                $params[':nombre'] = '%' . trim($filters['nombre']) . '%';
             }
             
             $sql .= " ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
@@ -77,14 +77,14 @@ class InstructorRepository
             $sql = "SELECT COUNT(*) as total FROM usuarios WHERE rol = 'instructor'";
             $params = [];
             
-            if (!empty($filters['search'])) {
+            if (!empty($filters['search']) && trim($filters['search']) !== '') {
                 $sql .= " AND documento LIKE :search";
-                $params[':search'] = '%' . $filters['search'] . '%';
+                $params[':search'] = '%' . trim($filters['search']) . '%';
             }
             
-            if (!empty($filters['nombre'])) {
+            if (!empty($filters['nombre']) && trim($filters['nombre']) !== '') {
                 $sql .= " AND nombre LIKE :nombre";
-                $params[':nombre'] = '%' . $filters['nombre'] . '%';
+                $params[':nombre'] = '%' . trim($filters['nombre']) . '%';
             }
             
             $stmt = $db->prepare($sql);

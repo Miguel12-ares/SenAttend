@@ -13,6 +13,8 @@ require_once __DIR__ . '/../config/config.php';
 
 // Importar clases necesarias
 use App\Controllers\AuthController;
+use App\Controllers\AprendizAuthController;
+use App\GestionEquipos\Controllers\AprendizEquipoController;
 use App\Controllers\DashboardController;
 use App\Controllers\HomeController;
 use App\Controllers\ProfileController;
@@ -27,6 +29,18 @@ use App\Repositories\AprendizRepository;
 use App\Repositories\CodigoQRRepository;
 use App\Repositories\InstructorFichaRepository;
 use App\Services\AuthService;
+use App\Services\AprendizAuthService;
+use App\GestionEquipos\Repositories\AprendizEquipoRepository;
+use App\GestionEquipos\Repositories\EquipoRepository;
+use App\GestionEquipos\Repositories\QrEquipoRepository;
+use App\GestionEquipos\Repositories\IngresoEquipoRepository;
+use App\GestionEquipos\Repositories\AnomaliaEquipoRepository;
+use App\GestionEquipos\Services\AprendizEquipoService;
+use App\GestionEquipos\Services\EquipoRegistroService;
+use App\GestionEquipos\Services\EquipoQRService;
+use App\GestionEquipos\Services\PorteroIngresoService;
+use App\GestionEquipos\Services\QREncryptionService;
+use App\GestionEquipos\Controllers\PorteroController;
 use App\Services\EmailService;
 use App\Services\QRService;
 use App\Session\SessionManager;
@@ -64,7 +78,19 @@ $codigoQRRepository = new CodigoQRRepository();
 $instructorFichaRepository = new InstructorFichaRepository();
 $asistenciaRepository = new \App\Repositories\AsistenciaRepository();
 $turnoConfigRepository = new \App\Repositories\TurnoConfigRepository();
-$authService = new AuthService($userRepository, $session);
+$authService = new AuthService($userRepository, $aprendizRepository, $session);
+$aprendizAuthService = new AprendizAuthService($aprendizRepository, $session);
+$aprendizEquipoRepository = new AprendizEquipoRepository();
+$equipoRepository = new EquipoRepository();
+$qrEquipoRepository = new QrEquipoRepository();
+$ingresoEquipoRepository = new IngresoEquipoRepository();
+$anomaliaEquipoRepository = new AnomaliaEquipoRepository();
+$aprendizEquipoService = new AprendizEquipoService($aprendizEquipoRepository);
+// Servicio de cifrado para QRs (instancia compartida)
+$qrEncryptionService = new QREncryptionService();
+$equipoRegistroService = new EquipoRegistroService($equipoRepository, $aprendizEquipoRepository, $qrEquipoRepository, $qrEncryptionService);
+$equipoQRService = new EquipoQRService($qrEquipoRepository);
+$porteroIngresoService = new PorteroIngresoService($qrEquipoRepository, $ingresoEquipoRepository, $anomaliaEquipoRepository, $equipoRepository, $aprendizRepository, $qrEncryptionService);
 $emailService = new EmailService();
 $qrService = new QRService($codigoQRRepository, $aprendizRepository, $emailService);
 $turnoConfigService = new \App\Services\TurnoConfigService($turnoConfigRepository);
@@ -95,6 +121,36 @@ $routes = [
         '/login' => [
             'controller' => AuthController::class,
             'action' => 'viewLogin',
+            'middleware' => []
+        ],
+        '/aprendiz/panel' => [
+            'controller' => AprendizAuthController::class,
+            'action' => 'panel',
+            'middleware' => []
+        ],
+        '/aprendiz/logout' => [
+            'controller' => AuthController::class,
+            'action' => 'logout',
+            'middleware' => []
+        ],
+        '/aprendiz/equipos' => [
+            'controller' => AprendizEquipoController::class,
+            'action' => 'index',
+            'middleware' => []
+        ],
+        '/aprendiz/equipos/crear' => [
+            'controller' => AprendizEquipoController::class,
+            'action' => 'create',
+            'middleware' => []
+        ],
+        '/aprendiz/asistencias' => [
+            'controller' => AprendizAuthController::class,
+            'action' => 'asistencias',
+            'middleware' => []
+        ],
+        '/aprendiz/generar-qr' => [
+            'controller' => AprendizAuthController::class,
+            'action' => 'generarQR',
             'middleware' => []
         ],
         '/auth/logout' => [
@@ -138,12 +194,6 @@ $routes = [
         '/gestion-instructores/importar' => [
             'controller' => \App\Controllers\GestionInstructoresController::class,
             'action' => 'importView',
-            'middleware' => ['auth']
-        ],
-        // Asistencia (CRÍTICO)
-        '/asistencia/registrar' => [
-            'controller' => \App\Controllers\AsistenciaController::class,
-            'action' => 'registrar',
             'middleware' => ['auth']
         ],
         // QR
@@ -238,6 +288,17 @@ $routes = [
             'action' => 'index',
             'middleware' => ['auth']
         ],
+        // Portero - Gestión de equipos
+        '/portero/panel' => [
+            'controller' => PorteroController::class,
+            'action' => 'panel',
+            'middleware' => ['auth']
+        ],
+        '/portero/escanear' => [
+            'controller' => PorteroController::class,
+            'action' => 'escanear',
+            'middleware' => ['auth']
+        ],
         // API Configuración de Turnos
         '/api/configuracion/turnos' => [
             'controller' => \App\Controllers\TurnoConfigController::class,
@@ -249,11 +310,22 @@ $routes = [
             'action' => 'apiTurnoActual',
             'middleware' => ['auth']
         ],
+        // API Portero
+        '/api/portero/ingresos-activos' => [
+            'controller' => PorteroController::class,
+            'action' => 'apiIngresosActivos',
+            'middleware' => ['auth']
+        ],
     ],
     'POST' => [
         '/auth/login' => [
             'controller' => AuthController::class,
             'action' => 'login',
+            'middleware' => []
+        ],
+        '/aprendiz/equipos' => [
+            'controller' => AprendizEquipoController::class,
+            'action' => 'store',
             'middleware' => []
         ],
         // Perfil
@@ -378,6 +450,18 @@ $routes = [
             'action' => 'generar',
             'middleware' => ['auth']
         ],
+        // API Portero - Procesar QR
+        '/api/portero/procesar-qr' => [
+            'controller' => PorteroController::class,
+            'action' => 'apiProcesarQR',
+            'middleware' => ['auth']
+        ],
+        // Portero - Procesar QR (formulario)
+        '/portero/procesar-qr' => [
+            'controller' => PorteroController::class,
+            'action' => 'procesarQR',
+            'middleware' => ['auth']
+        ],
     ],
 ];
 
@@ -467,6 +551,12 @@ $dynamicRoutes = [
             'action' => 'getInstructoresFicha',
             'middleware' => ['auth'],
             'params' => ['id']
+        ],
+        '/aprendiz/equipos/(\d+)/qr' => [
+            'controller' => AprendizEquipoController::class,
+            'action' => 'showQR',
+            'middleware' => [],
+            'params' => ['equipoId']
         ],
     ],
     'POST' => [
@@ -605,6 +695,13 @@ try {
     // Inyectar dependencias según el controlador
     if ($controllerClass === AuthController::class) {
         $controller = new $controllerClass($authService, $session);
+    } elseif ($controllerClass === AprendizAuthController::class) {
+        $asistenciaRepositoryForAprendiz = new \App\Repositories\AsistenciaRepository();
+        $controller = new $controllerClass($authService, $session, $aprendizEquipoService, $asistenciaRepositoryForAprendiz);
+    } elseif ($controllerClass === AprendizEquipoController::class) {
+        $controller = new $controllerClass($authService, $equipoRegistroService, $equipoQRService, $aprendizEquipoService, $session);
+    } elseif ($controllerClass === PorteroController::class) {
+        $controller = new $controllerClass($authService, $porteroIngresoService, $session);
     } elseif ($controllerClass === DashboardController::class) {
         $controller = new $controllerClass(
             $authService,

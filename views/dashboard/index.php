@@ -38,20 +38,6 @@
                         <!-- Acciones para Instructor y Coordinador -->
                         <?php if (in_array($user['rol'], ['instructor', 'coordinador'])): ?>
                         
-                        <!-- Registrar Asistencia -->
-                        <div class="action-card-sena">
-                            <div class="action-icon-sena">
-                                <i class="fas fa-clipboard-check"></i>
-                            </div>
-                            <h4>Registrar Asistencia</h4>
-                            <p>Administrar, crear y deshabilitar registros de asistencia.</p>
-                            <div class="action-buttons">
-                                <a href="/asistencia/registrar" class="btn-sena">
-                                    <i class="fas fa-plus"></i>
-                                    Registrar Asistencia
-                                </a>
-                            </div>
-                        </div>
 
                         <!-- Escanear QR -->
                         <div class="action-card-sena">
@@ -188,7 +174,7 @@
 
         <footer class="footer">
             <div class="container">
-                <p>&copy; <?= date('Y') ?> SENA - Servicio Nacional de Aprendizaje | <strong>SENAttend v1.0 MVP</strong></p>
+                <p>&copy; <?= date('Y') ?> SENA - Servicio Nacional de Aprendizaje</p>
             </div>
         </footer>
     </div>

@@ -37,14 +37,14 @@ class GestionInstructoresController
         
         $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1;
         $limit = 20;
-        $search = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '';
-        $nombre = filter_input(INPUT_GET, 'nombre', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '';
+        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+        $nombre = isset($_GET['nombre']) ? trim($_GET['nombre']) : '';
 
         $filters = [];
-        if ($search) {
+        if (!empty($search)) {
             $filters['search'] = $search;
         }
-        if ($nombre) {
+        if (!empty($nombre)) {
             $filters['nombre'] = $nombre;
         }
 

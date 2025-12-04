@@ -17,6 +17,22 @@
         return;
     }
 
+    // Prellenar documento si viene en la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const documentoParam = urlParams.get('documento');
+    if (documentoParam) {
+        const documentoInput = document.getElementById('documento');
+        if (documentoInput) {
+            documentoInput.value = documentoParam;
+            // Auto-generar QR si el documento está prellenado
+            setTimeout(() => {
+                if (form) {
+                    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                }
+            }, 500);
+        }
+    }
+
     /**
      * Muestra un mensaje de alerta
      */
