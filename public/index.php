@@ -526,10 +526,6 @@ $routes = [
             'action' => 'generar',
             'middleware' => ['auth']
         ],
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
         // Analítica - Generación de reportes (AJAX)
         '/analytics/generar-semanal' => [
             'controller' => \App\Controllers\AnalyticsController::class,
@@ -539,33 +535,18 @@ $routes = [
         '/analytics/generar-mensual' => [
             'controller' => \App\Controllers\AnalyticsController::class,
             'action' => 'generateMonthlyReport',
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+            'middleware' => ['auth']
+        ],
         // API Instructor líder - eliminar asignación de liderazgo
         '/api/instructor-fichas/lideres/eliminar' => [
             'controller' => \App\Controllers\InstructorFichaController::class,
             'action' => 'eliminarLiderDeFicha',
             'middleware' => ['auth']
         ],
-        // Importación de líderes de ficha
+        // Importación de líderes de ficha (form HTML)
         '/instructor-fichas/lideres/importar' => [
             'controller' => \App\Controllers\InstructorFichaController::class,
             'action' => 'importLideresProcess',
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
             'middleware' => ['auth']
         ],
         // API Portero - Procesar QR
