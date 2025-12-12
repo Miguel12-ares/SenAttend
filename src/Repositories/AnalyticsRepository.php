@@ -38,15 +38,16 @@ class AnalyticsRepository
                     f.nombre as ficha_nombre,
                     COUNT(DISTINCT fa.id_aprendiz) as total_aprendices,
                     COUNT(DISTINCT a.id) as total_registros,
-                    SUM(CASE WHEN a.estado = 'presente' THEN 1 ELSE 0 END) as total_presentes,
-                    SUM(CASE WHEN a.estado = 'ausente' THEN 1 ELSE 0 END) as total_ausentes,
-                    SUM(CASE WHEN a.estado = 'tardanza' THEN 1 ELSE 0 END) as total_tardanzas,
+                    COALESCE(SUM(CASE WHEN a.estado = 'presente' THEN 1 ELSE 0 END), 0) as total_presentes,
+                    COALESCE(SUM(CASE WHEN a.estado = 'ausente' THEN 1 ELSE 0 END), 0) as total_ausentes,
+                    COALESCE(SUM(CASE WHEN a.estado = 'tardanza' THEN 1 ELSE 0 END), 0) as total_tardanzas,
                     COUNT(DISTINCT a.fecha) as dias_registrados
                 FROM fichas f
                 INNER JOIN ficha_aprendiz fa ON f.id = fa.id_ficha
                 LEFT JOIN asistencias a ON fa.id_aprendiz = a.id_aprendiz 
                     AND a.id_ficha = f.id
                     AND a.fecha BETWEEN :fecha_inicio AND :fecha_fin
+                    AND a.fecha <= CURDATE()
                 WHERE f.id = :ficha_id
                     AND fa.id_aprendiz IN (
                         SELECT id FROM aprendices WHERE estado = 'activo'
@@ -64,7 +65,21 @@ class AnalyticsRepository
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$result) {
-                return [];
+                // Return default structure when no data exists
+                return [
+                    'ficha_id' => $fichaId,
+                    'numero_ficha' => 'N/A',
+                    'ficha_nombre' => 'N/A',
+                    'total_aprendices' => 0,
+                    'total_registros' => 0,
+                    'total_presentes' => 0,
+                    'total_ausentes' => 0,
+                    'total_tardanzas' => 0,
+                    'dias_registrados' => 0,
+                    'porcentaje_asistencia' => 0,
+                    'porcentaje_ausencias' => 0,
+                    'porcentaje_tardanzas' => 0
+                ];
             }
             
             // Calcular porcentajes
@@ -107,9 +122,9 @@ class AnalyticsRepository
                     ap.nombre,
                     ap.apellido,
                     COUNT(DISTINCT a.fecha) as dias_registrados,
-                    SUM(CASE WHEN a.estado = 'presente' THEN 1 ELSE 0 END) as presentes,
-                    SUM(CASE WHEN a.estado = 'ausente' THEN 1 ELSE 0 END) as ausentes,
-                    SUM(CASE WHEN a.estado = 'tardanza' THEN 1 ELSE 0 END) as tardanzas,
+                    COALESCE(SUM(CASE WHEN a.estado = 'presente' THEN 1 ELSE 0 END), 0) as presentes,
+                    COALESCE(SUM(CASE WHEN a.estado = 'ausente' THEN 1 ELSE 0 END), 0) as ausentes,
+                    COALESCE(SUM(CASE WHEN a.estado = 'tardanza' THEN 1 ELSE 0 END), 0) as tardanzas,
                     AVG(CASE 
                         WHEN a.estado IN ('presente', 'tardanza') 
                         THEN TIME_TO_SEC(a.hora) 
@@ -120,6 +135,7 @@ class AnalyticsRepository
                 LEFT JOIN asistencias a ON ap.id = a.id_aprendiz 
                     AND a.id_ficha = :ficha_id1
                     AND a.fecha BETWEEN :fecha_inicio AND :fecha_fin
+                    AND a.fecha <= CURDATE()
                 WHERE fa.id_ficha = :ficha_id2
                     AND ap.estado = 'activo'
                 GROUP BY ap.id, ap.documento, ap.nombre, ap.apellido
@@ -146,12 +162,20 @@ class AnalyticsRepository
                 $ausentes = (int)$row['ausentes'];
                 $tardanzas = (int)$row['tardanzas'];
                 
+                // Calcular ausencias implícitas (días sin registro = ausente)
+                $diasConRegistro = $presentes + $ausentes + $tardanzas;
+                $ausenciasImplicitas = max(0, $diasHabiles - $diasConRegistro);
+                $ausentesFinal = $ausentes + $ausenciasImplicitas;
+                
+                // Actualizar el valor de ausentes para incluir ausencias implícitas
+                $row['ausentes'] = $ausentesFinal;
+                
                 // Calcular porcentajes
                 $row['porcentaje_asistencia'] = $diasHabiles > 0 
                     ? round(($presentes / $diasHabiles) * 100, 2) 
                     : 0;
                 $row['porcentaje_ausencias'] = $diasHabiles > 0 
-                    ? round(($ausentes / $diasHabiles) * 100, 2) 
+                    ? round(($ausentesFinal / $diasHabiles) * 100, 2) 
                     : 0;
                 $row['porcentaje_tardanzas'] = $diasHabiles > 0 
                     ? round(($tardanzas / $diasHabiles) * 100, 2) 
@@ -383,38 +407,74 @@ class AnalyticsRepository
         try {
             $pdo = Connection::getInstance();
             
+            // Primero, calcular días hábiles en el rango (excluyendo futuros)
+            $diasHabiles = $this->calcularDiasHabilesHastaHoy($fechaInicio, $fechaFin);
+            
             $sql = "
                 SELECT 
                     ap.id as aprendiz_id,
                     ap.documento,
                     ap.nombre,
                     ap.apellido,
-                    SUM(CASE WHEN a.estado = 'ausente' THEN 1 ELSE 0 END) as total_ausencias,
-                    SUM(CASE WHEN a.estado = 'tardanza' THEN 1 ELSE 0 END) as total_tardanzas,
+                    COALESCE(SUM(CASE WHEN a.estado = 'presente' THEN 1 ELSE 0 END), 0) as total_presentes,
+                    COALESCE(SUM(CASE WHEN a.estado = 'ausente' THEN 1 ELSE 0 END), 0) as total_ausencias_registradas,
+                    COALESCE(SUM(CASE WHEN a.estado = 'tardanza' THEN 1 ELSE 0 END), 0) as total_tardanzas,
                     COUNT(DISTINCT a.fecha) as dias_registrados
                 FROM aprendices ap
                 INNER JOIN ficha_aprendiz fa ON ap.id = fa.id_aprendiz
                 LEFT JOIN asistencias a ON ap.id = a.id_aprendiz 
                     AND a.id_ficha = :ficha_id
                     AND a.fecha BETWEEN :fecha_inicio AND :fecha_fin
+                    AND a.fecha <= CURDATE()
                 WHERE fa.id_ficha = :ficha_id
                     AND ap.estado = 'activo'
                 GROUP BY ap.id, ap.documento, ap.nombre, ap.apellido
-                HAVING total_ausencias >= :umbral_ausencias 
-                    OR total_tardanzas >= :umbral_tardanzas
-                ORDER BY total_ausencias DESC, total_tardanzas DESC
             ";
             
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 ':ficha_id' => $fichaId,
                 ':fecha_inicio' => $fechaInicio,
-                ':fecha_fin' => $fechaFin,
-                ':umbral_ausencias' => $umbralAusencias,
-                ':umbral_tardanzas' => $umbralTardanzas
+                ':fecha_fin' => $fechaFin
             ]);
             
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Procesar resultados para incluir ausencias implícitas
+            $problematicos = [];
+            foreach ($results as $row) {
+                $presentes = (int)$row['total_presentes'];
+                $ausentesRegistradas = (int)$row['total_ausencias_registradas'];
+                $tardanzas = (int)$row['total_tardanzas'];
+                
+                // Calcular ausencias implícitas (días sin registro)
+                $diasConRegistro = $presentes + $ausentesRegistradas + $tardanzas;
+                $ausenciasImplicitas = max(0, $diasHabiles - $diasConRegistro);
+                $totalAusencias = $ausentesRegistradas + $ausenciasImplicitas;
+                
+                // Filtrar por umbrales
+                if ($totalAusencias >= $umbralAusencias || $tardanzas >= $umbralTardanzas) {
+                    $problematicos[] = [
+                        'aprendiz_id' => $row['aprendiz_id'],
+                        'documento' => $row['documento'],
+                        'nombre' => $row['nombre'],
+                        'apellido' => $row['apellido'],
+                        'total_ausencias' => $totalAusencias,
+                        'total_tardanzas' => $tardanzas,
+                        'dias_registrados' => $row['dias_registrados']
+                    ];
+                }
+            }
+            
+            // Ordenar por ausencias y tardanzas
+            usort($problematicos, function($a, $b) {
+                if ($a['total_ausencias'] !== $b['total_ausencias']) {
+                    return $b['total_ausencias'] - $a['total_ausencias'];
+                }
+                return $b['total_tardanzas'] - $a['total_tardanzas'];
+            });
+            
+            return $problematicos;
             
         } catch (PDOException $e) {
             error_log('Error en getProblematicStudents: ' . $e->getMessage());
@@ -447,5 +507,25 @@ class AnalyticsRepository
         }
         
         return $diasHabiles;
+    }
+    
+    /**
+     * Calcula el número de días hábiles hasta hoy (excluyendo fechas futuras)
+     * 
+     * @param string $fechaInicio Fecha inicio (YYYY-MM-DD)
+     * @param string $fechaFin Fecha fin (YYYY-MM-DD)
+     * @return int Número de días hábiles hasta hoy
+     */
+    private function calcularDiasHabilesHastaHoy(string $fechaInicio, string $fechaFin): int
+    {
+        $hoy = new \DateTime();
+        $fin = new \DateTime($fechaFin);
+        
+        // Si la fecha fin es futura, usar hoy como límite
+        if ($fin > $hoy) {
+            $fechaFin = $hoy->format('Y-m-d');
+        }
+        
+        return $this->calcularDiasHabiles($fechaInicio, $fechaFin);
     }
 }

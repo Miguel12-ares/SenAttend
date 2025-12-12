@@ -105,55 +105,105 @@ class AnalyticsService
         }
 
         // Obtener estadísticas generales
-        $statsGenerales = $this->analyticsRepository->getAttendanceStatsByFicha(
-            $fichaId, 
-            $fechaInicio, 
-            $fechaFin
-        );
+        try {
+            $statsGenerales = $this->analyticsRepository->getAttendanceStatsByFicha(
+                $fichaId, 
+                $fechaInicio, 
+                $fechaFin
+            );
+        } catch (\Exception $e) {
+            error_log('Error en getAttendanceStatsByFicha: ' . $e->getMessage());
+            $statsGenerales = [
+                'total_aprendices' => 0,
+                'total_registros' => 0,
+                'total_presentes' => 0,
+                'total_ausentes' => 0,
+                'total_tardanzas' => 0,
+                'dias_registrados' => 0,
+                'porcentaje_asistencia' => 0,
+                'porcentaje_ausencias' => 0,
+                'porcentaje_tardanzas' => 0
+            ];
+        }
 
         // Obtener estadísticas por aprendiz
-        $statsPorAprendiz = $this->analyticsRepository->getAttendanceStatsByAprendiz(
-            $fichaId, 
-            $fechaInicio, 
-            $fechaFin
-        );
+        try {
+            $statsPorAprendiz = $this->analyticsRepository->getAttendanceStatsByAprendiz(
+                $fichaId, 
+                $fechaInicio, 
+                $fechaFin
+            );
+        } catch (\Exception $e) {
+            error_log('Error en getAttendanceStatsByAprendiz: ' . $e->getMessage());
+            $statsPorAprendiz = [];
+        }
 
         // Obtener patrones de tardanzas
-        $patronesTardanzas = $this->analyticsRepository->getTardinessPatterns(
-            $fichaId, 
-            $fechaInicio, 
-            $fechaFin
-        );
+        try {
+            $patronesTardanzas = $this->analyticsRepository->getTardinessPatterns(
+                $fichaId, 
+                $fechaInicio, 
+                $fechaFin
+            );
+        } catch (\Exception $e) {
+            error_log('Error en getTardinessPatterns: ' . $e->getMessage());
+            $patronesTardanzas = [];
+        }
 
         // Obtener tardanzas justificadas
-        $tardanzasJustificadas = $this->analyticsRepository->getJustifiedTardiness(
-            $fichaId, 
-            $fechaInicio, 
-            $fechaFin
-        );
+        try {
+            $tardanzasJustificadas = $this->analyticsRepository->getJustifiedTardiness(
+                $fichaId, 
+                $fechaInicio, 
+                $fechaFin
+            );
+        } catch (\Exception $e) {
+            error_log('Error en getJustifiedTardiness: ' . $e->getMessage());
+            $tardanzasJustificadas = [];
+        }
 
         // Obtener media de hora de ingreso
-        $mediaHoraIngreso = $this->analyticsRepository->getAverageEntryTime(
-            $fichaId, 
-            $fechaInicio, 
-            $fechaFin
-        );
+        try {
+            $mediaHoraIngreso = $this->analyticsRepository->getAverageEntryTime(
+                $fichaId, 
+                $fechaInicio, 
+                $fechaFin
+            );
+        } catch (\Exception $e) {
+            error_log('Error en getAverageEntryTime: ' . $e->getMessage());
+            $mediaHoraIngreso = [
+                'promedio_hora' => 'N/A',
+                'hora_minima' => 'N/A',
+                'hora_maxima' => 'N/A',
+                'total_registros' => 0
+            ];
+        }
 
         // Obtener ausencias por día
-        $ausenciasPorDia = $this->analyticsRepository->getAbsencesByDay(
-            $fichaId, 
-            $fechaInicio, 
-            $fechaFin
-        );
+        try {
+            $ausenciasPorDia = $this->analyticsRepository->getAbsencesByDay(
+                $fichaId, 
+                $fechaInicio, 
+                $fechaFin
+            );
+        } catch (\Exception $e) {
+            error_log('Error en getAbsencesByDay: ' . $e->getMessage());
+            $ausenciasPorDia = [];
+        }
 
         // Obtener aprendices problemáticos
-        $aprendicesProblematicos = $this->analyticsRepository->getProblematicStudents(
-            $fichaId, 
-            $fechaInicio, 
-            $fechaFin,
-            3, // Umbral de ausencias
-            5  // Umbral de tardanzas
-        );
+        try {
+            $aprendicesProblematicos = $this->analyticsRepository->getProblematicStudents(
+                $fichaId, 
+                $fechaInicio, 
+                $fechaFin,
+                3, // Umbral de ausencias
+                5  // Umbral de tardanzas
+            );
+        } catch (\Exception $e) {
+            error_log('Error en getProblematicStudents: ' . $e->getMessage());
+            $aprendicesProblematicos = [];
+        }
 
         // Construir respuesta
         return [
