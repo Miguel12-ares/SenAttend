@@ -355,4 +355,55 @@ class AnalyticsController
         $entry = "[$fecha] $mensaje\n$contextoTxt\n\n";
         file_put_contents($logFile, $entry, FILE_APPEND);
     }
+    
+    /**
+     * Descarga un archivo de reporte Excel
+     */
+    public function downloadReport(): void
+    {
+        $user = $this->authService->getCurrentUser();
+        
+        // Validar permisos
+        if (!$user || !in_array($user['rol'], ['admin', 'administrativo'])) {
+            http_response_code(403);
+            echo 'Acceso denegado';
+            return;
+        }
+        
+        // Obtener nombre del archivo de la URL
+        $requestUri = $_SERVER['REQUEST_URI'];
+        $fileName = basename(parse_url($requestUri, PHP_URL_PATH));
+        
+        // Validar que el archivo existe
+        $filePath = __DIR__ . '/../../public/exports/' . $fileName;
+        
+        if (!file_exists($filePath)) {
+            http_response_code(404);
+            echo 'Archivo no encontrado';
+            return;
+        }
+        
+        // Validar que es un archivo .xlsx
+        if (pathinfo($fileName, PATHINFO_EXTENSION) !== 'xlsx') {
+            http_response_code(400);
+            echo 'Tipo de archivo no válido';
+            return;
+        }
+        
+        // Configurar headers para forzar descarga
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $fileName . '"');
+        header('Content-Length: ' . filesize($filePath));
+        header('Cache-Control: max-age=0');
+        header('Pragma: public');
+        
+        // Limpiar buffer de salida
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Enviar archivo
+        readfile($filePath);
+        exit;
+    }
 }
