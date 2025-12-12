@@ -45,8 +45,6 @@ class AsistenciaRepository
                     ap.estado as estado_aprendiz,
                     ap.created_at as fecha_matricula,
                     fa.fecha_vinculacion,
-                    u.nombre as usuario_registro,
-                    u.rol as rol_usuario,
                     -- Datos de asistencia (NULL si no existe registro)
                     a.id as asistencia_id,
                     a.estado as asistencia_estado,
@@ -54,7 +52,15 @@ class AsistenciaRepository
                     a.observaciones,
                     a.created_at as fecha_registro_asistencia,
                     ur.nombre as registrado_por_nombre,
-                    ur.rol as registrado_por_rol
+                    ur.rol as registrado_por_rol,
+                    -- Campo calculado para ordenar: ausentes (1), tardanzas (2), presentes (3)
+                    -- Si no hay registro (a.estado IS NULL), se trata como ausente
+                    CASE 
+                        WHEN a.estado = "ausente" OR a.estado IS NULL THEN 1
+                        WHEN a.estado = "tardanza" THEN 2
+                        WHEN a.estado = "presente" THEN 3
+                        ELSE 1
+                    END as orden_estado
                  FROM aprendices ap
                  INNER JOIN ficha_aprendiz fa ON ap.id = fa.id_aprendiz
                  LEFT JOIN asistencias a ON ap.id = a.id_aprendiz 
@@ -64,7 +70,7 @@ class AsistenciaRepository
                  WHERE fa.id_ficha = :id_ficha_2
                      AND ap.estado = "activo"
                      AND fa.fecha_vinculacion <= :fecha_limite
-                 ORDER BY ap.apellido ASC, ap.nombre ASC'
+                 ORDER BY orden_estado ASC, ap.apellido ASC, ap.nombre ASC'
             );
 
             $stmt->execute([
@@ -75,6 +81,14 @@ class AsistenciaRepository
             ]);
 
             $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Procesar resultados: si no hay estado (NULL), tratarlo como "ausente"
+            foreach ($resultados as &$resultado) {
+                if ($resultado['asistencia_estado'] === null) {
+                    $resultado['asistencia_estado'] = 'ausente';
+                }
+            }
+            unset($resultado); // Liberar referencia
             
             // Log de performance en desarrollo
             if (defined('APP_ENV') && APP_ENV === 'local') {
@@ -363,7 +377,8 @@ class AsistenciaRepository
                 'fecha' => $fecha,
             ]);
 
-            return $stmt->fetch() ?: [
+            $result = $stmt->fetch();
+            return $result ?: [
                 'total' => 0,
                 'presentes' => 0,
                 'ausentes' => 0,
@@ -371,7 +386,12 @@ class AsistenciaRepository
             ];
         } catch (PDOException $e) {
             error_log("Error getting estadisticas: " . $e->getMessage());
-            return [];
+            return [
+                'total' => 0,
+                'presentes' => 0,
+                'ausentes' => 0,
+                'tardanzas' => 0,
+            ];
         }
     }
 
@@ -386,6 +406,39 @@ class AsistenciaRepository
         } catch (PDOException $e) {
             error_log("Error deleting asistencia: " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Busca una asistencia por aprendiz, ficha y fecha
+     * 
+     * @param int $aprendizId ID del aprendiz
+     * @param int $fichaId ID de la ficha
+     * @param string $fecha Fecha (YYYY-MM-DD)
+     * @return array|null Asistencia encontrada o null
+     */
+    public function findByAprendizFichaFecha(int $aprendizId, int $fichaId, string $fecha): ?array
+    {
+        try {
+            $stmt = Connection::prepare(
+                'SELECT * FROM asistencias 
+                 WHERE id_aprendiz = :id_aprendiz 
+                   AND id_ficha = :id_ficha 
+                   AND fecha = :fecha 
+                 LIMIT 1'
+            );
+
+            $stmt->execute([
+                'id_aprendiz' => $aprendizId,
+                'id_ficha' => $fichaId,
+                'fecha' => $fecha
+            ]);
+
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ?: null;
+        } catch (PDOException $e) {
+            error_log("Error finding asistencia by aprendiz, ficha and fecha: " . $e->getMessage());
+            return null;
         }
     }
 

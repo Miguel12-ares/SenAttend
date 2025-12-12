@@ -1,0 +1,38 @@
+/* Estilos adicionales para home/index.php */
+.instructions-text {
+    margin: 0;
+    font-size: 0.95rem;
+    opacity: 0.95;
+}
+
+.instructions-button-container {
+    margin-top: 2rem;
+}
+
+.form-help-text {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.qr-result-text {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}
+
+.btn-generate-secondary {
+    margin-top: 1rem;
+    background: #6c757d;
+}
+
+.footer-link {
+    color: white;
+    text-decoration: underline;
+}
+
+.footer-text {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+

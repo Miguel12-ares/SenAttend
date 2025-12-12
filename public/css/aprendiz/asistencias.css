@@ -1,0 +1,93 @@
+.asistencias-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+}
+
+.asistencias-table th,
+.asistencias-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.asistencias-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #555;
+}
+
+.badge-presente {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.badge-ausente {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.badge-tardanza {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #666;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #999;
+    margin-bottom: 1rem;
+}
+
+/* Estilos inline que deben convertirse a clases */
+.debug-info {
+    background: #f0f0f0;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.ficha-nombre {
+    color: #666;
+}
+
+.instructor-no-disponible {
+    color: #999;
+}
+
+.observaciones-text {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.observaciones-empty {
+    color: #999;
+}
+
+.empty-state-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-subtitle {
+    color: #999;
+}
+

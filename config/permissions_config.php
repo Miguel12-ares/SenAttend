@@ -72,6 +72,8 @@ return [
                 '/perfil' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR, ROLE_ESTUDIANTE, ROLE_PORTERO, ROLE_APRENDIZ],
                 // Gestión de Reportes - solo instructores
                 '/gestion-reportes' => [ROLE_INSTRUCTOR],
+                // Analítica y Reportes - admin y administrativo
+                '/analytics' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
 
                 // Gestión de Asignaciones Instructor-Ficha
                 // Comentario en el controlador indica: solo Admin y Administrativo (y coordinador)
@@ -92,6 +94,13 @@ return [
                 '/gestion-instructores' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 '/gestion-instructores/crear' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 '/gestion-instructores/importar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+
+                // Gestión de Porteros
+                '/gestion-porteros' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/gestion-porteros/crear' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/gestion-porteros/importar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/gestion-porteros/plantilla-csv' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/gestion-porteros/exportar-csv' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
 
                 // Historial diario de asistencia via QR (ver QRController)
                 '/api/qr/historial-diario' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
@@ -143,6 +152,10 @@ return [
                 '/gestion-instructores' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 '/gestion-instructores/importar-csv' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
 
+                // Gestión de Porteros POST
+                '/gestion-porteros' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/gestion-porteros/importar-csv' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+
                 // Asistencia
                 '/asistencia/guardar' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO, ROLE_INSTRUCTOR],
 
@@ -159,6 +172,9 @@ return [
                 '/configuracion/horarios/actualizar' => [ROLE_ADMIN],
                 // Gestión de Reportes - generación de exportes vía AJAX (solo instructores)
                 '/gestion-reportes/generar' => [ROLE_INSTRUCTOR],
+                // Analítica - Generación de reportes (admin y administrativo)
+                '/analytics/generar-semanal' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                '/analytics/generar-mensual' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
 
                 // API Portero - Gestión de equipos
                 '/api/portero/procesar-qr' => [ROLE_PORTERO],
@@ -199,6 +215,10 @@ return [
                 ],
                 [
                     'pattern' => '#^/gestion-instructores/(\d+)/editar$#',
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                ],
+                [
+                    'pattern' => '#^/gestion-porteros/(\d+)/editar$#',
                     'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 ],
                 [
@@ -253,6 +273,14 @@ return [
                 ],
                 [
                     'pattern' => '#^/gestion-instructores/(\d+)/eliminar$#',
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                ],
+                [
+                    'pattern' => '#^/gestion-porteros/(\d+)$#',
+                    'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
+                ],
+                [
+                    'pattern' => '#^/gestion-porteros/(\d+)/eliminar$#',
                     'roles' => [ROLE_ADMIN, ROLE_ADMINISTRATIVO],
                 ],
                 [

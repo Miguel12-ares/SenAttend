@@ -2,29 +2,29 @@
 
 namespace App\Services;
 
-use App\Repositories\InstructorRepository;
+use App\Repositories\PorteroRepository;
 
 /**
- * Servicio de lógica de negocio para Instructores
+ * Servicio de lógica de negocio para Porteros
  * Maneja validaciones, creación, actualización y procesamiento CSV
  */
-class InstructorService
+class PorteroService
 {
-    private InstructorRepository $instructorRepository;
+    private PorteroRepository $porteroRepository;
 
-    public function __construct(InstructorRepository $instructorRepository)
+    public function __construct(PorteroRepository $porteroRepository)
     {
-        $this->instructorRepository = $instructorRepository;
+        $this->porteroRepository = $porteroRepository;
     }
 
     /**
-     * Valida los datos de un instructor antes de crear/actualizar
+     * Valida los datos de un portero antes de crear/actualizar
      * 
      * @param array $data Datos a validar
      * @param int|null $excludeId ID a excluir en validación de unicidad (para edición)
      * @return array Array de errores (vacío si no hay errores)
      */
-    public function validateInstructorData(array $data, ?int $excludeId = null): array
+    public function validatePorteroData(array $data, ?int $excludeId = null): array
     {
         $errors = [];
 
@@ -33,7 +33,7 @@ class InstructorService
             $errors['documento'] = 'El documento es obligatorio';
         } elseif (!preg_match('/^\d{7,15}$/', $data['documento'])) {
             $errors['documento'] = 'El documento debe ser numérico y tener entre 7 y 15 dígitos';
-        } elseif ($this->instructorRepository->checkDocumentExists($data['documento'], $excludeId)) {
+        } elseif ($this->porteroRepository->checkDocumentExists($data['documento'], $excludeId)) {
             $errors['documento'] = 'Este documento ya está registrado en el sistema';
         }
 
@@ -49,7 +49,7 @@ class InstructorService
             $errors['email'] = 'El email es obligatorio';
         } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = 'El formato del email no es válido';
-        } elseif ($this->instructorRepository->checkEmailExists($data['email'], $excludeId)) {
+        } elseif ($this->porteroRepository->checkEmailExists($data['email'], $excludeId)) {
             $errors['email'] = 'Este email ya está registrado en el sistema';
         }
 
@@ -75,16 +75,16 @@ class InstructorService
     }
 
     /**
-     * Crea un nuevo instructor con validaciones
+     * Crea un nuevo portero con validaciones
      * La contraseña por defecto son los primeros 5-6 dígitos del documento
      * 
-     * @param array $data Datos del instructor
+     * @param array $data Datos del portero
      * @return array ['success' => bool, 'id' => int|null, 'errors' => array]
      */
-    public function createInstructor(array $data): array
+    public function createPortero(array $data): array
     {
         // Validar datos
-        $errors = $this->validateInstructorData($data);
+        $errors = $this->validatePorteroData($data);
 
         if (!empty($errors)) {
             return [
@@ -99,14 +99,14 @@ class InstructorService
             $defaultPassword = substr($data['documento'], 0, 6);
             $passwordHash = password_hash($defaultPassword, PASSWORD_DEFAULT);
 
-            $instructorData = [
+            $porteroData = [
                 'documento' => trim($data['documento']),
                 'nombre' => trim($data['nombre']),
                 'email' => trim(strtolower($data['email'])),
                 'password_hash' => $passwordHash
             ];
 
-            $id = $this->instructorRepository->create($instructorData);
+            $id = $this->porteroRepository->create($porteroData);
 
             return [
                 'success' => true,
@@ -116,35 +116,35 @@ class InstructorService
             ];
 
         } catch (\Exception $e) {
-            error_log("Error en InstructorService::createInstructor - " . $e->getMessage());
+            error_log("Error en PorteroService::createPortero - " . $e->getMessage());
             return [
                 'success' => false,
                 'id' => null,
-                'errors' => ['general' => 'Error al crear el instructor. Por favor, intente nuevamente.']
+                'errors' => ['general' => 'Error al crear el portero. Por favor, intente nuevamente.']
             ];
         }
     }
 
     /**
-     * Actualiza un instructor existente con validaciones
+     * Actualiza un portero existente con validaciones
      * 
-     * @param int $id ID del instructor
+     * @param int $id ID del portero
      * @param array $data Datos a actualizar
      * @return array ['success' => bool, 'errors' => array]
      */
-    public function updateInstructor(int $id, array $data): array
+    public function updatePortero(int $id, array $data): array
     {
-        // Verificar que el instructor existe
-        $instructor = $this->instructorRepository->findById($id);
-        if (!$instructor) {
+        // Verificar que el portero existe
+        $portero = $this->porteroRepository->findById($id);
+        if (!$portero) {
             return [
                 'success' => false,
-                'errors' => ['general' => 'Instructor no encontrado']
+                'errors' => ['general' => 'Portero no encontrado']
             ];
         }
 
         // Validar datos
-        $errors = $this->validateInstructorData($data, $id);
+        $errors = $this->validatePorteroData($data, $id);
 
         if (!empty($errors)) {
             return [
@@ -165,42 +165,42 @@ class InstructorService
                 $updateData['password_hash'] = password_hash($data['password'], PASSWORD_DEFAULT);
             }
 
-            $success = $this->instructorRepository->update($id, $updateData);
+            $success = $this->porteroRepository->update($id, $updateData);
 
             return [
                 'success' => $success,
-                'errors' => $success ? [] : ['general' => 'Error al actualizar el instructor']
+                'errors' => $success ? [] : ['general' => 'Error al actualizar el portero']
             ];
 
         } catch (\Exception $e) {
-            error_log("Error en InstructorService::updateInstructor - " . $e->getMessage());
+            error_log("Error en PorteroService::updatePortero - " . $e->getMessage());
             return [
                 'success' => false,
-                'errors' => ['general' => 'Error al actualizar el instructor. Por favor, intente nuevamente.']
+                'errors' => ['general' => 'Error al actualizar el portero. Por favor, intente nuevamente.']
             ];
         }
     }
 
     /**
-     * Obtiene instructores con filtros y paginación
+     * Obtiene porteros con filtros y paginación
      * 
      * @param array $filters Filtros a aplicar
      * @param int $page Página actual
      * @param int $limit Registros por página
      * @return array
      */
-    public function getInstructores(array $filters = [], int $page = 1, int $limit = 20): array
+    public function getPorteros(array $filters = [], int $page = 1, int $limit = 20): array
     {
         try {
             $offset = ($page - 1) * $limit;
             
-            $instructores = $this->instructorRepository->findAll($filters, $limit, $offset);
-            $total = $this->instructorRepository->count($filters);
+            $porteros = $this->porteroRepository->findAll($filters, $limit, $offset);
+            $total = $this->porteroRepository->count($filters);
             $totalPages = ceil($total / $limit);
 
             return [
                 'success' => true,
-                'data' => $instructores,
+                'data' => $porteros,
                 'pagination' => [
                     'current_page' => $page,
                     'total_pages' => $totalPages,
@@ -210,62 +210,62 @@ class InstructorService
             ];
 
         } catch (\Exception $e) {
-            error_log("Error en InstructorService::getInstructores - " . $e->getMessage());
+            error_log("Error en PorteroService::getPorteros - " . $e->getMessage());
             return [
                 'success' => false,
                 'data' => [],
                 'pagination' => [],
-                'error' => 'Error al obtener instructores'
+                'error' => 'Error al obtener porteros'
             ];
         }
     }
 
     /**
-     * Obtiene un instructor por ID con información completa
+     * Obtiene un portero por ID con información completa
      * 
-     * @param int $id ID del instructor
+     * @param int $id ID del portero
      * @return array|null
      */
-    public function getInstructorDetalle(int $id): ?array
+    public function getPorteroDetalle(int $id): ?array
     {
         try {
-            return $this->instructorRepository->findById($id);
+            return $this->porteroRepository->findById($id);
         } catch (\Exception $e) {
-            error_log("Error en InstructorService::getInstructorDetalle - " . $e->getMessage());
+            error_log("Error en PorteroService::getPorteroDetalle - " . $e->getMessage());
             return null;
         }
     }
 
     /**
-     * Elimina un instructor
+     * Elimina un portero
      * 
-     * @param int $id ID del instructor
+     * @param int $id ID del portero
      * @return array ['success' => bool, 'message' => string]
      */
-    public function deleteInstructor(int $id): array
+    public function deletePortero(int $id): array
     {
         try {
-            // Verificar que el instructor existe
-            $instructor = $this->instructorRepository->findById($id);
-            if (!$instructor) {
+            // Verificar que el portero existe
+            $portero = $this->porteroRepository->findById($id);
+            if (!$portero) {
                 return [
                     'success' => false,
-                    'message' => 'Instructor no encontrado'
+                    'message' => 'Portero no encontrado'
                 ];
             }
 
-            $success = $this->instructorRepository->delete($id);
+            $success = $this->porteroRepository->delete($id);
 
             return [
                 'success' => $success,
-                'message' => $success ? 'Instructor eliminado correctamente' : 'Error al eliminar el instructor'
+                'message' => $success ? 'Portero eliminado correctamente' : 'Error al eliminar el portero'
             ];
 
         } catch (\Exception $e) {
-            error_log("Error en InstructorService::deleteInstructor - " . $e->getMessage());
+            error_log("Error en PorteroService::deletePortero - " . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Error al eliminar el instructor. Puede que tenga registros asociados.'
+                'message' => 'Error al eliminar el portero. Puede que tenga registros asociados.'
             ];
         }
     }
@@ -280,13 +280,11 @@ class InstructorService
     {
         $errors = [];
 
-        // Verificar existencia del archivo
         if (!file_exists($filePath)) {
             return [
                 'valid' => false,
                 'errors' => ['El archivo no existe'],
-                'headers' => [],
-                'delimiter' => ',',
+                'headers' => []
             ];
         }
 
@@ -295,64 +293,25 @@ class InstructorService
             return [
                 'valid' => false,
                 'errors' => ['No se pudo abrir el archivo'],
-                'headers' => [],
-                'delimiter' => ',',
+                'headers' => []
             ];
         }
 
-        // -----------------------------------------
-        // Detectar delimitador (;) o (,)
-        // -----------------------------------------
-        // Primero intentamos con ';' (muy común en Excel en español)
-        $headers = fgetcsv($file, 0, ';');
-        $delimiter = ';';
-
-        if ($headers === false) {
-            fclose($file);
-            return [
-                'valid' => false,
-                'errors' => ['El archivo está vacío o no tiene el formato correcto'],
-                'headers' => [],
-                'delimiter' => ',',
-            ];
-        }
-
-        // Si solo hay una columna, probablemente el separador real sea coma
-        if (count($headers) === 1) {
-            rewind($file);
-            $headers = fgetcsv($file, 0, ',');
-            $delimiter = ',';
-        }
-
+        // Leer headers
+        $headers = fgetcsv($file);
         fclose($file);
 
         if (!$headers) {
             return [
                 'valid' => false,
                 'errors' => ['El archivo está vacío o no tiene el formato correcto'],
-                'headers' => [],
-                'delimiter' => ',',
+                'headers' => []
             ];
         }
 
-        // Normalizar headers: quitar espacios y posible BOM en la primera columna
-        $headers = array_map('trim', $headers);
-        if (isset($headers[0])) {
-            // Eliminar BOM UTF-8 si existe
-            $headers[0] = preg_replace('/^\xEF\xBB\xBF/', '', $headers[0]);
-        }
-
-        // Trabajar en minúsculas para evitar problemas de mayúsculas (ASCII)
-        $normalizedHeaders = array_map('strtolower', $headers);
-
         // Headers esperados (sin password)
         $expectedHeaders = ['documento', 'nombre', 'email'];
-        $missingHeaders = [];
-        foreach ($expectedHeaders as $expected) {
-            if (!in_array($expected, $normalizedHeaders, true)) {
-                $missingHeaders[] = $expected;
-            }
-        }
+        $missingHeaders = array_diff($expectedHeaders, $headers);
 
         if (!empty($missingHeaders)) {
             $errors[] = 'Faltan las siguientes columnas: ' . implode(', ', $missingHeaders);
@@ -361,8 +320,7 @@ class InstructorService
         return [
             'valid' => empty($errors),
             'errors' => $errors,
-            'headers' => $headers,
-            'delimiter' => $delimiter,
+            'headers' => $headers
         ];
     }
 
@@ -385,18 +343,15 @@ class InstructorService
             ];
         }
 
-        $delimiter = $structureValidation['delimiter'] ?? ',';
-
         $file = fopen($filePath, 'r');
-        // Saltar headers usando el delimitador detectado
-        $headers = fgetcsv($file, 0, $delimiter);
+        $headers = fgetcsv($file); // Saltar headers
         
         $errors = [];
         $preview = [];
         $rowNumber = 1;
         $documentos = [];
 
-        while (($row = fgetcsv($file, 0, $delimiter)) !== false && $rowNumber <= 100) { // Validar máximo 100 filas
+        while (($row = fgetcsv($file)) !== false && $rowNumber <= 100) { // Validar máximo 100 filas
             $rowNumber++;
             
             $data = array_combine($headers, $row);
@@ -431,7 +386,7 @@ class InstructorService
 
         // Verificar duplicados en base de datos
         if (!empty($documentos)) {
-            $existingDocs = $this->instructorRepository->findByDocumentos($documentos);
+            $existingDocs = $this->porteroRepository->findByDocumentos($documentos);
             if (!empty($existingDocs)) {
                 foreach ($existingDocs as $doc) {
                     $errors[] = "Documento {$doc['documento']} ya existe en el sistema";
@@ -448,7 +403,7 @@ class InstructorService
     }
 
     /**
-     * Procesa la importación de instructores desde CSV
+     * Procesa la importación de porteros desde CSV
      * Contraseña por defecto: primeros 5-6 dígitos del documento
      * 
      * @param string $filePath Ruta del archivo CSV
@@ -456,7 +411,7 @@ class InstructorService
      */
     public function processCsvBatch(string $filePath): array
     {
-        // Pre-validar (estructura y primeras filas)
+        // Pre-validar
         $validation = $this->preValidateImport($filePath);
         if (!$validation['valid']) {
             return [
@@ -467,33 +422,28 @@ class InstructorService
             ];
         }
 
-        // Volver a detectar delimitador para lectura completa
-        $structureValidation = $this->validateCsvStructure($filePath);
-        $delimiter = $structureValidation['delimiter'] ?? ',';
-
         $file = fopen($filePath, 'r');
-        // Saltar headers usando el delimitador detectado
-        $headers = fgetcsv($file, 0, $delimiter);
+        $headers = fgetcsv($file); // Saltar headers
         
         $imported = 0;
         $errors = [];
         $details = [];
 
-        while (($row = fgetcsv($file, 0, $delimiter)) !== false) {
+        while (($row = fgetcsv($file)) !== false) {
             $data = array_combine($headers, $row);
             
             try {
                 // Generar contraseña por defecto
                 $defaultPassword = substr($data['documento'], 0, 6);
                 
-                $instructorData = [
+                $porteroData = [
                     'documento' => trim($data['documento']),
                     'nombre' => trim($data['nombre']),
                     'email' => trim(strtolower($data['email'])),
                     'password_hash' => password_hash($defaultPassword, PASSWORD_DEFAULT)
                 ];
 
-                $id = $this->instructorRepository->create($instructorData);
+                $id = $this->porteroRepository->create($porteroData);
                 $imported++;
                 
                 $details[] = [
@@ -532,25 +482,56 @@ class InstructorService
     public function generateCsvTemplate(): string
     {
         $template = "documento,nombre,email\n";
-        $template .= "12345678,Juan Pérez,juan.perez@sena.edu.co\n";
-        $template .= "87654321,María González,maria.gonzalez@sena.edu.co\n";
+        $template .= "12345678,Juan Portero,juan.portero@sena.edu.co\n";
+        $template .= "87654321,María Portero,maria.portero@sena.edu.co\n";
         
         return $template;
     }
 
     /**
-     * Obtiene estadísticas de instructores
+     * Exporta porteros a CSV
+     * 
+     * @param array $filters Filtros a aplicar
+     * @return string Contenido del CSV
+     */
+    public function exportToCsv(array $filters = []): string
+    {
+        try {
+            $porteros = $this->porteroRepository->findAll($filters, 10000, 0); // Máximo 10000 registros
+            
+            $csv = "documento,nombre,email,fecha_creacion\n";
+            
+            foreach ($porteros as $portero) {
+                $csv .= sprintf(
+                    "%s,%s,%s,%s\n",
+                    $portero['documento'],
+                    $portero['nombre'],
+                    $portero['email'],
+                    $portero['created_at']
+                );
+            }
+            
+            return $csv;
+            
+        } catch (\Exception $e) {
+            error_log("Error en PorteroService::exportToCsv - " . $e->getMessage());
+            return "documento,nombre,email,fecha_creacion\n";
+        }
+    }
+
+    /**
+     * Obtiene estadísticas de porteros
      * 
      * @return array
      */
     public function getEstadisticas(): array
     {
         try {
-            return $this->instructorRepository->getStats();
+            return $this->porteroRepository->getStats();
         } catch (\Exception $e) {
-            error_log("Error en InstructorService::getEstadisticas - " . $e->getMessage());
+            error_log("Error en PorteroService::getEstadisticas - " . $e->getMessage());
             return [
-                'total_instructores' => 0,
+                'total_porteros' => 0,
                 'nuevos_hoy' => 0,
                 'nuevos_este_ano' => 0
             ];

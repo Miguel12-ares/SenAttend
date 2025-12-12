@@ -1,0 +1,23 @@
+.btn-text {
+    display: inline;
+}
+
+@media (max-width: 768px) {
+    .btn-text {
+        display: none;
+    }
+    
+    .btn i {
+        margin: 0;
+    }
+}
+
+.btn-danger {
+    background-color: var(--color-danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+

@@ -10,6 +10,8 @@ let instructorActual = null;
 let fichaActual = null;
 let fichasOriginales = [];
 let instructoresOriginales = [];
+let instructorLiderActual = null;
+let instructorLiderGestionActual = null;
 
 // ========================================
 // INICIALIZACIÓN
@@ -68,6 +70,14 @@ function inicializarBuscadores() {
             filtrarQuickFichas(this.value);
         });
     }
+
+    // Buscador en vivo de instructores para Asignación Rápida
+    const quickInstructorSearch = document.getElementById('quickInstructorSearch');
+    if (quickInstructorSearch) {
+        quickInstructorSearch.addEventListener('input', function() {
+            filtrarQuickInstructores(this.value);
+        });
+    }
 }
 
 function filtrarTabla(tablaId, termino) {
@@ -110,6 +120,9 @@ function abrirModalAsignacion(instructorId, instructorNombre) {
 
 function cerrarModal() {
     const modal = document.getElementById('modalAsignacion');
+    if (!modal) {
+        return;
+    }
     modal.classList.remove('show');
     setTimeout(() => {
         modal.style.display = 'none';
@@ -117,8 +130,10 @@ function cerrarModal() {
     
     // Limpiar datos
     instructorActual = null;
-    document.getElementById('modalFichasDisponibles').innerHTML = '';
-    document.getElementById('modalFichasAsignadas').innerHTML = '';
+    const disponibles = document.getElementById('modalFichasDisponibles');
+    const asignadas = document.getElementById('modalFichasAsignadas');
+    if (disponibles) disponibles.innerHTML = '';
+    if (asignadas) asignadas.innerHTML = '';
 }
 
 async function cargarFichasInstructor(instructorId) {
@@ -247,28 +262,45 @@ async function guardarAsignaciones() {
 // ========================================
 function abrirModalAsignacionFicha(fichaId, fichaNumero) {
     fichaActual = fichaId;
-    document.getElementById('modalFichaId').value = fichaId;
-    document.getElementById('modalTituloFicha').textContent = `Asignar Instructores - Ficha ${fichaNumero}`;
+    const hiddenFichaId = document.getElementById('modalFichaId');
+    if (hiddenFichaId) {
+        hiddenFichaId.value = fichaId;
+    }
+
+    // Info de ficha seleccionada (opcional)
+    const infoBox = document.getElementById('infoFichaSeleccionada');
+    const infoNumero = document.getElementById('infoFichaNumero');
+    if (infoBox && infoNumero) {
+        infoNumero.textContent = fichaNumero;
+        infoBox.style.display = 'block';
+    }
     
     // Cargar instructores
     cargarInstructoresFicha(fichaId);
     
-    // Mostrar modal
+    // Mostrar modal usando sistema estándar de components.css
     const modal = document.getElementById('modalAsignacionFicha');
-    modal.classList.add('show');
-    modal.style.display = 'flex';
+    if (modal) {
+        modal.classList.add('active');
+    }
 }
 
 function cerrarModalFicha() {
     const modal = document.getElementById('modalAsignacionFicha');
-    modal.classList.remove('show');
-    setTimeout(() => {
-        modal.style.display = 'none';
-    }, 300);
+    if (modal) {
+        modal.classList.remove('active');
+    }
     
     // Limpiar datos
     fichaActual = null;
-    document.querySelector('.instructores-list').innerHTML = '';
+    const listaInstructores = document.querySelector('.instructores-list');
+    if (listaInstructores) {
+        listaInstructores.innerHTML = '';
+    }
+    const infoBox = document.getElementById('infoFichaSeleccionada');
+    if (infoBox) {
+        infoBox.style.display = 'none';
+    }
 }
 
 async function cargarInstructoresFicha(fichaId) {
@@ -276,6 +308,19 @@ async function cargarInstructoresFicha(fichaId) {
         const container = document.querySelector('.instructores-list');
         container.innerHTML = '<p>Cargando instructores...</p>';
         
+        // Cargar instructor líder actual de la ficha
+        instructorLiderActual = null;
+        try {
+            const responseLider = await fetch(`/api/instructor-fichas/ficha/${fichaId}/lider`);
+            const dataLider = await responseLider.json();
+            if (dataLider.success && dataLider.instructor_id) {
+                instructorLiderActual = parseInt(dataLider.instructor_id);
+            }
+        } catch (e) {
+            // Si falla, simplemente no se marca líder
+            instructorLiderActual = null;
+        }
+
         // Cargar todos los instructores
         const responseInstructores = await fetch('/api/instructores');
         const instructores = await responseInstructores.json();
@@ -297,6 +342,7 @@ async function cargarInstructoresFicha(fichaId) {
         let html = '';
         (instructores.data || []).forEach(instructor => {
             const isChecked = asignadosIds.includes(instructor.id) ? 'checked' : '';
+            const isLeader = instructorLiderActual === instructor.id;
             html += `
                 <div class="instructor-item">
                     <input type="checkbox" 
@@ -308,11 +354,51 @@ async function cargarInstructoresFicha(fichaId) {
                         <strong>${instructor.nombre}</strong>
                         <small>${instructor.email}</small>
                     </div>
+                    <button 
+                        type="button" 
+                        class="leader-toggle ${isLeader ? 'is-leader' : ''}" 
+                        data-instructor-id="${instructor.id}"
+                        title="Marcar como instructor líder de la ficha">
+                        <i class="${isLeader ? 'fas' : 'far'} fa-star"></i>
+                    </button>
                 </div>
             `;
         });
         
         container.innerHTML = html || '<p>No hay instructores disponibles</p>';
+
+        // Listeners para la selección de instructor líder
+        container.querySelectorAll('.leader-toggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const instructorId = parseInt(btn.dataset.instructorId);
+
+                // Si el instructor no está marcado como asignado, lo marcamos
+                const checkbox = container.querySelector(`#inst-${instructorId}`);
+                if (checkbox && !checkbox.checked) {
+                    checkbox.checked = true;
+                }
+
+                instructorLiderActual = instructorId;
+
+                // Limpiar estado de otros botones
+                container.querySelectorAll('.leader-toggle').forEach(other => {
+                    const icon = other.querySelector('i');
+                    if (other === btn) {
+                        other.classList.add('is-leader');
+                        if (icon) {
+                            icon.classList.remove('far');
+                            icon.classList.add('fas');
+                        }
+                    } else {
+                        other.classList.remove('is-leader');
+                        if (icon) {
+                            icon.classList.remove('fas');
+                            icon.classList.add('far');
+                        }
+                    }
+                });
+            });
+        });
         
     } catch (error) {
         console.error('Error cargando instructores:', error);
@@ -328,6 +414,12 @@ async function guardarInstructoresFicha() {
     
     const checkboxes = document.querySelectorAll('.instructores-list input[type="checkbox"]:checked');
     const instructorIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+    // Si el líder actual no está entre los instructores seleccionados, se limpia
+    let liderParaGuardar = instructorLiderActual;
+    if (liderParaGuardar && !instructorIds.includes(liderParaGuardar)) {
+        liderParaGuardar = null;
+    }
     
     try {
         mostrarLoading(true);
@@ -339,7 +431,8 @@ async function guardarInstructoresFicha() {
             },
             body: JSON.stringify({
                 ficha_id: fichaActual,
-                instructor_ids: instructorIds
+                instructor_ids: instructorIds,
+                lider_instructor_id: liderParaGuardar
             })
         });
         
@@ -541,6 +634,234 @@ function filtrarQuickFichas(termino) {
     });
 }
 
+// Filtra las opciones del select de instructores en Asignación Rápida
+function filtrarQuickInstructores(termino) {
+    const select = document.getElementById('quickInstructor');
+    if (!select) return;
+
+    const search = termino.trim().toLowerCase();
+
+    // Siempre mantener visible la opción por defecto
+    Array.from(select.options).forEach((option, index) => {
+        if (index === 0) {
+            option.hidden = false;
+            return;
+        }
+
+        const texto = option.textContent.toLowerCase();
+        option.hidden = !texto.includes(search);
+    });
+
+    // Si el texto cambia y el valor seleccionado ya no coincide, limpiar selección
+    if (select.value) {
+        const selectedOption = select.querySelector(`option[value="${select.value}"]`);
+        if (selectedOption && selectedOption.hidden) {
+            select.value = '';
+        }
+    }
+}
+
+// ========================================
+// IMPORTACIÓN DE INSTRUCTORES LÍDERES (CSV)
+// ========================================
+function abrirModalImportLideres() {
+    const modal = document.getElementById('modalImportLideres');
+    if (modal) {
+        modal.classList.add('active');
+    }
+}
+
+function cerrarModalImportLideres() {
+    const modal = document.getElementById('modalImportLideres');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+function clearCsvLideresFile() {
+    const input = document.getElementById('csvLideresFile');
+    const info = document.getElementById('csvLideresInfo');
+    const uploadArea = document.querySelector('#modalImportLideres .file-upload-area');
+
+    if (input) input.value = '';
+    if (info) info.style.display = 'none';
+    if (uploadArea) uploadArea.style.display = 'block';
+}
+
+const csvLideresInput = document.getElementById('csvLideresFile');
+if (csvLideresInput) {
+    csvLideresInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const info = document.getElementById('csvLideresInfo');
+        const nameEl = document.getElementById('csvLideresName');
+        const sizeEl = document.getElementById('csvLideresSize');
+        const uploadArea = document.querySelector('#modalImportLideres .file-upload-area');
+
+        if (file && info && nameEl && sizeEl && uploadArea) {
+            nameEl.textContent = file.name;
+            sizeEl.textContent = (file.size / 1024).toFixed(2) + ' KB';
+            info.style.display = 'flex';
+            uploadArea.style.display = 'none';
+        }
+    });
+}
+
+async function submitImportLideres() {
+    const fileInput = document.getElementById('csvLideresFile');
+    if (!fileInput || !fileInput.files[0]) {
+        alert('Por favor seleccione un archivo CSV.');
+        return;
+    }
+
+    const file = fileInput.files[0];
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+        alert('El archivo debe ser un CSV.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('csv_file', file);
+
+    try {
+        mostrarLoading(true);
+
+        const response = await fetch('/api/instructor-fichas/lideres/importar', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            mostrarNotificacion(`Se actualizaron ${data.imported} líderes de ficha correctamente.`, 'success');
+            cerrarModalImportLideres();
+            // Recargar para ver cambios en la tabla de líderes
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            const errores = (data.errors || []).join(' | ');
+            mostrarNotificacion(data.error || errores || 'Error al importar líderes.', 'error');
+        }
+    } catch (error) {
+        console.error('Error importando líderes:', error);
+        mostrarNotificacion('Error al procesar la importación de líderes.', 'error');
+    } finally {
+        mostrarLoading(false);
+    }
+}
+
+// ========================================
+// GESTIÓN DE FICHAS DONDE ES INSTRUCTOR LÍDER
+// ========================================
+async function abrirModalLiderFichas(instructorId, instructorNombre) {
+    instructorLiderGestionActual = instructorId;
+
+    const descripcion = document.getElementById('modalLiderDescripcion');
+    if (descripcion) {
+        descripcion.innerHTML = `Instructor líder: <strong>${instructorNombre}</strong>`;
+    }
+
+    await cargarFichasLider(instructorId);
+
+    const modal = document.getElementById('modalLiderFichas');
+    if (modal) {
+        modal.classList.add('active');
+    }
+}
+
+function cerrarModalLiderFichas() {
+    const modal = document.getElementById('modalLiderFichas');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+    instructorLiderGestionActual = null;
+    const lista = document.getElementById('listaFichasLider');
+    if (lista) {
+        lista.innerHTML = '';
+    }
+}
+
+async function cargarFichasLider(instructorId) {
+    const lista = document.getElementById('listaFichasLider');
+    if (!lista) return;
+
+    lista.innerHTML = '<p>Cargando fichas...</p>';
+
+    try {
+        const response = await fetch(`/api/instructor-fichas/lideres/${instructorId}/fichas`);
+        const data = await response.json();
+
+        if (!data.success) {
+            lista.innerHTML = '<p class="text-muted">No fue posible obtener las fichas.</p>';
+            return;
+        }
+
+        const fichas = data.fichas || [];
+        if (fichas.length === 0) {
+            lista.innerHTML = '<p class="text-muted">Este instructor no es líder de ninguna ficha actualmente.</p>';
+            return;
+        }
+
+        let html = '';
+        fichas.forEach(ficha => {
+            html += `
+                <div class="instructor-item">
+                    <div class="instructor-info">
+                        <strong>${ficha.numero_ficha}</strong>
+                        <small>${ficha.nombre}</small>
+                    </div>
+                    <button 
+                        type="button" 
+                        class="btn btn-danger btn-sm"
+                        onclick="eliminarLiderFicha(${instructorId}, ${ficha.id}, '${ficha.numero_ficha.replace(/'/g, "\\'")}')"
+                    >
+                        <i class="fas fa-trash"></i> Quitar Liderazgo
+                    </button>
+                </div>
+            `;
+        });
+
+        lista.innerHTML = html;
+    } catch (error) {
+        console.error('Error cargando fichas lideradas:', error);
+        lista.innerHTML = '<p class="text-muted">Error al cargar las fichas.</p>';
+    }
+}
+
+async function eliminarLiderFicha(instructorId, fichaId, numeroFicha) {
+    const confirmar = confirm(`¿Seguro que desea quitar al instructor como líder de la ficha ${numeroFicha}?`);
+    if (!confirmar) return;
+
+    try {
+        mostrarLoading(true);
+
+        const response = await fetch('/api/instructor-fichas/lideres/eliminar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                instructor_id: instructorId,
+                ficha_id: fichaId,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            mostrarNotificacion('Asignación de líder eliminada correctamente', 'success');
+            // Recargar solo la lista del modal
+            await cargarFichasLider(instructorId);
+        } else {
+            mostrarNotificacion(data.error || 'No se pudo eliminar la asignación de líder', 'error');
+        }
+    } catch (error) {
+        console.error('Error al eliminar líder de ficha:', error);
+        mostrarNotificacion('Error al eliminar la asignación de líder', 'error');
+    } finally {
+        mostrarLoading(false);
+    }
+}
+
 // CSS para animaciones
 const style = document.createElement('style');
 style.textContent = `
@@ -578,18 +899,44 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         cerrarModal();
         cerrarModalFicha();
+        cerrarModalLiderFichas();
+        cerrarModalImportLideres();
     }
 });
 
 // Cerrar modales al hacer clic fuera
-document.getElementById('modalAsignacion').addEventListener('click', function(e) {
-    if (e.target === this) {
-        cerrarModal();
-    }
-});
+const modalAsignacionEl = document.getElementById('modalAsignacion');
+if (modalAsignacionEl) {
+    modalAsignacionEl.addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarModal();
+        }
+    });
+}
 
-document.getElementById('modalAsignacionFicha').addEventListener('click', function(e) {
-    if (e.target === this) {
-        cerrarModalFicha();
-    }
-});
+const modalAsignacionFichaEl = document.getElementById('modalAsignacionFicha');
+if (modalAsignacionFichaEl) {
+    modalAsignacionFichaEl.addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarModalFicha();
+        }
+    });
+}
+
+const modalLiderFichasEl = document.getElementById('modalLiderFichas');
+if (modalLiderFichasEl) {
+    modalLiderFichasEl.addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarModalLiderFichas();
+        }
+    });
+}
+
+const modalImportLideresEl = document.getElementById('modalImportLideres');
+if (modalImportLideresEl) {
+    modalImportLideresEl.addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarModalImportLideres();
+        }
+    });
+}

@@ -1,0 +1,20 @@
+/* Estilos para vista QR de equipos */
+.qr-card-centered {
+    text-align: center;
+}
+
+.qr-image-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.qr-image {
+    max-width: 300px;
+}
+
+.qr-info-text {
+    font-size: 0.9rem;
+    color: #666;
+}
+

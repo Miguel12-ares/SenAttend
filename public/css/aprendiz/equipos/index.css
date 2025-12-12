@@ -1,0 +1,18 @@
+/* Estilos para lista de equipos de aprendiz */
+.empty-state-centered {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: #999;
+    margin-bottom: 1rem;
+}
+
+.empty-state-text {
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+

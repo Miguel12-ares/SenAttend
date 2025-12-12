@@ -148,6 +148,12 @@ $routes = [
             'action' => 'asistencias',
             'middleware' => []
         ],
+        // Registro de Anomalías
+        '/anomalias/registrar' => [
+            'controller' => \App\Controllers\AsistenciaController::class,
+            'action' => 'registrarAnomalias',
+            'middleware' => ['auth']
+        ],
         '/aprendiz/generar-qr' => [
             'controller' => AprendizAuthController::class,
             'action' => 'generarQR',
@@ -196,6 +202,32 @@ $routes = [
             'action' => 'importView',
             'middleware' => ['auth']
         ],
+        // Gestión de Porteros
+        '/gestion-porteros' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'index',
+            'middleware' => ['auth']
+        ],
+        '/gestion-porteros/crear' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'create',
+            'middleware' => ['auth']
+        ],
+        '/gestion-porteros/importar' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'importView',
+            'middleware' => ['auth']
+        ],
+        '/gestion-porteros/plantilla-csv' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'downloadTemplate',
+            'middleware' => ['auth']
+        ],
+        '/gestion-porteros/exportar-csv' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'exportCsv',
+            'middleware' => ['auth']
+        ],
         // QR
         '/qr/generar' => [
             'controller' => QRController::class,
@@ -219,6 +251,12 @@ $routes = [
             'action' => 'index',
             'middleware' => ['auth']
         ],
+        // Analítica y Reportes - admin y administrativo
+        '/analytics' => [
+            'controller' => \App\Controllers\AnalyticsController::class,
+            'action' => 'index',
+            'middleware' => ['auth']
+        ],
         // Test de rutas (solo en desarrollo)
         '/test-routes' => [
             'controller' => function() {
@@ -231,6 +269,11 @@ $routes = [
         '/instructor-fichas' => [
             'controller' => \App\Controllers\InstructorFichaController::class,
             'action' => 'index',
+            'middleware' => ['auth']
+        ],
+        '/instructor-fichas/lideres/importar' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'importLideresView',
             'middleware' => ['auth']
         ],
         // API Instructor-Fichas
@@ -280,6 +323,17 @@ $routes = [
         '/api/qr/historial-diario' => [
             'controller' => QRController::class,
             'action' => 'apiHistorialDiario',
+            'middleware' => ['auth']
+        ],
+        // API Anomalías
+        '/api/asistencia/anomalias' => [
+            'controller' => \App\Controllers\AsistenciaController::class,
+            'action' => 'apiGetAnomalias',
+            'middleware' => ['auth']
+        ],
+        '/api/asistencia/anomalias/tipos' => [
+            'controller' => \App\Controllers\AsistenciaController::class,
+            'action' => 'apiGetTiposAnomalias',
             'middleware' => ['auth']
         ],
         // Configuración de Turnos (Solo Admin)
@@ -368,6 +422,17 @@ $routes = [
             'action' => 'processImport',
             'middleware' => ['auth']
         ],
+        // Gestión de Porteros POST
+        '/gestion-porteros' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'store',
+            'middleware' => ['auth']
+        ],
+        '/gestion-porteros/importar-csv' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'processImport',
+            'middleware' => ['auth']
+        ],
         // Asistencia (CRÍTICO)
         '/asistencia/guardar' => [
             'controller' => \App\Controllers\AsistenciaController::class,
@@ -438,6 +503,17 @@ $routes = [
             'action' => 'apiProcesarQR',
             'middleware' => ['auth']
         ],
+        // API Anomalías POST
+        '/api/asistencia/anomalia/aprendiz' => [
+            'controller' => \App\Controllers\AsistenciaController::class,
+            'action' => 'apiRegistrarAnomaliaAprendiz',
+            'middleware' => ['auth']
+        ],
+        '/api/asistencia/anomalia/ficha' => [
+            'controller' => \App\Controllers\AsistenciaController::class,
+            'action' => 'apiRegistrarAnomaliaFicha',
+            'middleware' => ['auth']
+        ],
         // Configuración de Turnos POST (Solo Admin)
         '/configuracion/horarios/actualizar' => [
             'controller' => \App\Controllers\TurnoConfigController::class,
@@ -450,10 +526,39 @@ $routes = [
             'action' => 'generar',
             'middleware' => ['auth']
         ],
+        // Analítica - Generación de reportes (AJAX)
+        '/analytics/generar-semanal' => [
+            'controller' => \App\Controllers\AnalyticsController::class,
+            'action' => 'generateWeeklyReport',
+            'middleware' => ['auth']
+        ],
+        '/analytics/generar-mensual' => [
+            'controller' => \App\Controllers\AnalyticsController::class,
+            'action' => 'generateMonthlyReport',
+            'middleware' => ['auth']
+        ],
+        // API Instructor líder - eliminar asignación de liderazgo
+        '/api/instructor-fichas/lideres/eliminar' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'eliminarLiderDeFicha',
+            'middleware' => ['auth']
+        ],
+        // Importación de líderes de ficha (form HTML)
+        '/instructor-fichas/lideres/importar' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'importLideresProcess',
+            'middleware' => ['auth']
+        ],
         // API Portero - Procesar QR
         '/api/portero/procesar-qr' => [
             'controller' => PorteroController::class,
             'action' => 'apiProcesarQR',
+            'middleware' => ['auth']
+        ],
+        // API Instructor líder - importar líderes desde CSV (POST, usado por JS)
+        '/api/instructor-fichas/lideres/importar' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'importLideresProcessApi',
             'middleware' => ['auth']
         ],
         // Portero - Procesar QR (formulario)
@@ -510,6 +615,12 @@ $dynamicRoutes = [
             'middleware' => ['auth'],
             'params' => ['id']
         ],
+        '/gestion-porteros/(\d+)/editar' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'edit',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
         '/api/fichas/(\d+)' => [
             'controller' => \App\Controllers\FichaController::class,
             'action' => 'apiShow',
@@ -552,6 +663,24 @@ $dynamicRoutes = [
             'middleware' => ['auth'],
             'params' => ['id']
         ],
+        '/api/instructor-fichas/ficha/(\d+)/lider' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getLiderFicha',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/api/instructor-fichas/lideres/(\d+)/fichas' => [
+            'controller' => \App\Controllers\InstructorFichaController::class,
+            'action' => 'getFichasLiderInstructor',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/api/asistencia/aprendices/(\d+)' => [
+            'controller' => \App\Controllers\AsistenciaController::class,
+            'action' => 'apiGetAprendices',
+            'middleware' => ['auth'],
+            'params' => ['fichaId']
+        ],
         '/aprendiz/equipos/(\d+)/qr' => [
             'controller' => AprendizEquipoController::class,
             'action' => 'showQR',
@@ -592,6 +721,18 @@ $dynamicRoutes = [
         ],
         '/gestion-instructores/(\d+)/eliminar' => [
             'controller' => \App\Controllers\GestionInstructoresController::class,
+            'action' => 'delete',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/gestion-porteros/(\d+)' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
+            'action' => 'update',
+            'middleware' => ['auth'],
+            'params' => ['id']
+        ],
+        '/gestion-porteros/(\d+)/eliminar' => [
+            'controller' => \App\Controllers\GestionPorterosController::class,
             'action' => 'delete',
             'middleware' => ['auth'],
             'params' => ['id']
@@ -722,11 +863,22 @@ try {
             $authService
         );
     } elseif ($controllerClass === \App\Controllers\AsistenciaController::class) {
+        // Inicializar servicio de anomalías
+        $anomaliaRepository = new \App\Repositories\AnomaliaRepository();
+        $userRepository = new \App\Repositories\UserRepository();
+        $anomaliaService = new \App\Services\AnomaliaService(
+            $anomaliaRepository,
+            $asistenciaRepository,
+            $fichaRepository,
+            $aprendizRepository,
+            $userRepository
+        );
         $controller = new $controllerClass(
             $asistenciaService,
             $authService,
             $fichaRepository,
-            $aprendizRepository
+            $aprendizRepository,
+            $anomaliaService
         );
     } elseif ($controllerClass === QRController::class) {
         $controller = new $controllerClass(
@@ -776,6 +928,14 @@ try {
             $instructorRepository,
             $authService
         );
+    } elseif ($controllerClass === \App\Controllers\GestionPorterosController::class) {
+        $porteroRepository = new \App\Repositories\PorteroRepository();
+        $porteroService = new \App\Services\PorteroService($porteroRepository);
+        $controller = new $controllerClass(
+            $porteroService,
+            $porteroRepository,
+            $authService
+        );
     } elseif ($controllerClass === ReportesController::class) {
         $asistenciaRepository = new \App\Repositories\AsistenciaRepository();
         $fichaRepository = new \App\Repositories\FichaRepository();
@@ -792,6 +952,24 @@ try {
             $authService,
             $session,
             $reportGenerationService,
+            $excelExportService
+        );
+    } elseif ($controllerClass === \App\Controllers\AnalyticsController::class) {
+        $analyticsRepository = new \App\Repositories\AnalyticsRepository();
+        $asistenciaRepository = new \App\Repositories\AsistenciaRepository();
+        $anomaliaRepository = new \App\Repositories\AnomaliaRepository();
+        $fichaRepository = new \App\Repositories\FichaRepository();
+        $analyticsService = new \App\Services\AnalyticsService(
+            $analyticsRepository,
+            $asistenciaRepository,
+            $anomaliaRepository,
+            $fichaRepository
+        );
+        $excelExportService = new \App\Gestion_reportes\Services\ExcelExportService();
+        $controller = new $controllerClass(
+            $authService,
+            $session,
+            $analyticsService,
             $excelExportService
         );
     } else {
