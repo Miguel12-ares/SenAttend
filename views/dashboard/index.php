@@ -193,6 +193,7 @@
         </footer>
     </div>
 
+    <script src="<?= asset('js/common/app.js') ?>"></script>
     <script src="<?= asset('js/app.js') ?>"></script>
     <script src="<?= asset('js/dashboard-admin/dashboard.js') ?>"></script>
 </body>

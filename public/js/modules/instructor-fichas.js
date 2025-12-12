@@ -40,6 +40,21 @@ function inicializarTabs() {
             document.getElementById(`tab-${targetTab}`).classList.add('active');
         });
     });
+
+    // Interceptar clicks en paginación para preservar la pestaña activa
+    const paginationLinks = document.querySelectorAll('.pagination a');
+    paginationLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const activeBtn = document.querySelector('.tab-button.active');
+            const activeTab = activeBtn ? activeBtn.getAttribute('data-tab') : null;
+            if (activeTab) {
+                e.preventDefault();
+                const url = new URL(this.href, window.location.origin);
+                url.searchParams.set('tab', activeTab);
+                window.location.href = url.toString();
+            }
+        });
+    });
 }
 
 // ========================================
@@ -104,21 +119,23 @@ function abrirModalAsignacion(instructorId, instructorNombre) {
     
     // Mostrar modal
     const modal = document.getElementById('modalAsignacion');
+    modal.classList.remove('closing');
     modal.classList.add('show');
-    modal.style.display = 'flex';
 }
 
 function cerrarModal() {
     const modal = document.getElementById('modalAsignacion');
+    // Añadir estado de cierre para reproducir animación y mantener overlay visible
+    modal.classList.add('closing');
     modal.classList.remove('show');
+    // Esperar a que se complete la animación (slideOutScale: 280ms)
     setTimeout(() => {
-        modal.style.display = 'none';
-    }, 300);
-    
-    // Limpiar datos
-    instructorActual = null;
-    document.getElementById('modalFichasDisponibles').innerHTML = '';
-    document.getElementById('modalFichasAsignadas').innerHTML = '';
+        modal.classList.remove('closing');
+        // Limpiar datos después de ocultar completamente
+        instructorActual = null;
+        document.getElementById('modalFichasDisponibles').innerHTML = '';
+        document.getElementById('modalFichasAsignadas').innerHTML = '';
+    }, 320);
 }
 
 async function cargarFichasInstructor(instructorId) {
@@ -255,20 +272,21 @@ function abrirModalAsignacionFicha(fichaId, fichaNumero) {
     
     // Mostrar modal
     const modal = document.getElementById('modalAsignacionFicha');
+    modal.classList.remove('closing');
     modal.classList.add('show');
-    modal.style.display = 'flex';
 }
 
 function cerrarModalFicha() {
     const modal = document.getElementById('modalAsignacionFicha');
+    modal.classList.add('closing');
     modal.classList.remove('show');
+    // Esperar a que se complete la animación (slideOutScale: 280ms)
     setTimeout(() => {
-        modal.style.display = 'none';
-    }, 300);
-    
-    // Limpiar datos
-    fichaActual = null;
-    document.querySelector('.instructores-list').innerHTML = '';
+        modal.classList.remove('closing');
+        // Limpiar datos después de ocultar completamente
+        fichaActual = null;
+        document.querySelector('.instructores-list').innerHTML = '';
+    }, 320);
 }
 
 async function cargarInstructoresFicha(fichaId) {

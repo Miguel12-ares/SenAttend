@@ -1,11 +1,16 @@
 /**
- * SENAttend - Tablas
+ * SENAttend - Tablas Responsive
+ * Tabla con diseño adaptativo mobile-first: card-based en móvil, tabla tradicional en desktop
+ * Breakpoints: 767px (mobile), 768px+ (tablet/desktop)
  */
 
+/* === Table Wrapper === */
 .table-wrapper {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    max-width: 100%;
+    width: 100%;
+    border-radius: var(--border-radius);
+    background-color: var(--color-white);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
 }
 
 .table-wrapper::-webkit-scrollbar {
@@ -26,13 +31,15 @@
     background: var(--color-gray-900);
 }
 
+/* === Base Table === */
 .table {
     width: 100%;
     border-collapse: collapse;
     background-color: var(--color-white);
-    min-width: 600px;
+    margin: 0;
 }
 
+/* === Table Header === */
 .table thead {
     background-color: var(--color-primary);
     color: var(--color-white);
@@ -49,6 +56,7 @@
     white-space: nowrap;
 }
 
+/* === Table Body === */
 .table td {
     padding: 1rem 1.25rem;
     text-align: left;
@@ -68,28 +76,175 @@
     border-bottom: none;
 }
 
-.table-limit-columns {
-    max-width: 100%;
+/* === Table Actions === */
+.table-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
 }
 
-.table-limit-columns .table {
-    table-layout: auto;
+.table-actions .btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
 }
 
-.table-wrapper::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 30px;
-    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8));
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+/* === Responsive: Mobile (max-width: 767px) - CARD-BASED LAYOUT === */
+@media (max-width: 767px) {
+    .table-wrapper {
+        overflow-x: visible;
+        padding: 0;
+    }
+
+    .table {
+        display: block;
+        min-width: auto;
+    }
+
+    /* Ocultar header tradicional */
+    .table thead {
+        display: none;
+    }
+
+    /* Cada fila se convierte en una tarjeta */
+    .table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .table tbody tr {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid var(--color-gray-300);
+        border-radius: var(--border-radius);
+        background-color: var(--color-white);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .table tbody tr:hover {
+        background-color: var(--color-white);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    }
+
+    .table tbody tr:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Cada celda muestra su etiqueta de columna */
+    .table td {
+        padding: 0.5rem 0;
+        border-bottom: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    /* Usar data-label para mostrar nombre de columna */
+    .table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--color-primary);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        min-width: 110px;
+        flex-shrink: 0;
+    }
+
+    /* Si no hay data-label, ocultar el pseudo-elemento */
+    .table td:not([data-label])::before {
+        display: none;
+    }
+
+    /* Celdas de acciones se muestran en fila */
+    .table-actions {
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        justify-content: flex-start;
+    }
+
+    .table-actions .btn {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.75rem;
+        flex: 1;
+        min-width: 80px;
+    }
+
+    /* Para celdas de acciones que contienen el componente .table-actions */
+    .table td:has(.table-actions) {
+        display: block;
+        padding: 0.75rem 0;
+    }
+
+    .table td:has(.table-actions)::before {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
 }
 
-.table-wrapper.scrollable::after {
-    opacity: 1;
+/* === Responsive: Tablet (768px and up) === */
+@media (min-width: 768px) {
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        min-width: 600px;
+    }
+
+    .table th {
+        padding: 1rem 1.25rem;
+    }
+
+    .table td {
+        padding: 1rem 1.25rem;
+    }
+
+    /* En tablet/desktop, remover cualquier data-label ::before */
+    .table td::before {
+        display: none !important;
+    }
+
+    /* Asegurar que las acciones se muestren en fila */
+    .table-actions {
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+    }
+
+    .table-actions .btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        flex: 0 1 auto;
+        min-width: auto;
+    }
+}
+
+/* === Responsive: Small Mobile (max-width: 480px) === */
+@media (max-width: 480px) {
+    .table tbody tr {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .table td {
+        padding: 0.4rem 0;
+        font-size: 0.85rem;
+    }
+
+    .table td::before {
+        min-width: 90px;
+        font-size: 0.75rem;
+    }
+
+    .table-actions .btn {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.7rem;
+        min-width: 70px;
+    }
 }
 

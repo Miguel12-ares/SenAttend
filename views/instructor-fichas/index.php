@@ -12,6 +12,8 @@
     <div class="wrapper">
         <?php 
         $currentPage = 'instructor-fichas';
+        // Determinar pestaña activa desde querystring (por defecto 'instructores')
+        $activeTab = isset($_GET['tab']) && in_array($_GET['tab'], ['instructores','fichas','asignacion-rapida']) ? $_GET['tab'] : 'instructores';
         require __DIR__ . '/../components/header.php'; 
         ?>
 
@@ -36,20 +38,20 @@
                 <!-- Tabs de navegación -->
                 <div class="tabs-container">
                     <div class="tabs">
-                        <button class="tab-button active" data-tab="instructores">
+                        <button class="tab-button <?= $activeTab === 'instructores' ? 'active' : '' ?>" data-tab="instructores">
                             <i class="fas fa-chalkboard-teacher"></i> Por Instructor
                         </button>
-                        <button class="tab-button" data-tab="fichas">
+                        <button class="tab-button <?= $activeTab === 'fichas' ? 'active' : '' ?>" data-tab="fichas">
                             <i class="fas fa-clipboard-list"></i> Por Ficha
                         </button>
-                        <button class="tab-button" data-tab="asignacion-rapida">
+                        <button class="tab-button <?= $activeTab === 'asignacion-rapida' ? 'active' : '' ?>" data-tab="asignacion-rapida">
                             <i class="fas fa-bolt"></i> Asignación Rápida
                         </button>
                     </div>
                 </div>
 
                 <!-- Tab: Gestión por Instructor -->
-                <div class="tab-content active" id="tab-instructores">
+                <div class="tab-content <?= $activeTab === 'instructores' ? 'active' : '' ?>" id="tab-instructores">
                     <div class="section-header">
                         <h2><i class="fas fa-users"></i> Gestión por Instructor</h2>
                         <div class="search-box">
@@ -73,12 +75,12 @@
                             <tbody>
                                 <?php foreach ($instructores as $instructor): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($instructor['documento']) ?></td>
-                                    <td>
+                                    <td data-label="Documento"><?= htmlspecialchars($instructor['documento']) ?></td>
+                                    <td data-label="Nombre">
                                         <strong><?= htmlspecialchars($instructor['nombre']) ?></strong>
                                     </td>
-                                    <td><?= htmlspecialchars($instructor['email']) ?></td>
-                                    <td>
+                                    <td data-label="Email"><?= htmlspecialchars($instructor['email']) ?></td>
+                                    <td data-label="Fichas Asignadas">
                                         <span class="badge badge-info">
                                             <?= $instructor['total_fichas'] ?> fichas
                                         </span>
@@ -117,7 +119,7 @@
                 </div>
 
                 <!-- Tab: Gestión por Ficha -->
-                <div class="tab-content" id="tab-fichas">
+                <div class="tab-content <?= $activeTab === 'fichas' ? 'active' : '' ?>" id="tab-fichas">
                     <div class="section-header">
                         <h2><i class="fas fa-graduation-cap"></i> Gestión por Ficha</h2>
                         <div class="search-box">
@@ -158,7 +160,11 @@
                     <?php if ($pagination['totalPages'] > 1): ?>
                     <div class="pagination">
                         <?php for ($page = 1; $page <= $pagination['totalPages']; $page++): ?>
-                        <a href="/instructor-fichas?page=<?= $page ?>" 
+                        <?php
+                            // Mantener la pestaña activa en la paginación
+                            $query = http_build_query(array_merge($_GET, ['page' => $page, 'tab' => 'fichas']));
+                        ?>
+                        <a href="/instructor-fichas?<?= $query ?>" 
                            class="pagination-link <?= $page === $pagination['currentPage'] ? 'active' : '' ?>">
                             <?= $page ?>
                         </a>
@@ -168,7 +174,7 @@
                 </div>
 
                 <!-- Tab: Asignación Rápida -->
-                <div class="tab-content" id="tab-asignacion-rapida">
+                <div class="tab-content <?= $activeTab === 'asignacion-rapida' ? 'active' : '' ?>" id="tab-asignacion-rapida">
                     <div class="section-header">
                         <h2><i class="fas fa-bolt"></i> Asignación Rápida</h2>
                     </div>
@@ -313,6 +319,7 @@
     </div>
 
     <!-- Scripts -->
+    <script src="<?= asset('js/common/app.js') ?>"></script>
     <script src="<?= asset('js/modules/instructor-fichas.js') ?>"></script>
 </body>
 </html>

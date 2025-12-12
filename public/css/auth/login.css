@@ -1,40 +1,43 @@
 /**
- * Estilos específicos para la página de Login
+ * SENAttend - Página de Login Responsive
+ * Autenticación de usuarios con diseño adaptativo
  */
 
+/* === Login Page === */
 .login-page {
-    background: #ffffff;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
+/* === Login Container === */
 .login-page > .login-container {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem 20px;
-    background: #ffffff;
+    padding: 2rem 1rem;
     width: 100%;
-    max-width: 450px;
-    margin: 0 auto;
 }
 
+/* === Login Box === */
 .login-box {
     background: var(--color-white);
     padding: 2.5rem;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e9ecef;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--box-shadow-lg);
+    border: 1px solid var(--color-gray-300);
     width: 100%;
+    max-width: 450px;
 }
 
+/* === Login Header === */
 .login-header {
     text-align: center;
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
-    border-bottom: 2px solid #e9ecef;
+    border-bottom: 2px solid var(--color-gray-300);
 }
 
 .login-header h1 {
@@ -50,6 +53,7 @@
     margin: 0;
 }
 
+/* === Login Form === */
 .login-form {
     margin: 0;
 }
@@ -62,7 +66,7 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 600;
-    color: #333;
+    color: var(--color-gray-900);
     font-size: 0.95rem;
 }
 
@@ -70,9 +74,10 @@
     width: 100%;
     padding: 0.875rem 1rem;
     font-size: 1rem;
-    border: 2px solid #dee2e6;
-    border-radius: 8px;
-    transition: all 0.3s ease;
+    border: 2px solid var(--color-gray-300);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    font-family: var(--font-family);
 }
 
 .login-form .form-control:focus {
@@ -81,6 +86,7 @@
     box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
 }
 
+/* === Login Button === */
 .login-form .btn {
     display: flex;
     align-items: center;
@@ -90,20 +96,52 @@
     font-size: 1rem;
     font-weight: 600;
     margin-top: 0.5rem;
+    width: 100%;
 }
 
 .login-form .btn i {
     font-size: 1rem;
 }
 
-/* Responsive para login */
-@media (max-width: 768px) {
-    .login-page .login-container {
-        padding: 1.5rem 15px;
+/* === Login Footer Text === */
+.login-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-gray-300);
+    font-size: 0.9rem;
+}
+
+.login-footer a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.login-footer a:hover {
+    text-decoration: underline;
+}
+
+/* === Responsive: Tablet (768px and up) === */
+@media (min-width: 768px) {
+    .login-box {
+        padding: 3rem 2.5rem;
+    }
+
+    .login-header h1 {
+        font-size: 2.5rem;
+    }
+}
+
+/* === Responsive: Mobile (max-width: 767px) === */
+@media (max-width: 767px) {
+    .login-page > .login-container {
+        padding: 1.5rem;
     }
 
     .login-box {
-        padding: 2rem 1.5rem;
+        padding: 1.75rem;
+        border-radius: var(--border-radius);
     }
 
     .login-header {
@@ -113,6 +151,63 @@
 
     .login-header h1 {
         font-size: 2rem;
+    }
+
+    .login-header p {
+        font-size: 0.9rem;
+    }
+
+    .login-form .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .login-form .form-control {
+        font-size: 16px;
+        padding: 0.75rem 0.875rem;
+    }
+
+    .login-form .btn {
+        padding: 0.8rem 1.25rem;
+        font-size: 0.95rem;
+    }
+}
+
+/* === Responsive: Small Mobile (max-width: 480px) === */
+@media (max-width: 480px) {
+    .login-page > .login-container {
+        padding: 1rem;
+    }
+
+    .login-box {
+        padding: 1.5rem;
+    }
+
+    .login-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .login-header p {
+        font-size: 0.85rem;
+    }
+
+    .login-form .form-control {
+        font-size: 16px;
+        padding: 0.7rem 0.75rem;
+    }
+
+    .login-form .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .login-form .btn {
+        padding: 0.7rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .login-footer {
+        font-size: 0.85rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
     }
 }
 

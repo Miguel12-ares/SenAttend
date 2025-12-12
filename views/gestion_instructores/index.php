@@ -118,15 +118,15 @@ ob_start();
                     <tbody>
                     <?php foreach ($instructores as $instructor): ?>
                         <tr>
-                            <td>
+                            <td data-label="Documento">
                                 <strong><?= htmlspecialchars($instructor['documento']) ?></strong>
                             </td>
-                            <td>
+                            <td data-label="Nombre">
                                 <?= htmlspecialchars($instructor['nombre']) ?>
                             </td>
-                            <td><?= htmlspecialchars($instructor['email']) ?></td>
+                            <td data-label="Email"><?= htmlspecialchars($instructor['email']) ?></td>
 
-                            <td class="actions">
+                            <td data-label="Acciones" class="actions">
                                 <a href="/gestion-instructores/<?= $instructor['id'] ?>/editar" class="btn-action btn-edit" title="Editar">
                                     <i class="fas fa-pen-to-square"></i>
                                 </a>
@@ -185,24 +185,7 @@ ob_start();
     </div>
 </div>
 
-<script>
-function confirmarEliminar(id, nombre) {
-    document.getElementById('instructorName').textContent = nombre;
-    document.getElementById('deleteForm').action = `/gestion-instructores/${id}/eliminar`;
-    document.getElementById('deleteModal').style.display = 'flex';
-}
-
-function cerrarModalEliminar() {
-    document.getElementById('deleteModal').style.display = 'none';
-}
-
-// Cerrar modal al hacer click fuera
-document.getElementById('deleteModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        cerrarModalEliminar();
-    }
-});
-</script>
+<script src="<?= asset('js/modules/gestion-instructores.js') ?>"></script>
 
 
 <?php

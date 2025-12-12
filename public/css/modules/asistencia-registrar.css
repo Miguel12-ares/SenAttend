@@ -1,26 +1,28 @@
 /**
- * Estilos específicos para la vista de Registro de Asistencia
- * Sprint 4 - Registro Manual
+ * SENAttend - Registro de Asistencia Responsive
+ * Vista de registro manual de asistencia adaptativa
  */
 
+/* === Asistencia Form === */
 .asistencia-form {
     max-width: 1400px;
     margin: 0 auto;
+    padding: 0 1rem;
 }
 
-/* === Sección de Selector === */
+/* === Selector Section === */
 .selector-section {
-    background: white;
+    background: var(--color-white);
     padding: 1.5rem;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     margin-bottom: 2rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--box-shadow);
 }
 
 .form-row {
     display: flex;
     gap: 1rem;
-    align-items: end;
+    align-items: flex-end;
     flex-wrap: wrap;
 }
 
@@ -31,10 +33,10 @@
 
 /* === Tabla de Asistencia === */
 .tabla-asistencia {
-    background: white;
-    border-radius: 8px;
+    background: var(--color-white);
+    border-radius: var(--border-radius);
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--box-shadow);
 }
 
 .tabla-asistencia table {
@@ -44,24 +46,27 @@
 
 .tabla-asistencia th {
     background: var(--color-primary);
-    color: white;
+    color: var(--color-white);
     padding: 1rem;
     text-align: left;
+    font-weight: 600;
+    font-size: 0.95rem;
 }
 
 .tabla-asistencia td {
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-gray-200);
 }
 
 .tabla-asistencia tr:hover {
-    background: #f8f9fa;
+    background: var(--color-gray-100);
 }
 
-/* === Radio Buttons de Estado === */
+/* === Estado Radio Buttons === */
 .estado-radio {
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .estado-radio label {
@@ -69,6 +74,7 @@
     align-items: center;
     gap: 0.5rem;
     cursor: pointer;
+    user-select: none;
 }
 
 .estado-radio input[type="radio"] {
@@ -77,7 +83,7 @@
     cursor: pointer;
 }
 
-/* === Estadísticas === */
+/* === Estadísticas Grid === */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -86,73 +92,223 @@
 }
 
 .stat-box {
-    background: white;
-    padding: 1rem;
-    border-radius: 8px;
+    background: var(--color-white);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
     text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--box-shadow);
+    border-left: 4px solid var(--color-primary);
 }
 
 .stat-box h4 {
-    margin: 0 0 0.5rem;
-    color: #666;
+    margin: 0 0 0.75rem;
+    color: var(--color-gray-600);
     font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .stat-box .number {
     font-size: 2rem;
-    font-weight: bold;
+    font-weight: 700;
     color: var(--color-primary);
+    line-height: 1;
 }
 
-/* === Botones === */
+/* === Guardar Button === */
 .btn-guardar {
     background: var(--color-primary);
-    color: white;
+    color: var(--color-white);
     padding: 0.75rem 2rem;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     font-size: 1rem;
     cursor: pointer;
     font-weight: 600;
+    transition: var(--transition);
 }
 
-.btn-guardar:hover {
+.btn-guardar:hover:not(:disabled) {
     background: var(--color-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(57, 169, 0, 0.3);
 }
 
 .btn-guardar:disabled {
-    background: #ccc;
+    background: var(--color-gray-400);
     cursor: not-allowed;
+    opacity: 0.6;
 }
 
-/* === Estados === */
+/* === Empty State === */
 .empty-state {
     text-align: center;
-    padding: 3rem;
-    color: #666;
+    padding: 3rem 1.5rem;
+    color: var(--color-gray-600);
 }
 
-/* === Badges de Estado === */
+.empty-state p {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+/* === Estado Badges === */
 .badge-estado {
-    padding: 0.25rem 0.75rem;
+    display: inline-block;
+    padding: 0.35rem 0.85rem;
     border-radius: 12px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .badge-presente {
-    background: #28a745;
-    color: white;
+    background: var(--color-success);
+    color: var(--color-white);
 }
 
 .badge-ausente {
-    background: #dc3545;
-    color: white;
+    background: var(--color-danger);
+    color: var(--color-white);
 }
 
 .badge-tardanza {
-    background: #ffc107;
-    color: #000;
+    background: var(--color-warning);
+    color: var(--color-dark);
+}
+
+.badge-justificado {
+    background: var(--color-info);
+    color: var(--color-white);
+}
+
+/* === Responsive: Tablet (768px and up) === */
+@media (min-width: 768px) {
+    .selector-section {
+        padding: 1.75rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+}
+
+/* === Responsive: Mobile (max-width: 767px) === */
+@media (max-width: 767px) {
+    .asistencia-form {
+        padding: 0 0.75rem;
+    }
+
+    .selector-section {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-row {
+        gap: 0.75rem;
+        flex-direction: column;
+    }
+
+    .form-group-inline {
+        flex: 1 1 100%;
+        min-width: 100%;
+    }
+
+    .tabla-asistencia th {
+        padding: 0.75rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .tabla-asistencia td {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    .tabla-asistencia table {
+        font-size: 0.9rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-box {
+        padding: 1rem;
+    }
+
+    .stat-box h4 {
+        font-size: 0.8rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-box .number {
+        font-size: 1.5rem;
+    }
+
+    .estado-radio {
+        gap: 0.75rem;
+    }
+
+    .btn-guardar {
+        padding: 0.65rem 1.5rem;
+        font-size: 0.95rem;
+        width: 100%;
+    }
+
+    .empty-state {
+        padding: 2rem 1rem;
+    }
+}
+
+/* === Responsive: Small Mobile (max-width: 480px) === */
+@media (max-width: 480px) {
+    .selector-section {
+        padding: 0.75rem;
+    }
+
+    .tabla-asistencia th {
+        padding: 0.6rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    .tabla-asistencia td {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.85rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .stat-box {
+        padding: 0.75rem;
+    }
+
+    .stat-box .number {
+        font-size: 1.25rem;
+    }
+
+    .estado-radio {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .estado-radio label {
+        gap: 0.4rem;
+    }
+
+    .btn-guardar {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .badge-estado {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+    }
 }
 

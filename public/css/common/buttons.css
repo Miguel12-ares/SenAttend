@@ -1,7 +1,9 @@
 /**
- * SENAttend - Botones
+ * SENAttend - Botones Responsive
+ * Sistema de botones con variaciones de tamaño y estado
  */
 
+/* === Base Button Styles === */
 .btn {
     display: inline-block;
     padding: 0.75rem 1.5rem;
@@ -14,8 +16,12 @@
     cursor: pointer;
     transition: var(--transition);
     line-height: 1.5;
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
+/* === Primary Button === */
 .btn-primary {
     background-color: var(--color-primary);
     color: var(--color-white);
@@ -27,6 +33,11 @@
     box-shadow: 0 4px 12px rgba(57, 169, 0, 0.3);
 }
 
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* === Secondary Button === */
 .btn-secondary {
     background-color: var(--color-gray-600);
     color: var(--color-white);
@@ -36,13 +47,112 @@
     background-color: var(--color-gray-900);
 }
 
+/* === Danger Button === */
+.btn-danger {
+    background-color: var(--color-danger);
+    color: var(--color-white);
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* === Success Button === */
+.btn-success {
+    background-color: var(--color-success);
+    color: var(--color-white);
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+/* === Warning Button === */
+.btn-warning {
+    background-color: var(--color-warning);
+    color: var(--color-dark);
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+}
+
+/* === Info Button === */
+.btn-info {
+    background-color: var(--color-info);
+    color: var(--color-white);
+}
+
+.btn-info:hover {
+    background-color: #138496;
+}
+
+/* === Block Button === */
 .btn-block {
     width: 100%;
     display: block;
 }
 
+/* === Small Button === */
 .btn-sm {
     padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
+}
+
+/* === Large Button === */
+.btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+}
+
+/* === Button Icon === */
+.btn i {
+    margin-right: 0.5rem;
+}
+
+.btn i:last-child {
+    margin-right: 0;
+    margin-left: 0.5rem;
+}
+
+/* === Responsive: Mobile (max-width: 767px) === */
+@media (max-width: 767px) {
+    .btn {
+        font-size: 0.9rem;
+        padding: 0.65rem 1.25rem;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .btn-lg {
+        padding: 0.9rem 1.75rem;
+        font-size: 1rem;
+    }
+
+    .btn-block {
+        width: 100%;
+    }
+}
+
+/* === Responsive: Small Mobile (max-width: 480px) === */
+@media (max-width: 480px) {
+    .btn {
+        font-size: 0.85rem;
+        padding: 0.6rem 1rem;
+        min-width: auto;
+    }
+
+    .btn-sm {
+        padding: 0.35rem 0.7rem;
+        font-size: 0.75rem;
+    }
+
+    .btn-lg {
+        padding: 0.8rem 1.5rem;
+        font-size: 0.95rem;
+    }
 }
 

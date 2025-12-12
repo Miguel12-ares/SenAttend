@@ -101,17 +101,17 @@ ob_start();
                     <tbody>
                     <?php foreach ($fichas as $ficha): ?>
                         <tr>
-                            <td>
+                            <td data-label="Número Ficha">
                                 <strong><?= htmlspecialchars($ficha['numero_ficha']) ?></strong>
                             </td>
-                            <td><?= htmlspecialchars($ficha['nombre']) ?></td>
-                            <td>
+                            <td data-label="Nombre"><?= htmlspecialchars($ficha['nombre']) ?></td>
+                            <td data-label="Estado">
                                 <span class="badge badge-<?= $ficha['estado'] === 'activa' ? 'success' : 'secondary' ?>">
                                     <i class="fas fa-<?= $ficha['estado'] === 'activa' ? 'check-circle' : 'archive' ?>"></i>
                                     <?= ucfirst($ficha['estado']) ?>
                                 </span>
                             </td>
-                            <td>
+                            <td data-label="Aprendices">
                                 <span style="display: flex; align-items: center; gap: 0.5rem;">
                                     <i class="fas fa-users" style="color: var(--color-primary);"></i>
                                     <strong><?php 
@@ -120,7 +120,7 @@ ob_start();
                                     ?></strong>
                                 </span>
                             </td>
-                            <td class="actions">
+                            <td data-label="Acciones" class="actions">
                                 <a href="/fichas/<?= $ficha['id'] ?>" class="btn-action btn-view" title="Ver detalles">
                                     <i class="fas fa-eye"></i>
                                 </a>

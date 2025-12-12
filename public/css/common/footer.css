@@ -1,12 +1,33 @@
 /**
- * SENAttend - Footer
+ * SENAttend - Footer Responsive
+ * Pie de página con estilos institucionales SENA
  */
 
 .footer {
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
     color: var(--color-white);
-    padding: 1.5rem 0;
+    padding: 1.5rem 1rem;
     text-align: center;
     margin-top: auto;
+    font-size: 0.95rem;
+}
+
+.footer p {
+    margin: 0;
+}
+
+/* === Responsive: Tablet (768px and up) === */
+@media (min-width: 768px) {
+    .footer {
+        padding: 2rem 1.5rem;
+    }
+}
+
+/* === Responsive: Mobile (max-width: 767px) === */
+@media (max-width: 767px) {
+    .footer {
+        padding: 1rem 0.75rem;
+        font-size: 0.9rem;
+    }
 }
 

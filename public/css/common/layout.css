@@ -1,7 +1,18 @@
 /**
- * SENAttend - Layout
+ * SENAttend - Layout Responsive
+ * Mobile-first approach con breakpoints consistentes
+ * Breakpoints: 480px (mobile), 768px (tablet), 1024px (desktop), 1200px (large)
  */
 
+:root {
+    /* Breakpoints */
+    --breakpoint-mobile: 480px;
+    --breakpoint-tablet: 768px;
+    --breakpoint-desktop: 1024px;
+    --breakpoint-large: 1200px;
+}
+
+/* === Base Styles (Mobile First) === */
 .wrapper {
     min-height: 100vh;
     display: flex;
@@ -9,13 +20,41 @@
 }
 
 .container {
-    max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 1rem;
 }
 
 .main-content {
     flex: 1;
-    padding: 2rem 0;
+    padding: 1.5rem 0;
+}
+
+/* === Tablet (768px and up) === */
+@media (min-width: 768px) {
+    .container {
+        max-width: 720px;
+        padding: 0 1.5rem;
+    }
+
+    .main-content {
+        padding: 2rem 0;
+    }
+}
+
+/* === Desktop (1024px and up) === */
+@media (min-width: 1024px) {
+    .container {
+        max-width: 960px;
+        padding: 0 1.5rem;
+    }
+}
+
+/* === Large Desktop (1200px and up) === */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+        padding: 0 2rem;
+    }
 }
 

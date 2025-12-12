@@ -1,7 +1,8 @@
 /**
- * SENAttend - Controles de Tabla para Registro de Asistencia
+ * SENAttend - Controles de Tabla para Registro de Asistencia Responsive
  */
 
+/* === Table Controls === */
 .tabla-controles {
     display: flex;
     justify-content: space-between;
@@ -14,40 +15,97 @@
     gap: 1rem;
 }
 
+/* === Left Controls === */
 .controles-izquierda {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
-}
-
-.controles-derecha {
-    display: flex;
     align-items: center;
 }
 
-.contador-tiempo {
-    font-size: 0.9rem;
-    color: var(--sena-azul);
-    font-weight: 500;
+/* === Right Controls === */
+.controles-derecha {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
-@media (max-width: 768px) {
+/* === Time Counter === */
+.contador-tiempo {
+    font-size: 0.9rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* === Responsive: Tablet (768px and up) === */
+@media (min-width: 768px) {
+    .tabla-controles {
+        padding: 1.25rem;
+    }
+
+    .controles-izquierda {
+        gap: 0.75rem;
+    }
+}
+
+/* === Responsive: Mobile (max-width: 767px) === */
+@media (max-width: 767px) {
     .tabla-controles {
         flex-direction: column;
         align-items: stretch;
         text-align: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
     }
-    
+
     .controles-izquierda {
         justify-content: center;
-        margin-bottom: 1rem;
+        order: 1;
+    }
+
+    .controles-derecha {
+        justify-content: center;
+        order: 2;
+    }
+
+    .contador-tiempo {
+        font-size: 0.85rem;
+    }
+
+    .tabla-controles .btn {
+        flex: 1;
+        min-width: 80px;
     }
 }
 
+/* === Responsive: Small Mobile (max-width: 480px) === */
 @media (max-width: 480px) {
+    .tabla-controles {
+        padding: 0.6rem;
+        gap: 0.5rem;
+    }
+
+    .controles-izquierda {
+        width: 100%;
+        gap: 0.4rem;
+    }
+
+    .controles-derecha {
+        width: 100%;
+        justify-content: center;
+    }
+
     .controles-izquierda .btn-sm {
         flex: 1;
-        margin: 0.25rem;
+        min-width: 60px;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.7rem;
+    }
+
+    .contador-tiempo {
+        font-size: 0.8rem;
+        width: 100%;
     }
 }
 

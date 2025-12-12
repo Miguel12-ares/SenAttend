@@ -67,10 +67,10 @@
                                 <?php if (!empty($instructor['fichas_asignadas'])): ?>
                                     <?php foreach ($instructor['fichas_asignadas'] as $ficha): ?>
                                     <tr>
-                                        <td><?= htmlspecialchars($ficha['numero_ficha']) ?></td>
-                                        <td><?= htmlspecialchars($ficha['nombre']) ?></td>
-                                        <td><?= ucfirst($ficha['estado']) ?></td>
-                                        <td><?= htmlspecialchars($ficha['fecha_asignacion'] ?? '-') ?></td>
+                                        <td data-label="Número"><?= htmlspecialchars($ficha['numero_ficha']) ?></td>
+                                        <td data-label="Nombre"><?= htmlspecialchars($ficha['nombre']) ?></td>
+                                        <td data-label="Estado"><?= ucfirst($ficha['estado']) ?></td>
+                                        <td data-label="Asignada desde"><?= htmlspecialchars($ficha['fecha_asignacion'] ?? '-') ?></td>
                                     </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>

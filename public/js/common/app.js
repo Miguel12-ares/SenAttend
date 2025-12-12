@@ -96,7 +96,7 @@
 
             // Cerrar menú al hacer clic fuera
             document.addEventListener('click', function(e) {
-                if (window.innerWidth <= 768) {
+                if (window.innerWidth <= 767) {
                     if (!menuToggle.contains(e.target) && !mainNav.contains(e.target)) {
                         menuToggle.classList.remove('active');
                         mainNav.classList.remove('active');
@@ -106,7 +106,7 @@
 
             // Cerrar menú al cambiar de tamaño de ventana
             window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) {
+                if (window.innerWidth > 767) {
                     menuToggle.classList.remove('active');
                     mainNav.classList.remove('active');
                 }
@@ -125,7 +125,7 @@
 
             // Cerrar menú al hacer clic fuera
             document.addEventListener('click', function(e) {
-                if (window.innerWidth <= 768) {
+                if (window.innerWidth <= 767) {
                     if (!menuTogglePublic.contains(e.target) && !mainNavPublic.contains(e.target)) {
                         menuTogglePublic.classList.remove('active');
                         mainNavPublic.classList.remove('active');
@@ -135,7 +135,7 @@
 
             // Cerrar menú al cambiar de tamaño de ventana
             window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) {
+                if (window.innerWidth > 767) {
                     menuTogglePublic.classList.remove('active');
                     mainNavPublic.classList.remove('active');
                 }
@@ -145,10 +145,10 @@
             const navLinks = mainNavPublic.querySelectorAll('a');
             navLinks.forEach(function(link) {
                 link.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
-                        menuTogglePublic.classList.remove('active');
-                        mainNavPublic.classList.remove('active');
-                    }
+                    if (window.innerWidth <= 767) {
+                            menuTogglePublic.classList.remove('active');
+                            mainNavPublic.classList.remove('active');
+                        }
                 });
             });
         }

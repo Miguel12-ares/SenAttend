@@ -1,9 +1,11 @@
 /**
- * SENAttend - Formularios
+ * SENAttend - Formularios Responsive
+ * Estilos para inputs, selects, textareas y grupos de formulario
  */
 
+/* === Form Group === */
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-lg);
 }
 
 .form-group label {
@@ -11,8 +13,10 @@
     margin-bottom: 0.5rem;
     font-weight: 600;
     color: var(--color-gray-900);
+    font-size: 0.95rem;
 }
 
+/* === Form Control Base === */
 .form-control {
     width: 100%;
     padding: 0.75rem 1rem;
@@ -20,11 +24,139 @@
     border: 2px solid var(--color-gray-300);
     border-radius: var(--border-radius);
     transition: var(--transition);
+    font-family: var(--font-family);
+    background-color: var(--color-white);
 }
 
 .form-control:focus {
     outline: none;
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
+}
+
+.form-control:disabled {
+    background-color: var(--color-gray-100);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* === Textarea === */
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* === Select === */
+select.form-control {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 20px;
+    padding-right: 2.5rem;
+}
+
+/* === Form Row (Flexbox layout) === */
+.form-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.form-row > .form-group {
+    flex: 1;
+    min-width: 250px;
+}
+
+/* === Inline Form Group === */
+.form-group-inline {
+    flex: 1;
+    min-width: 250px;
+}
+
+/* === Form Text (Helper text) === */
+.form-text {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+}
+
+/* === Form Validation === */
+.form-control.is-invalid {
+    border-color: var(--color-danger);
+}
+
+.form-control.is-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.form-control.is-valid {
+    border-color: var(--color-success);
+}
+
+.form-control.is-valid:focus {
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+}
+
+.invalid-feedback {
+    display: block;
+    color: var(--color-danger);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+/* === Responsive: Tablet (768px and up) === */
+@media (min-width: 768px) {
+    .form-row > .form-group {
+        min-width: 200px;
+    }
+}
+
+/* === Responsive: Mobile (max-width: 767px) === */
+@media (max-width: 767px) {
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-control {
+        font-size: 16px;
+        padding: 0.65rem 0.85rem;
+    }
+
+    .form-row {
+        gap: 0.75rem;
+        flex-direction: column;
+    }
+
+    .form-row > .form-group {
+        flex: 1 1 100%;
+        min-width: 100%;
+    }
+
+    textarea.form-control {
+        min-height: 80px;
+    }
+}
+
+/* === Responsive: Small Mobile (max-width: 480px) === */
+@media (max-width: 480px) {
+    .form-control {
+        font-size: 16px;
+        padding: 0.6rem 0.75rem;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    textarea.form-control {
+        min-height: 70px;
+    }
+
+    .form-row {
+        gap: 0.5rem;
+    }
 }
 

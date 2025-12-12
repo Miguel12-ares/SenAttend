@@ -1,7 +1,10 @@
 /**
- * SENAttend - Header
+ * SENAttend - Header Responsive
+ * Sistema de navegación adaptativo para todos los dispositivos
+ * Mobile-first approach
  */
 
+/* === Header Base === */
 .header {
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
     color: var(--color-white);
@@ -12,97 +15,71 @@
     z-index: 1000;
 }
 
+/* === Header Content Layout === */
 .header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
+    max-width: var(--breakpoint-large);
+    margin: 0 auto;
+    padding: 0 1rem;
 }
 
+/* === Logo Section === */
 .header-left {
     display: flex;
     align-items: center;
     gap: 1rem;
+    flex: 0 1 auto;
 }
 
 .logo h1 {
-    font-size: 1.75rem;
+    font-size: 1.25rem;
     font-weight: 700;
     margin: 0;
+    white-space: nowrap;
 }
 
-/* Iconos de usuario en móvil - dentro del header-left */
-.nav-user-mobile {
-    display: none;
-    align-items: center;
-    gap: 0.5rem;
-    margin-left: auto;
-    padding-left: 0.75rem;
-}
-
-.nav-user-mobile .user-icon-link,
-.nav-user-mobile .logout-icon-link {
-    width: 36px;
-    height: 36px;
-    font-size: 1.5rem;
-}
-
-/* Menú Hamburguesa */
+/* === Hamburger Menu Button === */
 .menu-toggle {
-    display: none;
+    display: none; /* hidden by default, visible only on small screens */
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     gap: 5px;
     background: transparent;
     border: none;
     cursor: pointer;
-    padding: 8px;
+    padding: 0.5rem;
     z-index: 1001;
-    position: relative;
-    width: 30px;
-    height: 30px;
+    width: 36px;
+    height: 36px;
 }
 
 .menu-toggle span {
-    width: 25px;
-    height: 3px;
+    width: 22px;
+    height: 2.5px;
     background-color: var(--color-white);
-    border-radius: 2px;
-    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition);
     display: block;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    transform-origin: center;
-}
-
-.menu-toggle span:nth-child(1) {
-    top: 6px;
-}
-
-.menu-toggle span:nth-child(2) {
-    top: 13px;
-}
-
-.menu-toggle span:nth-child(3) {
-    top: 20px;
 }
 
 .menu-toggle.active span:nth-child(1) {
-    top: 13px;
-    transform: translateX(-50%) rotate(45deg);
+    transform: rotate(45deg) translateY(10px);
 }
 
 .menu-toggle.active span:nth-child(2) {
     opacity: 0;
-    transform: translateX(-50%) scaleX(0);
+    transform: scaleX(0);
 }
 
 .menu-toggle.active span:nth-child(3) {
-    top: 13px;
-    transform: translateX(-50%) rotate(-45deg);
+    transform: rotate(-45deg) translateY(-10px);
 }
 
+/* === Navigation === */
 .nav {
     display: flex;
     align-items: center;
@@ -131,6 +108,7 @@
     border-radius: var(--border-radius);
     transition: var(--transition);
     font-size: 0.95rem;
+    white-space: nowrap;
 }
 
 .nav-menu a:hover {
@@ -142,6 +120,7 @@
     font-weight: 600;
 }
 
+/* === User Navigation === */
 .nav-user {
     display: flex;
     align-items: center;
@@ -150,31 +129,23 @@
     border-left: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.user-icon-link {
-    display: flex;
+/* === User Icons (Mobile) === */
+.nav-user-mobile {
+    display: none;
     align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    color: var(--color-white);
-    font-size: 1.8rem;
-    text-decoration: none;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-    background-color: rgba(255, 255, 255, 0.1);
+    gap: 0.5rem;
+    margin-left: auto;
 }
 
-.user-icon-link:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    transform: scale(1.05);
-    color: var(--color-white);
+.nav-user-mobile .user-icon-link,
+.nav-user-mobile .logout-icon-link {
+    width: 36px;
+    height: 36px;
+    font-size: 1.25rem;
 }
 
-.user-icon-link i {
-    display: block;
-}
-
-.logout-icon-link {
+/* === User Icon Link === */
+.user-icon-link {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -184,20 +155,36 @@
     font-size: 1.5rem;
     text-decoration: none;
     border-radius: 50%;
-    transition: all 0.3s ease;
+    transition: var(--transition);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.user-icon-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+/* === Logout Icon Link === */
+.logout-icon-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: var(--color-white);
+    font-size: 1.25rem;
+    text-decoration: none;
+    border-radius: 50%;
+    transition: var(--transition);
     background-color: rgba(255, 255, 255, 0.1);
 }
 
 .logout-icon-link:hover {
-    background-color: rgba(255, 77, 77, 0.3);
+    background-color: rgba(220, 53, 69, 0.3);
     transform: scale(1.05);
-    color: var(--color-white);
 }
 
-.logout-icon-link i {
-    display: block;
-}
-
+/* === User Badge === */
 .user-badge {
     display: flex;
     flex-direction: column;
@@ -210,6 +197,7 @@
     font-weight: 500;
 }
 
+/* === Logout Button === */
 .btn-logout {
     display: flex;
     align-items: center;
@@ -222,53 +210,67 @@
 }
 
 .user-info {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
-@media (max-width: 768px) {
+/* === Responsive: Tablet (768px and up) === */
+@media (min-width: 768px) {
+    .header-content {
+        gap: 1.5rem;
+    }
+
+    .logo h1 {
+        font-size: 1.5rem;
+    }
+}
+
+/* === Responsive: Mobile (max-width: 767px) === */
+@media (max-width: 767px) {
     .menu-toggle {
         display: flex;
     }
 
     .header-content {
         flex-wrap: wrap;
+        padding: 0 0.75rem;
     }
 
     .header-left {
         flex: 1;
-        display: flex;
-        align-items: center;
         justify-content: space-between;
         min-width: 0;
+        width: 100%;
     }
 
     .logo h1 {
-        font-size: 1.5rem;
-        margin: 0;
+        font-size: 1.125rem;
     }
 
-    /* Mostrar iconos de usuario en móvil dentro del header-left */
+    /* Mostrar iconos en móvil */
     .nav-user-mobile {
         display: flex;
     }
 
-    /* Ocultar iconos de usuario en el nav en móvil */
+    /* Ocultar menú full en móvil */
     .nav .nav-user {
         display: none;
     }
 
+    /* Menú colapsable */
     .nav {
         flex-direction: column;
         width: 100%;
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease;
-        gap: 1rem;
+        transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        gap: 0.5rem;
+        order: 3;
     }
 
     .nav.active {
         max-height: 500px;
         padding-top: 1rem;
+        padding-bottom: 0.5rem;
         border-top: 1px solid rgba(255, 255, 255, 0.2);
     }
 
@@ -282,6 +284,7 @@
         width: 100%;
         padding: 0.75rem 1rem;
         justify-content: flex-start;
+        font-size: 0.9rem;
     }
 
     .user-badge {
@@ -292,9 +295,25 @@
         width: 100%;
         justify-content: center;
     }
+}
 
-    .btn-logout .btn-text {
-        display: inline;
+/* === Responsive: Small Mobile (max-width: 480px) === */
+@media (max-width: 480px) {
+    .header-content {
+        padding: 0 0.5rem;
+    }
+
+    .logo h1 {
+        font-size: 1rem;
+    }
+
+    .nav-menu a {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .user-name {
+        font-size: 0.8rem;
     }
 }
 

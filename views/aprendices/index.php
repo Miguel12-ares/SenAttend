@@ -128,20 +128,20 @@ ob_start();
                     <tbody>
                     <?php foreach ($aprendices as $aprendiz): ?>
                         <tr>
-                            <td>
+                            <td data-label="Documento">
                                 <strong><?= htmlspecialchars($aprendiz['documento']) ?></strong>
                             </td>
-                            <td>
+                            <td data-label="Nombre Completo">
                                 <?= htmlspecialchars($aprendiz['apellido'] . ', ' . $aprendiz['nombre']) ?>
                             </td>
-                            <td><?= htmlspecialchars($aprendiz['email'] ?? 'N/A') ?></td>
-                            <td>
+                            <td data-label="Correo Electrónico"><?= htmlspecialchars($aprendiz['email'] ?? 'N/A') ?></td>
+                            <td data-label="Estado">
                                 <span class="badge badge-<?= $aprendiz['estado'] === 'activo' ? 'success' : 'secondary' ?>">
                                     <i class="fas fa-<?= $aprendiz['estado'] === 'activo' ? 'check-circle' : 'archive' ?>"></i>
                                     <?= ucfirst($aprendiz['estado']) ?>
                                 </span>
                             </td>
-                            <td class="actions">
+                            <td data-label="Acciones" class="actions">
                                 <a href="/aprendices/<?= $aprendiz['id'] ?>" class="btn-action btn-view" title="Ver detalles">
                                     <i class="fas fa-eye"></i>
                                 </a>

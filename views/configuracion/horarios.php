@@ -230,50 +230,7 @@ ob_start();
     </div>
 </div>
 
-<script>
-// Validación del formulario
-(function() {
-    'use strict';
-    
-    const form = document.getElementById('formHorarios');
-    
-    form.addEventListener('submit', function(event) {
-        // Validar que hora_inicio < hora_fin
-        let valido = true;
-        const turnos = ['mañana', 'tarde', 'noche'];
-        
-        turnos.forEach(turno => {
-            const inicio = document.getElementById(turno + '_inicio').value;
-            const fin = document.getElementById(turno + '_fin').value;
-            const limite = document.getElementById(turno + '_limite').value;
-            
-            if (inicio >= fin) {
-                alert(`Error en turno ${turno.charAt(0).toUpperCase() + turno.slice(1)}: La hora de inicio debe ser menor que la hora de fin`);
-                valido = false;
-            }
-            
-            if (limite < inicio || limite > fin) {
-                alert(`Error en turno ${turno.charAt(0).toUpperCase() + turno.slice(1)}: La hora límite debe estar entre la hora de inicio y fin`);
-                valido = false;
-            }
-        });
-        
-        if (!form.checkValidity() || !valido) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-        
-        form.classList.add('was-validated');
-    }, false);
-})();
-
-// Confirmación antes de guardar
-document.getElementById('btnGuardar').addEventListener('click', function(e) {
-    if (!confirm('¿Está seguro de que desea actualizar la configuración de horarios? Los cambios se aplicarán inmediatamente.')) {
-        e.preventDefault();
-    }
-});
-</script>
+<script src="<?= asset('js/modules/configuracion-horarios.js') ?>"></script>
 
 
 <?php
